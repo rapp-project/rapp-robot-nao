@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+__author__ = "Maksym Figat"
+
 ########################
 # Imports
 ########################
@@ -24,18 +26,6 @@ import mmap
 # Needed for encoding a file
 import base64
 
-# Email sending
-import smtplib
-from email.mime.text import MIMEText
-from email import encoders
-from email.message import Message
-from email.mime.audio import MIMEAudio
-from email.mime.base import MIMEBase
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.Encoders import encode_base64
-
 #######################################
 
 # Global variables to store the EmailRecognition module instance and proxy to ALMemory Module
@@ -49,6 +39,11 @@ class Constants:
 	EVENT_SOUND = "SoundDetected"
 	NAO_IP = "nao.local"
 	PORT = 9559
+	# Testing on NAO
+	recorded_file_dest="/home/nao/recordings/microphones/rapp_email.ogg"
+
+	
+	
 
 #######################################
 
@@ -129,13 +124,7 @@ class EmailRecognitionModule(ALModule):
 		self.prox_sprec.setVocabulary(self.database, False)
 		self.prox_sprec.pause(False)
 		
-		# Testing on NAO
-		#self.filePath = "/home/nao/naoqi/lib/naoqi/data/"
-		# Testing on external computer
-		self.filePath = "/home/viki/catkin_ws/src/rapp_dynamic_agent/data/"
 		
-		self.recordedFileDest="/home/nao/recordings/microphones/rapp_email.ogg"
-		# Testing on computer
 		
 		self.recordedExtention="ogg"
 		# Sample rate of recorded audio (in Hz)
@@ -162,8 +151,8 @@ class EmailRecognitionModule(ALModule):
 			self.service_rgea = rospy.Service('rapp_get_email_address', GetEmailAddress, self.handle_rapp_get_email_address)
 			print "[Email server] - service - [rapp_record]"
 			self.service_rr = rospy.Service('rapp_record', Record, self.handle_rapp_record)
-			print "[Email server] - service - [rapp_send_email]"
-			self.service_rse = rospy.Service('rapp_send_email', SendEmail, self.handle_rapp_send_email)
+			'''print "[Email server] - service - [rapp_send_email]"
+			self.service_rse = rospy.Service('rapp_send_email', SendEmail, self.handle_rapp_send_email)'''
 		except Exception, ex:
 			print "[Email server] - Exception %s" % str(ex)
 		
@@ -288,7 +277,7 @@ class EmailRecognitionModule(ALModule):
 						
 			#self.prox_ar.stopMicrophonesRecording()
 			
-			self.prox_ar.startMicrophonesRecording(self.recordedFileDest, self.recordedExtention, self.sampleRate, self.channels )
+			self.prox_ar.startMicrophonesRecording(Constants.recorded_file_dest, self.recordedExtention, self.sampleRate, self.channels )
 			print  "[Send Email] - Start Microphones Recording"
 			print  "[Send Email] - Sleeps"
 			# Waiting recordingTime - it means that the message is being recorded recordingTime (seconds)
@@ -303,87 +292,6 @@ class EmailRecognitionModule(ALModule):
 			print "[Send Email] - Error: %s" % str(e)
 			self.prox_ar.stopMicrophonesRecording()
 			
-	# A method that i used to attach files (recorded audio and an Rapp image) 
-	# into a message and then sends it to defined email address.
-	def sendEmail(self):
-		try:
-			print "[Send Email] - Entered a method that sends an Rapp email"
-			smtp = 'smtp.gmail.com'
-			port = int('587')
-			
-			print "[Send Email] - Creating an object smtp.SMTP with smtp =",smtp, "and port=",port
-			server= smtplib.SMTP(smtp , port)
-
-			# Account data
-			email_user = 'rapp.nao@gmail.com'
-			email_pwd = 'rapp.nao1'
-			
-			if len(self.email_address)!=0:
-				email_to = self.email_address
-			else:
-				print "[Send Email] - An email address is not specified!"
-				return
-			
-			subject = "[RAPP message] - Nao sending "			
-			text_attach = "Sending an email from NAO"
-
-			audio_nao_attach = self.recordedFileDest
-			image="rapp.PNG"
-			image_nao_attach=self.filePath+image
-			attach=audio_nao_attach
-			
-			print "[Send Email] - path to audio attachments:", audio_nao_attach
-			print "[Send Email] - path to image attachments:", image_nao_attach
-			
-			print "[Send Email] - preparing content of a message"
-			msg = MIMEMultipart() 
-			msg['From'] = email_user
-			msg['To'] = email_to
-			msg['Subject'] = subject
-				
-			print "[Send Email] - Attaching files"
-			if attach:
-				
-				# Attaching to a message an Rapp recorded audio
-				print "[Send Email] - Attaching audio"
-				part = MIMEBase('application', 'octet-stream')
-				part.set_payload(open(attach, 'rb').read())
-				print "[Send Email] - Encoding audio"
-				encode_base64(part)
-				part.add_header('Content-Disposition','attachment; filename=%s"' % os.path.basename(attach))
-				msg.attach(part)
-				
-				# Attaching to a message an Rapp image
-				print "[Send Email] - Attaching image"
-				part = MIMEBase('application', 'octet-stream')
-				part.set_payload(open(image_nao_attach, 'rb').read())
-				print "[Send Email] - Encoding image"
-				encode_base64(part)
-				part.add_header('Content-Disposition','attachment; filename="%s"' % os.path.basename(image_nao_attach))
-				msg.attach(part)
-				
-				# Attaching to a message a body
-				part = MIMEText(text_attach, 'plain')
-				msg.attach(part)
-
-			if( port != "" ):
-				mailServer = smtplib.SMTP(smtp, port)
-			else:
-				mailServer = smtplib.SMTP(smtp)
-				
-			print "[Send Email] - logging into a server"
-			mailServer.ehlo()
-			mailServer.starttls()
-			mailServer.ehlo()
-			mailServer.login(email_user, email_pwd)
-			print "[Send Email] - sending an email"
-			mailServer.sendmail(email_user, email_to,msg.as_string())
-
-			mailServer.close()
-			return 1
-		except Exception, e:
-			print "[Send Email] - Exception %s"%str(e)
-	
 	#########################
 	
 	# Handling methods - methods that used handling services
@@ -406,7 +314,6 @@ class EmailRecognitionModule(ALModule):
 		try:
 			print "[Email server] - Subscribing events"
 			self.subscribe()
-			#self.prox_sprec.unsubscribe("Test_SpeechDetected")
 			while self.isEmailFound == False and self.stopListening == False:
 				print "[Email server] - An email address was not found!"
 				print "[Email server] - Say a special word from database!"
@@ -431,16 +338,16 @@ class EmailRecognitionModule(ALModule):
 		self.recordingTime = req.recordingTime
 		self.prox_tts.say("Nao records : ")
 		self.recordEmail()
-		reponse = self.recordedFileDest
+		reponse = Constants.recorded_file_dest
 		return RecordResponse(reponse)
 		
-	def handle_rapp_send_email(self,req):
+	'''def handle_rapp_send_email(self,req):
 		print "[Email server]: - Nao sends an email to %s" %req.emailAddress
 		to_say = "Nao sends an email to %s" %req.emailAddress
-		self.prox_tts.say(to_say)
-		self.recordedFileDest = req.recordedFileDest
+		#self.prox_tts.say(to_say)
+		#Constants.recorded_file_dest = req.recordedFileDest
 		isEmailSend = self.sendEmail()
-		return SendEmailResponse(isEmailSend)
+		return SendEmailResponse(isEmailSend)'''
 
 # Testng SIGINT signal handler
 def signal_handler(signal, frame):
@@ -462,8 +369,6 @@ def main():
 		myBroker = ALBroker("myBroker", "0.0.0.0", 0, Constants.NAO_IP,Constants.PORT)
 		global EmailRecognition
 		EmailRecognition = EmailRecognitionModule("EmailRecognition")
-		'''while True:
-			time.sleep(1)'''
 		rospy.spin()
 	
 	except AttributeError:

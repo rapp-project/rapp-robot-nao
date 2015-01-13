@@ -1,0 +1,7 @@
+<launch>
+
+  <!-- Rapp dynamic agent testing dynamic agent functionality -->
+  
+  <node pkg="rapp_dynamic_agent" name="adynamic_email_client" type="adynamic_email_client.py" output="screen"/>
+
+</launch>

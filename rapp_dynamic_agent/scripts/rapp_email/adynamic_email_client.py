@@ -206,14 +206,14 @@ def main():
 	client = AcoreEmailClient()
 	
 	# Testing [/rapp_hello_world] service
-	print "[Email client] - Testing [/rapp_hello_world] service"
-	response_hello = client.say(xy)
-	print "[Email client] - request:\t[%s]\n>[Email client] - response:\t[%s]"%(xy,response_hello)
+	#print "[Email client] - Testing [/rapp_hello_world] service"
+	#response_hello = client.say(xy)
+	#print "[Email client] - request:\t[%s]\n>[Email client] - response:\t[%s]"%(xy,response_hello)
 	
 	# Testing [/rapp_get_email_address] service"
-	print "[Email client] - Testing [/rapp_get_email_address] service"
-	response_email = client.getEmailAddress(Constants.dictionary_path)
-	print "[Email client] - path to dictionary:\t[%s]\n>[Email client] - emailAddress:\t[ %s ]"%(Constants.dictionary_path,response_email)
+	#print "[Email client] - Testing [/rapp_get_email_address] service"
+	#response_email = client.getEmailAddress(Constants.dictionary_path)
+	#print "[Email client] - path to dictionary:\t[%s]\n>[Email client] - emailAddress:\t[ %s ]"%(Constants.dictionary_path,response_email)
 	
 	# Testing [/rapp_record] service
 	print "[Email client] - Testing [/rapp_record] service"
@@ -222,8 +222,8 @@ def main():
 	
 	# Testing send_email funtion that communicates with external service (smtp.gmail.com)
 	# Just for testing send functionality - uncomment for testing email with file attached localy
-	#response_email = "maksym.figat44@gmail.com"
-	#response_record = Constants.test_recorded_path
+	response_email = "maksym.figat44@gmail.com"
+	response_record = Constants.test_recorded_path
 	print "[Email client] - Sending an email"
 	client.say("Sending an email")
 	client.sendEmail(response_email)
