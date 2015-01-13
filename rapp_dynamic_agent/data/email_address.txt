@@ -1,7 +1,5 @@
-example:example@example.com
-nao:nao@nao
-rapp:rapp@rapp
-
-# Where example, nao and rapp are words that are detected by nao.
-# And after a symbol ":" is given an email address.
-# Remember to set these words as a list of words that robot will recognize
+Max:maksym.figat44@gmail.com
+John:methill@gmail.com
+Rapp:rapp@rapp.com
+Nao:rapp.nao@gmail.com
+Alarm:help@rescueteam.com
