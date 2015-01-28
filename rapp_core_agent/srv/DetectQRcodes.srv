@@ -1,0 +1,8 @@
+string request
+---
+bool isQRcodeFound
+uint32 numberOfQRcodes
+Matrix4x4 cameraToQRcode
+Matrix4x4 robotToQRcode
+string[] message
+#float32[] cornersMatrix
