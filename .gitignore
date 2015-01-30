@@ -26,3 +26,4 @@
 *.exe
 *.out
 *.app
+/rapp_core_agent/*.txt~
