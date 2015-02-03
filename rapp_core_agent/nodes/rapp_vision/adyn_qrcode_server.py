@@ -91,7 +91,7 @@ class QRdetector_class:
 	frame_temp = np.float32([[0],[0]])
 	QRmessage=[]
 	symbol_location=[]
-	symbol_masscenter_location=[]
+	#symbol_masscenter_location=[]
 	#gradient=[]#nachylenie kodu - do orientacji
 	#QRcode_height=[]
 	#QRcode_width=[]
@@ -147,7 +147,7 @@ class QRdetector_class:
 			## empty buffers
 			QRdetector_class.QRmessage=[]
 			QRdetector_class.symbol_location=[]
-			QRdetector_class.symbol_masscenter_location=[]
+			#QRdetector_class.symbol_masscenter_location=[]
 			#QRdetector_class.gradient=[]
 			#QRdetector_class.QRcode_height=[]
 			#QRdetector_class.QRcode_width=[]
@@ -220,7 +220,7 @@ class QRdetector_class:
 				robotToCamera = almath.Transform(transformList)
 				
 				rotM_cam = cv2.Rodrigues(rvecs_new)[0]
-				QRdetector_class.rotMat.append(rotM_cam)#for object projection
+	#			QRdetector_class.rotMat.append(rotM_cam)#for object projection
 				#print rotM_cam
 				y_rot = math.asin(rotM_cam[2][0]) 
 				x_rot = math.acos(rotM_cam[2][2]/math.cos(y_rot))    
@@ -232,7 +232,7 @@ class QRdetector_class:
 				#print 'Euler angles:'
 				#print x_rot_angle, y_rot_angle, z_rot_angle
 				## Euler angles:
-				QRdetector_class.eulerAngles.append(np.float32([x_rot,y_rot,z_rot]))
+	#			QRdetector_class.eulerAngles.append(np.float32([x_rot,y_rot,z_rot]))
 				
 				
 				#cameraToLandmarkTransform
@@ -272,16 +272,16 @@ class QRdetector_class:
 				#print '\033[1;32mMessage: %s\n \033[1;m'%QRdetector_class.QRmessage[len(QRdetector_class.QRmessage)-1]#-1
 
 				## Computing center of QR-code	
-				Moment = cv2.moments(contour)
-				cx = int(Moment['m10']/Moment['m00'])
-				cy = int(Moment['m01']/Moment['m00'])
-				mc_point = np.asarray([cx,cy])
+		#		Moment = cv2.moments(contour)
+		#		cx = int(Moment['m10']/Moment['m00'])
+		#		cy = int(Moment['m01']/Moment['m00'])
+		#		mc_point = np.asarray([cx,cy])
 				
 				### scale computation for object projection (for right size of object computation)
-				temp_x=(math.sqrt(pow(symbol.location[0][0]-symbol.location[3][0],2)+pow(symbol.location[0][1]-symbol.location[3][1],2))+math.sqrt(pow(symbol.location[1][0]-symbol.location[2][0],2)+pow(symbol.location[1][1]-symbol.location[2][1],2)))/(2*QRdetector_class.landmarkTheoreticalSize)#in meters
-				temp_y=(math.sqrt(pow(symbol.location[0][0]-symbol.location[1][0],2)+pow(symbol.location[0][1]-symbol.location[1][1],2))+math.sqrt(pow(symbol.location[2][0]-symbol.location[3][0],2)+pow(symbol.location[2][1]-symbol.location[3][1],2)))/(2*QRdetector_class.landmarkTheoreticalSize)#in meters
-				temp_mat=np.float32([temp_x,temp_y])
-				QRdetector_class.scale.append(temp_mat)## TEST
+		#		temp_x=(math.sqrt(pow(symbol.location[0][0]-symbol.location[3][0],2)+pow(symbol.location[0][1]-symbol.location[3][1],2))+math.sqrt(pow(symbol.location[1][0]-symbol.location[2][0],2)+pow(symbol.location[1][1]-symbol.location[2][1],2)))/(2*QRdetector_class.landmarkTheoreticalSize)#in meters
+		#		temp_y=(math.sqrt(pow(symbol.location[0][0]-symbol.location[1][0],2)+pow(symbol.location[0][1]-symbol.location[1][1],2))+math.sqrt(pow(symbol.location[2][0]-symbol.location[3][0],2)+pow(symbol.location[2][1]-symbol.location[3][1],2)))/(2*QRdetector_class.landmarkTheoreticalSize)#in meters
+		#		temp_mat=np.float32([temp_x,temp_y])
+		#		QRdetector_class.scale.append(temp_mat)## scale
 				
 				
 				'''	## marking of code center
@@ -294,7 +294,7 @@ class QRdetector_class:
 				'''
 			
 				QRdetector_class.detected += 1
-				QRdetector_class.symbol_masscenter_location.append(mc_point)
+				#QRdetector_class.symbol_masscenter_location.append(mc_point)
 				QRdetector_class.symbol_location.append(corners);
 										
 		except Exception, e:
@@ -352,6 +352,14 @@ class QRcodeDetectionModule(ALModule):
 		if self.prox_camera is None:
 			rospy.logerr("[QRcode server] - Could not get a proxy to ALVideoDevice")
 			exit(1)
+
+		## Camera parameters
+		self.resolution = 3	## k4VGA;
+		self.colorSpace = 13	## kBGRColorSpace
+		self.fps = 30;
+		## Subscribe to the camera
+		self.nameId = self.prox_camera.subscribe("python_camera_client+", self.resolution, self.colorSpace, self.fps);
+
 		
 	
 	# Initialization of ROS services
@@ -391,22 +399,16 @@ class QRcodeDetectionModule(ALModule):
 		try:
 		#	# Get Frame from Camera
 			### Camera initialization
-			self.resolution = 3	## k4VGA;
-			self.colorSpace = 13	## kBGRColorSpace
-			self.fps = 15;
+#			self.resolution = 3	## k4VGA;
+#			self.colorSpace = 13	## kBGRColorSpace
+#			self.fps = 15;
 			#global nameId
-			self.nameId = self.prox_camera.subscribe("python_camera_client+", self.resolution, self.colorSpace, self.fps);
+#			self.nameId = self.prox_camera.subscribe("python_camera_client+", self.resolution, self.colorSpace, self.fps);
 			## ZBar ImageScanner initialization
 			#global set_zbar
 			self.set_zbar = zbar.ImageScanner()
 
 			self.naoImage = self.prox_camera.getImageRemote(self.nameId) #frame from the camera
-			#imageWidth = naoImage[0]
-			#imageHeight = naoImage[1]
-			#if (naoImage[6]!=None):
-			#	frame_img=Image.fromstring("RGB", (imageWidth, imageHeight), naoImage[6])
-			#else :
-			#	frame_img=None
 			while self.naoImage[6]==None:
 				self.naoImage = self.prox_camera.getImageRemote(self.nameId) # for avoidance of the black image (empty frame)
 			
@@ -434,7 +436,7 @@ class QRcodeDetectionModule(ALModule):
 			
 		#camera unsubscribe			
 		self.prox_camera.releaseImage(self.nameId);
-		self.prox_camera.unsubscribe(self.nameId);
+#		self.prox_camera.unsubscribe(self.nameId);
 		
 		# Conversion from 'list' to 'array' : np.asarray(list)
 		# Conversion from 'list' to 'tuple' : tuple(list)
@@ -461,25 +463,30 @@ def main():
 		signal.signal(signal.SIGINT, signal_handler)
 		print "[QRcode server] - Press Ctrl + C to exit system correctly"	
 		myBroker = ALBroker("myBroker", "0.0.0.0", 0, Constants.NAO_IP,Constants.PORT)
-		global PhotoCapture
 		QRcodeDetection = QRcodeDetectionModule("QRcodeDetection")
 		rospy.spin()
 	
 	except AttributeError:
 		print "[QRcode server] - QRcodeDetection - AttributeError"
 		#QRcodeDetection.unsubscribe()
+		#unsubscribe from camera
+		self.prox_camera.unsubscribe(self.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 	
 	except (KeyboardInterrupt, SystemExit):
 		print "[QRcode server] - SystemExit Exception caught"
 		#QRcodeDetection.unsubscribe()
+		#unsubscribe from camera
+		self.prox_camera.unsubscribe(self.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 	
 	except Exception, ex:
 		print "[QRcode server] - Exception caught %s" % str(ex)
 		#QRcodeDetection.unsubscribe()
+		#unsubscribe from camera
+		self.prox_camera.unsubscribe(self.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 	
