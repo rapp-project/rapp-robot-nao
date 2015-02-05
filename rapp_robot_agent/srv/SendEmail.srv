@@ -1,0 +1,4 @@
+string emailAddress
+string recordedFileDest
+---
+byte isSend
