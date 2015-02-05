@@ -1,0 +1,7 @@
+<launch>
+
+  <!-- Rapp core agent nodes -->
+  
+  <node pkg="rapp_core_agent" name="acore_camera_server" type="acore_camera_server.py" output="screen"/>
+
+</launch>

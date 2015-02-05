@@ -20,11 +20,11 @@ import smtplib
 from naoqi import (ALProxy, ALBroker, ALModule)
 
 # Importing OpenCV library
-import cv #cv2.cv as cv #Use OpenCV-2.4.3
+#import cv #cv2.cv as cv #Use OpenCV-2.4.3
 import cv2
 
 # Importing ZBar library used for QR-code recognition
-import zbar
+#import zbar
 
 # Importing others
 import numpy as np
@@ -39,10 +39,10 @@ from sensor_msgs.msg import Image as Image_ros
 from cv_bridge import CvBridge, CvBridgeError
 
 # Used for finding a text in a file
-import mmap
+#import mmap
 
 # Needed for encoding a file
-import base64
+#import base64
 
 #######################################
 
@@ -105,9 +105,9 @@ class CameraModule(ALModule):
 		## Camera parameters
 		self.resolution = 3	## k4VGA;
 		self.colorSpace = 13	## kBGRColorSpace
-		self.fps = 30;
+		self.fps = 15;
 		## Subscribe to the camera
-		self.nameId = self.prox_camera.subscribe("python_camera_", self.resolution, self.colorSpace, self.fps);
+		self.nameId = self.prox_camera.subscribe("python_camera+++-", self.resolution, self.colorSpace, self.fps);
 	
 	# Initialization of ROS services
 	def openServices(self):
@@ -135,11 +135,11 @@ class CameraModule(ALModule):
 	def handle_rapp_get_image(self,req):
 		print "[Camera server receives]: \t%s\n" % (req.request)
 		# Get Frame from Camera
-		self.resolution = 3	## k4VGA;
-		self.colorSpace = 13	## kBGRColorSpace
-		self.fps = 15;
+		#self.resolution = 3	## k4VGA;
+		#self.colorSpace = 13	## kBGRColorSpace
+		#self.fps = 15;
 			#global nameId
-		self.nameId = self.prox_camera.subscribe("python_camera_client++", self.resolution, self.colorSpace, self.fps);
+		#self.nameId = self.prox_camera.subscribe("python_camera_client++", self.resolution, self.colorSpace, self.fps);
 
 		try:
 			self.naoImage = self.prox_camera.getImageRemote(self.nameId)
@@ -148,12 +148,14 @@ class CameraModule(ALModule):
 
 			if self.naoImage[6]!=None:
 				self.frame_img=Image.fromstring("RGB", (self.naoImage[0], self.naoImage[1]), self.naoImage[6]) ## tuple
-				
+								
 				self.frame_img= np.array(self.frame_img)##For NAO #conversion from tuple to numpy array
+				#print self.frame_img.shape[2]
 				
 				#self.frame_img= cv2.cv.fromarray(self.frame_img[:,:])##from numpy array to CvMat
 				
-				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img)#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
+				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"rgb8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
+				#self.cv_image = self.bridge.imgmsg_to_cv2(self.image_message,"rgb8")
 		except AttributeError, ex:
 			print "[Camera server] - Exception AtrributeError = %s" % str(ex)
 		except Exception, ex:
