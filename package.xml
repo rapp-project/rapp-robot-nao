@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>rapp_core_agent</name>
+  <name>rapp_robot_agent</name>
   <version>0.0.0</version>
   <description>The rapp core agent package with core functionality</description>
 
