@@ -7,6 +7,8 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
 	message_generation
 	cv_bridge
+	sensor_msgs
+	image_transport
 )
 
 
@@ -17,8 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
    Record.srv
    SendEmail.srv
    DetectQRcodes.srv
-   GetImage.srv
-   PhotoCapture.srv
+	GetImage.srv
+	PhotoCapture.srv
  )
 
  add_message_files(
@@ -30,6 +32,7 @@ find_package(catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    std_msgs
+	sensor_msgs
  )
 
 catkin_package(

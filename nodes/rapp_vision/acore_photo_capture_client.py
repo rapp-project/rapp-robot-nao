@@ -8,7 +8,7 @@ import rospy
 import rosparam
 
 # Importing services
-from rapp_core_agent.srv import *
+from rapp_robot_agent.srv import *
 
 # Needed for encoding a file
 import base64

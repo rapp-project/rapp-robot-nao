@@ -7,7 +7,8 @@ __author__ = "Maksym Figat"
 ########################
 
 # Importing services
-from rapp_core_agent.srv import *
+#from rapp_core_agent.srv import *
+from rapp_robot_agent.srv import *
 
 # Importing core system functionality
 import signal
