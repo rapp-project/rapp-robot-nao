@@ -1,7 +1,0 @@
-string imageName
-uint32 cameraImageResolution
-uint32 cameraId
-string cameraImageFormat
----
-byte isCaptured
-string imagePath

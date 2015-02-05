@@ -1,7 +1,0 @@
-<launch>
-
-  <!-- Rapp core agent testing nodes -->
-  
-  <node pkg="rapp_robot_agent" name="acore_camera_client" type="acore_camera_client.py" output="screen"/>
-
-</launch>
