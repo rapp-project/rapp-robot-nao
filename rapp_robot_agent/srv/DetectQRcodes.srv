@@ -1,4 +1,5 @@
-string request
+#string request
+sensor_msgs/Image request
 ---
 bool isQRcodeFound
 uint32 numberOfQRcodes
