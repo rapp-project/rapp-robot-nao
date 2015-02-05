@@ -2,6 +2,6 @@
 
   <!-- Rapp dynamic agent testing dynamic agent functionality -->
   
-  <node pkg="rapp_dynamic_agent" name="adyn_follow_marker_client" type="adyn_follow_marker_client.py" output="screen"/>
+  <node pkg="rapp_robot_agent" name="adyn_follow_marker_client" type="adyn_follow_marker_client.py" output="screen"/>
 
 </launch>
