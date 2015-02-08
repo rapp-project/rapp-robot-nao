@@ -19,9 +19,10 @@ find_package(catkin REQUIRED COMPONENTS
    Record.srv
    SendEmail.srv
    DetectQRcodes.srv
-   GetImage.srv
-   PhotoCapture.srv
-   FollowMarker.srv
+	DetectHazardByQRcodes.srv
+	GetImage.srv
+	PhotoCapture.srv
+	FollowMarker.srv
  )
 
  add_message_files(
