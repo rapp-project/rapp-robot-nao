@@ -11,13 +11,32 @@ import rosparam
 import numpy
 
 # Importing services
-from rapp_core_agent.srv import *
+from rapp_robot_agent.srv import *
 
 # Needed for encoding a file
 import base64
 
+class AcoreCameraClient():
+	
+	def __init__(self):
+		print "[Camera client] - Acore camera Client initialization"
+	
 
-class AcoreQRcodeClient():
+	# Handling a communication with service "rapp_get_image"
+	def getCameraFrame(self,request):
+		print "[Camera client] - Waits for server"
+		rospy.wait_for_service('rapp_get_image')
+		try:
+			print "[Camera client] - getCameraFrame"
+			getImage = rospy.ServiceProxy('rapp_get_image', GetImage)
+			resp_get_image = getImage(request) ## <--- tu wywala
+			print "[Camera client] - Image captured"
+			return resp_get_image
+		except rospy.ServiceException, e:
+			print "[Camera client] - Calling service [/rapp_get_image] Failed: %s"%e
+			exit(1)
+
+class AdynQRcodeClient():
 	
 	def __init__(self):
 		print "[QRcode client] - Acore QRcode Client initialization"
@@ -33,6 +52,19 @@ class AcoreQRcodeClient():
 			
 		except rospy.ServiceException, e:
 			print "[DetectQRcodes client] - Calling service [/rapp_detect_qrcodes] Failed: %s"%e
+			exit(1)
+
+	def detectHazardQRcodes(self,request1,request2):
+		print "[DetectHazardQRcodes client] - Waits for server"
+		rospy.wait_for_service('rapp_detect_hazard_with_qrcodes')
+		try:
+			detect_hazard_qrcodes = rospy.ServiceProxy('rapp_detect_hazard_with_qrcodes', DetectHazardByQRcodes)
+			resp_detect_hazard_qrcodes = detect_hazard_qrcodes(request1,request2)
+
+			return resp_detect_hazard_qrcodes
+			
+		except rospy.ServiceException, e:
+			print "[DetectHazardQRcodes client] - Calling service [/rapp_detect_qrcodes] Failed: %s"%e
 			exit(1)
 
 
@@ -52,16 +84,24 @@ def main():
 	rospy.set_param("say_param", say_param)
 	xy=rospy.get_param("say_param")	
 	
+	print "[Camera client] - Requesting %s" % (xy)
+	client_camera = AcoreCameraClient()
+	
+	# Testing [/rapp_get_image] service
+	print "[Camera client] - Testing [/rapp_get_image] service"
+	response_image = client_camera.getCameraFrame("top")
+	while response_image.frame==None:
+		print "None"
 	print "[QRcode client] - Requesting %s" % (xy)
-	client = AcoreQRcodeClient()
+	client_qrcode = AdynQRcodeClient()
 	
 	
 	# Testing [/rapp_detect_qrcodes] service
 	print "[QRcode client] - Testing [/rapp_detect_qrcodes] service"
-	response_detectQRcodes = client.detectQRcodes("localize")
+	response_detectQRcodes = client_qrcode.detectQRcodes(response_image.frame)#"localize")
 	print "[QRcode client] - Number of detected QRcodes:\t%s\n>"%response_detectQRcodes.numberOfQRcodes
 	print"____________________\n"
-	for l in range(0,response_detectQRcodes.numberOfQRcodes):
+	'''for l in range(0,response_detectQRcodes.numberOfQRcodes):
 		print "[QRcode client] - QRcode in the CAMERA coordinate system:\n---%d---\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n-------"%(l+1, response_detectQRcodes.cameraToQRcode.r11[l], response_detectQRcodes.cameraToQRcode.r12[l], response_detectQRcodes.cameraToQRcode.r13[l], response_detectQRcodes.cameraToQRcode.r14[l],
 response_detectQRcodes.cameraToQRcode.r21[l],
 response_detectQRcodes.cameraToQRcode.r22[l],
@@ -91,8 +131,16 @@ response_detectQRcodes.robotToQRcode.r42[l],
 response_detectQRcodes.robotToQRcode.r43[l],
 response_detectQRcodes.robotToQRcode.r44[l])
 	print"____________________\n"	
+	'''
 	print "[QRcode client] - QRcode messages:\t%s "%(response_detectQRcodes.message)
 	
+	## HAZARD detection
+	if response_detectQRcodes.numberOfQRcodes>=2:
+		response_detectHazardQRcodes = client_qrcode.detectHazardQRcodes(response_detectQRcodes.robotToQRcode, response_detectQRcodes.message)
+		print "[QRcode Hazard client] - Open door is detected:\t%s"%(response_detectHazardQRcodes.isHazardFound)
+		print "[QRcode Hazard client] - \t'%s' is open"%(response_detectHazardQRcodes.message)
+
+
 	return
 
 
