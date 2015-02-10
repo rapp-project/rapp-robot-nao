@@ -33,6 +33,7 @@ import Image
 import time #for time measurement
 import almath #Aldebaran's library for matrices operation
 
+
 # Used for finding a text in a file
 import mmap
 
@@ -73,7 +74,7 @@ class Matrix4x4Message:
 			self.r21.append(table[k][1][0]);self.r22.append(table[k][1][1]);self.r23.append(table[k][1][2]);self.r24.append(table[k][1][3])
 			self.r31.append(table[k][2][0]);self.r32.append(table[k][2][1]);self.r33.append(table[k][2][2]);self.r34.append(table[k][2][3])
 			self.r41.append(table[k][3][0]);self.r42.append(table[k][3][1]);self.r43.append(table[k][3][2]);self.r44.append(table[k][3][3])
-		return 
+		return
 
 def rot_matrix_to_euler(R):
     y_rot = math.asin(R[x_rot_2][0]) 
@@ -218,65 +219,40 @@ class QRdetector_class:
 				
 				## Transition from image plane to camera plane
 				found,rvecs_new,tvecs_new = cv2.solvePnP(objectPoints, corners, Constants.cameraMatrix, distCoeffs)
-				QRdetector_class.rvecs.append(rvecs_new);## rotation vector
-				QRdetector_class.tvecs.append(tvecs_new);## transposition vector
-							
-				### Get current camera position in NAO space.
-				motionProxy = ALProxy("ALMotion", QRdetector_class.NAO_IP, QRdetector_class.NAO_PORT)
-				transform = motionProxy.getTransform(QRdetector_class.currentCamera, 2, True)
-				transformList = almath.vectorFloat(transform)
-				robotToCamera = almath.Transform(transformList)
+				#QRdetector_class.rvecs.append(rvecs_new);## rotation vector
+				#QRdetector_class.tvecs.append(tvecs_new);## transposition vector
 				
 				rotM_cam = cv2.Rodrigues(rvecs_new)[0]
-				QRdetector_class.rotMat.append(rotM_cam)#for object projection
+				#QRdetector_class.rotMat.append(rotM_cam)#for object projection
 				#print rotM_cam
-				y_rot = math.asin(rotM_cam[2][0]) 
-				x_rot = math.acos(rotM_cam[2][2]/math.cos(y_rot))    
-				z_rot = math.acos(rotM_cam[0][0]/math.cos(y_rot))
-				
-				y_rot_angle = y_rot *(180/math.pi)
-				x_rot_angle = x_rot *(180/math.pi)
-				z_rot_angle = z_rot *(180/math.pi) 
+				#y_rot = math.asin(rotM_cam[2][0]) 
+				#x_rot = math.acos(rotM_cam[2][2]/math.cos(y_rot))    
+				#z_rot = math.acos(rotM_cam[0][0]/math.cos(y_rot))
+				#y_rot_angle = y_rot *(180/math.pi)
+				#x_rot_angle = x_rot *(180/math.pi)
+				#z_rot_angle = z_rot *(180/math.pi) 
 				#print 'Euler angles:'
 				#print x_rot_angle, y_rot_angle, z_rot_angle
 				## Euler angles:
-				QRdetector_class.eulerAngles.append(np.float32([x_rot,y_rot,z_rot]))
-				
+				#QRdetector_class.eulerAngles.append(np.float32([x_rot,y_rot,z_rot]))
 				
 				#cameraToLandmarkTransform
 				landmarkToCameraTransform = np.asarray([ 	[rotM_cam[0][0],rotM_cam[0][1],rotM_cam[0][2],tvecs_new[0][0]],
 															[rotM_cam[1][0],rotM_cam[1][1],rotM_cam[1][2],tvecs_new[1][0]],
 															[rotM_cam[2][0],rotM_cam[2][1],rotM_cam[2][2],tvecs_new[2][0]],
 															[0,0,0,1]])
-				
-				## Computing Transform matrices while using NAOqi functions
-				cameraToLandmarkRotationTransform = almath.Transform_from3DRotation(x_rot,y_rot,z_rot)
-				cameraToLandmarkTranslationTransform = almath.Transform(tvecs_new[2][0], tvecs_new[0][0], tvecs_new[1][0])
-				cameraToLandmarkTransform = cameraToLandmarkRotationTransform * cameraToLandmarkTranslationTransform
-				
-				cameraToLandmarkTransformMatrix = np.asarray([ [cameraToLandmarkTransform.r1_c1,cameraToLandmarkTransform.r1_c2,cameraToLandmarkTransform.r1_c3,cameraToLandmarkTransform.r1_c4],
-												[cameraToLandmarkTransform.r2_c1,cameraToLandmarkTransform.r2_c2,cameraToLandmarkTransform.r2_c3,cameraToLandmarkTransform.r2_c4],
-												[cameraToLandmarkTransform.r3_c1,cameraToLandmarkTransform.r3_c2,cameraToLandmarkTransform.r3_c3,cameraToLandmarkTransform.r3_c4],
-												[0,0,0,1]])
-				QRdetector_class.LandmarkInCameraCoordinate.append(cameraToLandmarkTransformMatrix)
-				
-				### Combine all transformations to get the landmark position in NAO space.
-				#robotToLandmark = np.matrix(robotToCameraFloat) * np.matrix(cameraToLandmarkTransform).I
-				## While using NAOqi functions
-				robotToLandmark = robotToCamera * cameraToLandmarkTransform
-				#print 'NAO to Landmark Transform matrix:\n %s'%robotToLandmark
-				robotToLandmarkMatrix=np.asarray([ [robotToLandmark.r1_c1,robotToLandmark.r1_c2,robotToLandmark.r1_c3,robotToLandmark.r1_c4],
-												[robotToLandmark.r2_c1,robotToLandmark.r2_c2,robotToLandmark.r2_c3,robotToLandmark.r2_c4],
-												[robotToLandmark.r3_c1,robotToLandmark.r3_c2,robotToLandmark.r3_c3,robotToLandmark.r3_c4],
-												[0,0,0,1]])
-				QRdetector_class.LandmarkInRobotCoordinate.append(robotToLandmarkMatrix)
-				
-#				print 'QR code location in robot frame \n%s'%robotToLandmark
-#				print "x " + str(robotToLandmark[0].item(3)) + " (in meters)"
-#				print "y " + str(robotToLandmark[1].item(3)) + " (in meters)"
-#				print "z " + str(robotToLandmark[2].item(3)) + " (in meters)"
 
+				Rotx_minus90 = np.asarray([ [1.0,0.0,0.0,0.0],[0.0,math.cos(-math.pi/2),-math.sin(-math.pi/2),0],[0.0,math.sin(-math.pi/2),math.cos(-math.pi/2),0],[0.0,0.0,0.0,1.0]])
+				Rotz_plus90 = np.asarray([ [math.cos(math.pi/2),-math.sin(math.pi/2),0.0,0.0],[math.sin(math.pi/2),math.cos(math.pi/2),0.0,0.0],[0.0,0.0,1.0,0.0],[0.0,0.0,0.0,1.0] ])
+				
+				## Transformation from the QR-code coordinate system to the camera coordinate system
+				cameraToLandmarkTransformMatrix=np.dot(Rotx_minus90,landmarkToCameraTransform)
+				cameraToLandmarkTransformMatrix=np.dot(Rotz_plus90,cameraToLandmarkTransformMatrix)
+				cameraToLandmarkTransformMatrix[0][3]*=-1.0;	cameraToLandmarkTransformMatrix[2][3]*=-1.0;
+				
+				QRdetector_class.LandmarkInCameraCoordinate.append(cameraToLandmarkTransformMatrix)		
 				QRdetector_class.QRmessage.append(symbol.data)#Adds QR-code message to the class variable
+				QRdetector_class.detected += 1 #Number of detected QR-codes
 				
 				## Computing center of QR-code	
 				#Moment = cv2.moments(contour)
@@ -300,9 +276,25 @@ class QRdetector_class:
 					color = color - 50
 				'''
 			
-				QRdetector_class.detected += 1
-				#QRdetector_class.symbol_masscenter_location.append(mc_point)
-				QRdetector_class.symbol_location.append(corners);
+				#QRdetector_class.symbol_location.append(corners);
+
+
+				### -----------------------------------------
+				### Get current camera position in NAO space.
+				motionProxy = ALProxy("ALMotion", QRdetector_class.NAO_IP, QRdetector_class.NAO_PORT)
+				transform = motionProxy.getTransform(QRdetector_class.currentCamera, 2, True)
+				transformList = almath.vectorFloat(transform)
+				robotToCamera = almath.Transform(transformList)
+				
+				robotToCameraMatrix= np.asarray([ [robotToCamera.r1_c1,robotToCamera.r1_c2,robotToCamera.r1_c3,robotToCamera.r1_c4],
+															[robotToCamera.r2_c1,robotToCamera.r2_c2,robotToCamera.r2_c3,robotToCamera.r2_c4],
+															[robotToCamera.r3_c1,robotToCamera.r3_c2,robotToCamera.r3_c3,robotToCamera.r3_c4],
+															[0.0,0.0,0.0,1.0]])
+				### -----------------------------------------
+				print "robot To Landmark"
+				robotToLandmarkMatrix = np.dot(cameraToLandmarkTransformMatrix,robotToCameraMatrix)
+				QRdetector_class.LandmarkInRobotCoordinate.append(robotToLandmarkMatrix)
+
 										
 		except Exception, e:
 			print "Error when processing QR scanner:"
