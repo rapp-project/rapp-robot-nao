@@ -216,21 +216,21 @@ def main():
 	except AttributeError:
 		print "[Camera server] -  - AttributeError"
 		#unsubscribe from camera
-		self.prox_camera.unsubscribe(self.nameId);
+		CameraServer.prox_camera.unsubscribe(CameraServer.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 		
 	except (KeyboardInterrupt, SystemExit):
 		print "[Camera server] - SystemExit Exception caught"
 		#unsubscribe from camera
-		self.prox_camera.unsubscribe(self.nameId);
+		CameraServer.prox_camera.unsubscribe(CameraServer.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 		
 	except Exception, ex:
 		print "[Camera server] - Exception caught %s" % str(ex)
 		#unsubscribe from camera
-		self.prox_camera.unsubscribe(self.nameId);
+		CameraServer.prox_camera.unsubscribe(CameraServer.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 	
