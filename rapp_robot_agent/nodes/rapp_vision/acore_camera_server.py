@@ -105,9 +105,9 @@ class CameraModule(ALModule):
 		## Camera parameters
 		self.resolution = 3	## k4VGA;
 		self.colorSpace = 13	## kBGRColorSpace
-		self.fps = 15;
+		self.fps = 29;# maximum value for the highest camera resolution
 		## Subscribe to the camera
-		self.nameId = self.prox_camera.subscribe("python_camera+++-", self.resolution, self.colorSpace, self.fps);
+		self.nameId = self.prox_camera.subscribe("python_camera", self.resolution, self.colorSpace, self.fps);
 	
 	# Initialization of ROS services
 	def openServices(self):
@@ -142,6 +142,34 @@ class CameraModule(ALModule):
 		#self.nameId = self.prox_camera.subscribe("python_camera_client++", self.resolution, self.colorSpace, self.fps);
 
 		try:
+			#Modifying camera parameters
+			kCameraSelectID = 18
+			kCameraExposureAlgorithmID = 22
+			if (req.request=="top"):
+				self.prox_camera.setParam(kCameraSelectID,0)# 0 for top, 1 for bottom
+			elif (req.request=="bottom"):
+				self.prox_camera.setParam(kCameraSelectID,1)# bottom camera
+			elif (req.request=="top - adaptive auto exposure 0"):# Average scene Brightness
+				self.prox_camera.setParam(kCameraSelectID,0)# camera selection
+				self.prox_camera.setParam(kCameraExposureAlgorithmID,0)# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
+				print "[Camera server]: Using - Average scene Brightness"
+			elif (req.request=="top - adaptive auto exposure 1"):# weighted average scene Brightness
+				self.prox_camera.setParam(kCameraSelectID,0)# camera selection
+				self.prox_camera.setParam(kCameraExposureAlgorithmID,1)# Weighted average scene Brightness
+				print "[Camera server]: Using - Weighted average scene Brightness"
+			elif (req.request=="top - adaptive auto exposure 2"):# Adaptive weighted auto exposure for hightlights
+				self.prox_camera.setParam(kCameraSelectID,0)# camera selection
+				self.prox_camera.setParam(kCameraExposureAlgorithmID,2)# Adaptive weighted auto exposure for hightlights
+				print "[Camera server]: Using - Adaptive weighted auto exposure for hightlights"
+			elif (req.request=="top - adaptive auto exposure 3"):# Adaptive weighted auto exposure for lowlights
+				self.prox_camera.setParam(kCameraSelectID,0)# camera selection
+				self.prox_camera.setParam(kCameraExposureAlgorithmID,3)# Adaptive weighted auto exposure for lowlights
+				print "[Camera server]: Using - Adaptive weighted auto exposure for lowlights"
+			else :
+				self.prox_camera.setParam(kCameraSelectID,0)# top camera as default
+			#----
+			
+			# Capture image from selected camera
 			self.naoImage = self.prox_camera.getImageRemote(self.nameId)
 			while self.naoImage[6]==None:
 				self.naoImage = self.prox_camera.getImageRemote(self.nameId) # for avoidance of the black image (empty frame)

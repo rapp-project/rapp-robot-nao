@@ -100,7 +100,8 @@ class HazardQRcodeDetectionModule:
 		#self.number = []
 
 		try:
-			self.HazardQRcode.compute_euler_2(req.robotToQRcode.r11,req.robotToQRcode.r12,req.robotToQRcode.r13)
+			#self.HazardQRcode.compute_euler_2(req.robotToQRcode.r11,req.robotToQRcode.r12,req.robotToQRcode.r13)
+			self.HazardQRcode.compute_euler_3(req.robotToQRcode.r11,req.robotToQRcode.r12)
 			for i in range(0,len(req.robotToQRcode.r11)):
 				if ( (req.messages[i] == "Wall") or (req.messages[i] == "Stable object") ):
 					self.wall_numer.append(i)
@@ -108,7 +109,29 @@ class HazardQRcodeDetectionModule:
 				for k in [-2,-1,1,2]:
 					## comparing the angles (euler2)
 					if (len(req.robotToQRcode.r11) > self.wall_numer[j]+k) and (0 <= self.wall_numer[j]+k):
-						if not ( ( (self.HazardQRcode.euler2[self.wall_numer[j]] + precision > self.HazardQRcode.euler2[self.wall_numer[j]+k]) and (self.HazardQRcode.euler2[self.wall_numer[j]] - precision < self.HazardQRcode.euler2[self.wall_numer[j]+k]) ) or ( (self.HazardQRcode.euler2[self.wall_numer[j]] - math.pi + precision > self.HazardQRcode.euler2[self.wall_numer[j]+k]) and (self.HazardQRcode.euler2[self.wall_numer[j]] - math.pi - precision < self.HazardQRcode.euler2[self.wall_numer[j]+k]) ) or ( (self.HazardQRcode.euler2[self.wall_numer[j]] + math.pi + precision > self.HazardQRcode.euler2[self.wall_numer[j]+k]) and (self.HazardQRcode.euler2[self.wall_numer[j]] + math.pi - precision < self.HazardQRcode.euler2[self.wall_numer[j]+k]) ) ):#object is open
+						'''if not ( ( (self.HazardQRcode.euler2[self.wall_numer[j]] + precision > self.HazardQRcode.euler2[self.wall_numer[j]+k])
+							and (self.HazardQRcode.euler2[self.wall_numer[j]] - precision < self.HazardQRcode.euler2[self.wall_numer[j]+k]) )
+							or (
+								(self.HazardQRcode.euler2[self.wall_numer[j]] - math.pi + precision > self.HazardQRcode.euler2[self.wall_numer[j]+k]) 
+								and
+								(self.HazardQRcode.euler2[self.wall_numer[j]] - math.pi - precision < self.HazardQRcode.euler2[self.wall_numer[j]+k]) )
+							or (
+								(self.HazardQRcode.euler2[self.wall_numer[j]] + math.pi + precision > self.HazardQRcode.euler2[self.wall_numer[j]+k])
+								and
+								(self.HazardQRcode.euler2[self.wall_numer[j]] + math.pi - precision < self.HazardQRcode.euler2[self.wall_numer[j]+k]) )
+						):#object is open
+						'''
+						if not ( ( (self.HazardQRcode.euler3[self.wall_numer[j]] + precision > self.HazardQRcode.euler3[self.wall_numer[j]+k])
+							and (self.HazardQRcode.euler3[self.wall_numer[j]] - precision < self.HazardQRcode.euler3[self.wall_numer[j]+k]) )
+							or (
+								(self.HazardQRcode.euler3[self.wall_numer[j]] - math.pi + precision > self.HazardQRcode.euler3[self.wall_numer[j]+k]) 
+								and
+								(self.HazardQRcode.euler3[self.wall_numer[j]] - math.pi - precision < self.HazardQRcode.euler3[self.wall_numer[j]+k]) )
+							or (
+								(self.HazardQRcode.euler3[self.wall_numer[j]] + math.pi + precision > self.HazardQRcode.euler3[self.wall_numer[j]+k])
+								and
+								(self.HazardQRcode.euler3[self.wall_numer[j]] + math.pi - precision < self.HazardQRcode.euler3[self.wall_numer[j]+k]) )
+						):#object is open
 							self.isHazardFound = True
 							self.hazardPosition_x.append(float(req.robotToQRcode.r14[self.wall_numer[j]+k]) )
 							self.hazardPosition_y.append(float(req.robotToQRcode.r24[self.wall_numer[j]+k]) )

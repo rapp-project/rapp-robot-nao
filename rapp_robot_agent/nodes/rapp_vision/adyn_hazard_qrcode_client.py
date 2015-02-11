@@ -89,9 +89,9 @@ def main():
 	
 	# Testing [/rapp_get_image] service
 	print "[Camera client] - Testing [/rapp_get_image] service"
-	response_image = client_camera.getCameraFrame("top")
+	response_image = client_camera.getCameraFrame("top - adaptive auto exposure 1")# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
 	while response_image.frame==None:
-		print "None"
+		print "[Camera client] Frame is empty"
 	print "[QRcode client] - Requesting %s" % (xy)
 	client_qrcode = AdynQRcodeClient()
 	
@@ -103,33 +103,21 @@ def main():
 	print"____________________\n"
 	'''for l in range(0,response_detectQRcodes.numberOfQRcodes):
 		print "[QRcode client] - QRcode in the CAMERA coordinate system:\n---%d---\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n-------"%(l+1, response_detectQRcodes.cameraToQRcode.r11[l], response_detectQRcodes.cameraToQRcode.r12[l], response_detectQRcodes.cameraToQRcode.r13[l], response_detectQRcodes.cameraToQRcode.r14[l],
-response_detectQRcodes.cameraToQRcode.r21[l],
-response_detectQRcodes.cameraToQRcode.r22[l],
-response_detectQRcodes.cameraToQRcode.r23[l],
-response_detectQRcodes.cameraToQRcode.r24[l],
-response_detectQRcodes.cameraToQRcode.r31[l],
-response_detectQRcodes.cameraToQRcode.r32[l],
-response_detectQRcodes.cameraToQRcode.r33[l],
-response_detectQRcodes.cameraToQRcode.r34[l],
-response_detectQRcodes.cameraToQRcode.r41[l],
-response_detectQRcodes.cameraToQRcode.r42[l],
-response_detectQRcodes.cameraToQRcode.r43[l],
-response_detectQRcodes.cameraToQRcode.r44[l])
+response_detectQRcodes.cameraToQRcode.r21[l], response_detectQRcodes.cameraToQRcode.r22[l],
+response_detectQRcodes.cameraToQRcode.r23[l], response_detectQRcodes.cameraToQRcode.r24[l],
+response_detectQRcodes.cameraToQRcode.r31[l], response_detectQRcodes.cameraToQRcode.r32[l],
+response_detectQRcodes.cameraToQRcode.r33[l], response_detectQRcodes.cameraToQRcode.r34[l],
+response_detectQRcodes.cameraToQRcode.r41[l], response_detectQRcodes.cameraToQRcode.r42[l],
+response_detectQRcodes.cameraToQRcode.r43[l], response_detectQRcodes.cameraToQRcode.r44[l])
 	print"____________________\n"
 	for l in range(0,response_detectQRcodes.numberOfQRcodes):
 		print "[QRcode client] - QRcode in the ROBOT coordinate system:\n---%d---\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n[ %f %f %f %f ]\n-------"%(l+1, response_detectQRcodes.robotToQRcode.r11[l], response_detectQRcodes.robotToQRcode.r12[l], response_detectQRcodes.robotToQRcode.r13[l], response_detectQRcodes.robotToQRcode.r14[l],
-response_detectQRcodes.robotToQRcode.r21[l],
-response_detectQRcodes.robotToQRcode.r22[l],
-response_detectQRcodes.robotToQRcode.r23[l],
-response_detectQRcodes.robotToQRcode.r24[l],
-response_detectQRcodes.robotToQRcode.r31[l],
-response_detectQRcodes.robotToQRcode.r32[l],
-response_detectQRcodes.robotToQRcode.r33[l],
-response_detectQRcodes.robotToQRcode.r34[l],
-response_detectQRcodes.robotToQRcode.r41[l],
-response_detectQRcodes.robotToQRcode.r42[l],
-response_detectQRcodes.robotToQRcode.r43[l],
-response_detectQRcodes.robotToQRcode.r44[l])
+response_detectQRcodes.robotToQRcode.r21[l], response_detectQRcodes.robotToQRcode.r22[l],
+response_detectQRcodes.robotToQRcode.r23[l], response_detectQRcodes.robotToQRcode.r24[l],
+response_detectQRcodes.robotToQRcode.r31[l], response_detectQRcodes.robotToQRcode.r32[l],
+response_detectQRcodes.robotToQRcode.r33[l], response_detectQRcodes.robotToQRcode.r34[l],
+response_detectQRcodes.robotToQRcode.r41[l], response_detectQRcodes.robotToQRcode.r42[l],
+response_detectQRcodes.robotToQRcode.r43[l], response_detectQRcodes.robotToQRcode.r44[l])
 	print"____________________\n"	
 	'''
 	print "[QRcode client] - QRcode messages:\t%s "%(response_detectQRcodes.message)
@@ -138,7 +126,8 @@ response_detectQRcodes.robotToQRcode.r44[l])
 	if response_detectQRcodes.numberOfQRcodes>=2:
 		response_detectHazardQRcodes = client_qrcode.detectHazardQRcodes(response_detectQRcodes.robotToQRcode, response_detectQRcodes.message)
 		print "[QRcode Hazard client] - Open door is detected:\t%s"%(response_detectHazardQRcodes.isHazardFound)
-		print "[QRcode Hazard client] - \t'%s' is open"%(response_detectHazardQRcodes.message)
+		if response_detectHazardQRcodes.isHazardFound==True:
+			print "[QRcode Hazard client] - \t'%s' is open"%(response_detectHazardQRcodes.message)
 
 
 	return
