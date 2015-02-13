@@ -7,8 +7,7 @@ __author__ = "Maksym Figat"
 ########################
 
 # Importing services
-#from rapp_core_agent.srv import *
-from rapp_robot_agent.srv import *
+from rapp_core_agent.srv import *
 
 # Importing core system functionality
 import signal
@@ -133,14 +132,19 @@ class EmailRecognitionModule(ALModule):
 		# Creating channel
 		self.channels = []
 		#Channels setup
-		self.channels.append(0)
-		self.channels.append(0)
 		self.channels.append(1)
-		self.channels.append(0)
+		self.channels.append(1)
+		self.channels.append(1)
+		self.channels.append(1)
 		
 		self.recordingTime = 3.0
 		
 	
+	def setWordDatabase(self, database):
+		print "[Email server] - Setting word database to recognize a spoken word"
+		self.prox_sprec.pause(True)
+		self.prox_sprec.setVocabulary(database, False)
+		self.prox_sprec.pause(False)
 		
 	# Initialization of ROS services
 	def openServices(self):
@@ -152,15 +156,13 @@ class EmailRecognitionModule(ALModule):
 			self.service_rgea = rospy.Service('rapp_get_email_address', GetEmailAddress, self.handle_rapp_get_email_address)
 			print "[Email server] - service - [rapp_record]"
 			self.service_rr = rospy.Service('rapp_record', Record, self.handle_rapp_record)
+			print "[Email server] - service - [rapp_get_recognizes_word]"
+			self.service_rrw = rospy.Service('rapp_get_recognizes_word', RecognizeWord, self.handle_rapp_get_recognizes_word)
 			'''print "[Email server] - service - [rapp_send_email]"
 			self.service_rse = rospy.Service('rapp_send_email', SendEmail, self.handle_rapp_send_email)'''
 		except Exception, ex:
 			print "[Email server] - Exception %s" % str(ex)
 		
-	'''# Closes ROS services
-	def closeServices(self):
-		print "[Email server] - closes services"
-		self.service_hw.close()'''
 		
 	#######################################
 	
@@ -174,7 +176,7 @@ class EmailRecognitionModule(ALModule):
 		
 		try:
 			self.prox_sprec.subscribe("Test_SpeechDetected",self.period, 0.0)
-			prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, "onSoundDetected" )
+			prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, self.functionName)
 		except Exception, e:
 			print "[Email server] - Error in subscribe(): %s", str(e)
 			
@@ -225,12 +227,39 @@ class EmailRecognitionModule(ALModule):
 				return
 				
 			# Subscribe again to the event
-			prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, "onSoundDetected" )
+			prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, self.functionName )
 			
 		except Exception, e:
 			print "[Email server] - onSoundDetected - Exception %s" %e
 	
-	
+	# Method that is called when sound is detected, handles word detection from a database
+	def onWordRecognized(self, *_args):
+		"""This method will be called each time NAO recognised a sound.
+		It will try to find out correct email address.
+		"""
+		try:
+			# Unsubscribing to the event of Sound detection to avoid calling a method while executing interior of the method.
+			prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
+			val = prox_memory.getData(self.memValue)
+			
+			print "[Email server] -       " + val[0]
+			print "[Email server] - Sleeps"
+			time.sleep(1)
+			print "[Email server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
+			
+		
+			if len(val[0])!=0 and val[1]>0.5:	
+				self.stopListening = True
+				self.wordRecognized = val[0]
+				print "[Email server] - [onSoundDetected] - Word recognized: %s" % self.wordRecognized
+				
+				return
+				
+			# Subscribe again to the event
+			prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, self.functionName )
+			
+		except Exception, e:
+			print "[Email server] - onSoundDetected - Exception %s" %e
 	
 	# Method used to find out an email address just using local file with email addesses located 
 	# (maybe in the future in "../data/email_address.txt" (it can be done using database in a RAPP cloud)
@@ -301,7 +330,8 @@ class EmailRecognitionModule(ALModule):
 		
 	def handle_rapp_say(self,req):
 		print "[Email server receives]: \t%s\n[Email server returns]: \t%s" % (req.request, "Said: %s"% req.request)
-		self.prox_tts.say("Nao says : %s"% req.request)
+		#self.prox_tts.say("Nao says : %s"% req.request)
+		self.prox_tts.say(req.request)
 		return SayResponse(req.request)
 		
 	def handle_rapp_get_email_address(self, req):
@@ -311,6 +341,7 @@ class EmailRecognitionModule(ALModule):
 		self.isEmailFound  = False
 		self.stopListening = False
 		isFound=0
+		self.functionName = "onSoundDetected"
 		
 		try:
 			print "[Email server] - Subscribing events"
@@ -342,13 +373,32 @@ class EmailRecognitionModule(ALModule):
 		reponse = Constants.recorded_file_dest
 		return RecordResponse(reponse)
 		
-	'''def handle_rapp_send_email(self,req):
-		print "[Email server]: - Nao sends an email to %s" %req.emailAddress
-		to_say = "Nao sends an email to %s" %req.emailAddress
-		#self.prox_tts.say(to_say)
-		#Constants.recorded_file_dest = req.recordedFileDest
-		isEmailSend = self.sendEmail()
-		return SendEmailResponse(isEmailSend)'''
+	def handle_rapp_get_recognizes_word(self,req):
+		print "[Email server]: - Nao recognizes a word from a list:"
+		for i in req.wordsList:
+			print "[Email server module] - Database = %s" % i
+		self.stopListening = False
+		self.setWordDatabase(req.wordsList)
+		self.functionName = "onWordRecognized"
+		self.wordRecognized ="Empty"
+		try:
+			print "[Email server] - Subscribing events"
+			self.subscribe()
+			while self.stopListening == False:
+				print "[Email server] - Word was not recognized!"
+				print "[Email server] - Say a special word from database!"
+				time.sleep(4)
+			print "[Email Email] - Unsubscribing events"
+			self.unsubscribe()
+			self.prox_tts.say("Word recognized %s" % self.wordRecognized)
+			
+		except AttributeError, ex:
+			print "[Email server] - Exception AtrributeError = %s" % str(ex)
+		except Exception, ex:
+			print "[Email server] - Unnamed exception = %s" % str(ex)
+		
+		return RecognizeWordResponse(self.wordRecognized)
+
 
 # Testng SIGINT signal handler
 def signal_handler(signal, frame):
@@ -374,19 +424,19 @@ def main():
 	
 	except AttributeError:
 		print "[Email server] - EmailRecognition - AttributeError"
-		#EmailRecognition.unsubscribe()
+		EmailRecognition.unsubscribe()
 		myBroker.shutdown()
 		sys.exit(0)
 		
 	except (KeyboardInterrupt, SystemExit):
 		print "[Email server] - SystemExit Exception caught"
-		#EmailRecognition.unsubscribe()
+		EmailRecognition.unsubscribe()
 		myBroker.shutdown()
 		sys.exit(0)
 		
 	except Exception, ex:
 		print "[Email server] - Exception caught %s" % str(ex)
-		#EmailRecognition.unsubscribe()
+		EmailRecognition.unsubscribe()
 		myBroker.shutdown()
 		sys.exit(0)
 		
