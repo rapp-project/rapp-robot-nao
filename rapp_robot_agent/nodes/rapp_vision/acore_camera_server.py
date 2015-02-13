@@ -19,20 +19,11 @@ import smtplib
 # Importing core functionality from Naoqi
 from naoqi import (ALProxy, ALBroker, ALModule)
 
-# Importing OpenCV library
-#import cv #cv2.cv as cv #Use OpenCV-2.4.3
-import cv2
-
-# Importing ZBar library used for QR-code recognition
-#import zbar
-
 # Importing others
 import numpy as np
 import math
 import Image
-import time #for time measurement
-import almath #Aldebaran's library for matrices operation
-
+#import time #for time measurement
 
 from std_msgs.msg import String
 from sensor_msgs.msg import Image as Image_ros
@@ -46,7 +37,7 @@ from cv_bridge import CvBridge, CvBridgeError
 
 #######################################
 
-# Global variables to store the QRcodeDetection module instance and proxy to ALMemory Module
+# Global variables to store the Camera module instance and proxy to ALMemory Module
 CameraServer = None
 prox_memory = None
 
@@ -113,8 +104,8 @@ class CameraModule(ALModule):
 	def openServices(self):
 		try:
 			print "[Camera server] - setting services"
-			print "[Camera server] - service - [rapp_get_image]"
-			self.service_rdqr = rospy.Service('rapp_get_image', GetImage, self.handle_rapp_get_image)
+			print "[Camera server] - service - [rapp_capture_image]"
+			self.service_rdqr = rospy.Service('rapp_capture_image', GetImage, self.handle_rapp_capture_image)
 		except Exception, ex:
 			print "[Camera server] - Exception (services) %s" % str(ex)
 
@@ -132,15 +123,10 @@ class CameraModule(ALModule):
 	
 	#########################
 		
-	def handle_rapp_get_image(self,req):
-		print "[Camera server receives]: \t%s\n" % (req.request)
+	def handle_rapp_capture_image(self,req):
+		print "[Camera server receives]: \t%s" % (req.request)
 		# Get Frame from Camera
-		#self.resolution = 3	## k4VGA;
-		#self.colorSpace = 13	## kBGRColorSpace
-		#self.fps = 15;
-			#global nameId
-		#self.nameId = self.prox_camera.subscribe("python_camera_client++", self.resolution, self.colorSpace, self.fps);
-
+		
 		try:
 			#Modifying camera parameters
 			kCameraSelectID = 18

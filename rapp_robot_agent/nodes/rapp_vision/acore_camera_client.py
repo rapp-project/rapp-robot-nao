@@ -31,18 +31,18 @@ class AcoreCameraClient():
 		print "[Camera client] - Acore camera Client initialization"
 	
 
-	# Handling a communication with service "rapp_get_image"
-	def getCameraFrame(self,request):
+	# Handling a communication with service "rapp_capture_image"
+	def captureCameraFrame(self,request):
 		print "[Camera client] - Waits for server"
-		rospy.wait_for_service('rapp_get_image')
+		rospy.wait_for_service('rapp_capture_image')
 		try:
-			print "[Camera client] - getCameraFrame"
-			getImage = rospy.ServiceProxy('rapp_get_image', GetImage)
-			resp_get_image = getImage(request)
+			print "[Camera client] - captureCameraFrame"
+			captureImage = rospy.ServiceProxy('rapp_capture_image', GetImage)
+			resp_capture_image = captureImage(request)
 			print "[Camera client] - Image captured"
-			return resp_get_image
+			return resp_capture_image
 		except rospy.ServiceException, e:
-			print "[Camera client] - Calling service [/rapp_get_image] Failed: %s"%e
+			print "[Camera client] - Calling service [/rapp_capture_image] Failed: %s"%e
 			exit(1)
 	
 	
@@ -74,9 +74,9 @@ def main():
 	print "[Camera client] - Requesting %s" % (xy)
 	client = AcoreCameraClient()
 	
-	# Testing [/rapp_get_image] service
-	print "[Camera client] - Testing [/rapp_get_image] service"
-	response_image = client.getCameraFrame("top - adaptive auto exposure 1")# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
+	# Testing [/rapp_capture_image] service
+	print "[Camera client] - Testing [/rapp_capture_image] service"
+	response_image = client.captureCameraFrame("top - adaptive auto exposure 1")# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
 	
 	return
 
