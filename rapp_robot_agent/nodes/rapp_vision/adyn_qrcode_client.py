@@ -76,7 +76,7 @@ def main():
 	
 	# Testing [/rapp_capture_image] service
 	print "[Camera client] - Testing [/rapp_capture_image] service"
-	response_image = client_camera.getCameraFrame("top")
+	response_image = client_camera.getCameraFrame("top - adaptive auto exposure 1")# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
 	while response_image.frame==None:
 		print "None"
 	print "[QRcode client] - Requesting %s" % (xy)

@@ -1,8 +1,8 @@
 <launch>
 
   <!-- Rapp dynamic agent nodes -->
-  <node pkg="rapp_robot_agent" name="acore_camera_server" type="acore_camera_server.py" output="screen"/>
   <node pkg="rapp_robot_agent" name="adyn_qrcode_server" type="adyn_qrcode_server.py" output="screen"/>
+  <node pkg="rapp_robot_agent" name="adyn_hazard_qrcode_server" type="adyn_hazard_qrcode_server.py" output="screen"/>
 
   
 </launch>

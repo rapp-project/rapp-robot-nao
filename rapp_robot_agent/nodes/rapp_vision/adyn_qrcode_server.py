@@ -31,7 +31,7 @@ import numpy as np
 import math
 import Image
 import time #for time measurement
-import almath #Aldebaran's library for matrices operation
+#import almath #Aldebaran's library for matrices operation
 
 
 # Used for finding a text in a file
@@ -85,7 +85,21 @@ def rot_matrix_to_euler(R):
     z_rot_angle = z_rot *(180/math.pi)        
     rangle,y_rot_angle,z_rot_angle
 
-	
+class GetTransformClient:
+	#chainName_,space_
+	def getTransform(self,chainName_,space_):
+		print "[GetTransform client] - Waits for server"
+		rospy.wait_for_service('rapp_get_transform')
+		try:
+			print "[GetTransform client] - getTransform"
+			getTransform = rospy.ServiceProxy('rapp_get_transform', GetTransform)
+			resp_get_transform = getTransform(chainName_,space_)
+			print "[GetTransform client] - Image captured"
+			return resp_get_transform
+		except rospy.ServiceException, e:
+			print "[GetTransform client] - Calling service [/rapp_get_transform] Failed: %s"%e
+			exit(1)
+
 class QRdetector_class:
 	NAO_IP = "nao.local"#"192.168.18.91"#"nao.local"
 	NAO_PORT = 9559
@@ -144,7 +158,7 @@ class QRdetector_class:
 			print str(e)
 			exit(1)
 		
-	def scanner_procces(self,frame_,set_zbar):
+	def scanner_procces(self,frame_,set_zbar,robotToCameraMatrix_):
 		try:
 			## empty buffers
 			QRdetector_class.QRmessage=[]
@@ -280,19 +294,22 @@ class QRdetector_class:
 
 
 				### -----------------------------------------
-				### Get current camera position in NAO space.
+				'''### Get current camera position in NAO space.
 				motionProxy = ALProxy("ALMotion", QRdetector_class.NAO_IP, QRdetector_class.NAO_PORT)
 				transform = motionProxy.getTransform(QRdetector_class.currentCamera, 2, True)
 				transformList = almath.vectorFloat(transform)
 				robotToCamera = almath.Transform(transformList)
 				
-				robotToCameraMatrix= np.asarray([ [robotToCamera.r1_c1,robotToCamera.r1_c2,robotToCamera.r1_c3,robotToCamera.r1_c4],
+				robotToCameraMatrix_= np.asarray([ [robotToCamera.r1_c1,robotToCamera.r1_c2,robotToCamera.r1_c3,robotToCamera.r1_c4],
 															[robotToCamera.r2_c1,robotToCamera.r2_c2,robotToCamera.r2_c3,robotToCamera.r2_c4],
 															[robotToCamera.r3_c1,robotToCamera.r3_c2,robotToCamera.r3_c3,robotToCamera.r3_c4],
 															[0.0,0.0,0.0,1.0]])
+				'''
 				### -----------------------------------------
 				print "robot To Landmark"
-				robotToLandmarkMatrix = np.dot(cameraToLandmarkTransformMatrix,robotToCameraMatrix)
+				print robotToCameraMatrix_
+				print cameraToLandmarkTransformMatrix
+				robotToLandmarkMatrix = np.dot(cameraToLandmarkTransformMatrix,robotToCameraMatrix_)
 				QRdetector_class.LandmarkInRobotCoordinate.append(robotToLandmarkMatrix)
 
 										
@@ -381,12 +398,33 @@ class QRcodeDetectionModule(ALModule):
 		print "[QRcode server receives]: \t"#%s\n" % (req.request)
 		# Class QRdetector_class initialization
 		self.QRdetector = QRdetector_class()
+		self.TransformClient = GetTransformClient() # GetTransformClient
 		self.isQRcodeFound = False
 		self.numberOfQRcodes = 0
 		self.cameraToQRcode = []
 		self.robotToQRcode = []
 		self.message = []
-		self.cornersMatrix= []		
+		self.cornersMatrix= []
+		self.robotToCameraMatrix= []
+		
+		# Communicate with the GetTransform service
+		response_robotToCamera = self.TransformClient.getTransform(self.QRdetector.currentCamera, 2) # Transform from currentCamera to the robot coordinate system
+		self.robotToCameraMatrix=np.asarray([ 
+				[response_robotToCamera.transformMatrix.r11[0],
+					response_robotToCamera.transformMatrix.r12[0],
+					response_robotToCamera.transformMatrix.r13[0],
+					response_robotToCamera.transformMatrix.r14[0]],
+				[response_robotToCamera.transformMatrix.r21[0],
+					response_robotToCamera.transformMatrix.r12[0],
+					response_robotToCamera.transformMatrix.r13[0],
+					response_robotToCamera.transformMatrix.r14[0]],
+				[response_robotToCamera.transformMatrix.r31[0],
+					response_robotToCamera.transformMatrix.r12[0],
+					response_robotToCamera.transformMatrix.r13[0],
+					response_robotToCamera.transformMatrix.r14[0]],
+				[0.0,0.0,0.0,1.0]])
+				
+		#print self.robotToCameraMatrix
 
 		try:
 			## ZBar ImageScanner initialization
@@ -395,7 +433,7 @@ class QRcodeDetectionModule(ALModule):
 			self.cv_image = self.bridge.imgmsg_to_cv2(req.request,"rgb8")
 			if self.cv_image!=None:#self.naoImage[6]!=None:
 				#QRdetector.code_detector_procces(self.cv_image,self.set_zbar) #Detection only
-				self.QRdetector.scanner_procces(self.cv_image,self.set_zbar) #detects and computes the localization matrixix
+				self.QRdetector.scanner_procces(self.cv_image,self.set_zbar,self.robotToCameraMatrix) #detects and computes the localization matrixix
 				
 				if self.QRdetector.detected>0: # if QRcode is found in the image
 					self.isQRcodeFound = True
