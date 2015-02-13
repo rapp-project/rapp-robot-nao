@@ -1,5 +1,5 @@
-#string request
 sensor_msgs/Image request
+#Matrix4x4 robotToCameraMatrix #Get current camera position in NAO space
 ---
 bool isQRcodeFound
 uint32 numberOfQRcodes

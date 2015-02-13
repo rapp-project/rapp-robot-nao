@@ -19,8 +19,9 @@ find_package(catkin REQUIRED COMPONENTS
    Record.srv
    SendEmail.srv
    DetectQRcodes.srv
-	DetectHazardByQRcodes.srv
-	GetImage.srv
+   DetectHazardByQRcodes.srv
+   GetImage.srv
+   GetTransform.srv
 	PhotoCapture.srv
 	FollowMarker.srv
  )
@@ -28,7 +29,6 @@ find_package(catkin REQUIRED COMPONENTS
  add_message_files(
 	FILES
 	Matrix4x4.msg
-	#Matrix4x4[].msg
  )
 
  generate_messages(
