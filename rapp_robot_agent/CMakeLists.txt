@@ -22,7 +22,9 @@ find_package(catkin REQUIRED COMPONENTS
    DetectHazardByQRcodes.srv
    GetImage.srv
    GetTransform.srv
-	PhotoCapture.srv
+   PhotoCapture.srv
+	LearnFace.srv
+   RecognizeFaces.srv
 	FollowMarker.srv
  )
 
