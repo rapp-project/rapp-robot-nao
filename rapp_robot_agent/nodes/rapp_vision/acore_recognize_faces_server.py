@@ -124,6 +124,11 @@ class RecognizeFacesModule(ALModule):
 			self.names = None
 			self.isRecognized = False
 			self.names = []
+
+			period = 500
+			##Subscribe to the ALFaceDetection proxy
+			self.faceProxy.subscribe("Faces", period, 0.0 ) #The module will write in ALMemory with the given period
+
 			for i in range(0, 5):
 				#time.sleep(0.05)# in s ## eventual
 				self.val = prox_memory.getData(face_memory) # For face detection and recognition
