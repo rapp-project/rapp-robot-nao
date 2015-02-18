@@ -127,11 +127,12 @@ class RecognizeFacesModule(ALModule):
 
 			period = 500
 			##Subscribe to the ALFaceDetection proxy
-			self.faceProxy.subscribe("Faces", period, 0.0 ) #The module will write in ALMemory with the given period
+			self.faceProxy.subscribe("FaceRecognition", period, 0.0 ) #The module will write in ALMemory with the given period
 
 			for i in range(0, 5):
 				#time.sleep(0.05)# in s ## eventual
-				self.val = prox_memory.getData(face_memory) # For face detection and recognition
+				self.val = self.prox_memory.getData("FaceDetected",0) # For face detection and recognition
+				#print self.prox_memory.getData(object_memory)
 				'''#print self.val
 				## First Field = TimeStamp.
 				#timeStamp = val[0]
@@ -148,25 +149,26 @@ class RecognizeFacesModule(ALModule):
 							print self.nFacesDetected'''
 					if (len(self.val[1]) > 0): # just in case of the ALValue is in the wrong format
 						#if self.val[1] != []:
-						print "Human face detected"
+						#print "Human face detected"
 						self.timeFilteredResult = self.val[1][len(self.val[1]) -1]
 						self.nFacesDetected = len(self.val[1]) -1  # counting faces
 						if(self.nFacesDetected != 0):
-							print self.nFacesDetected
+							print "The number of detected human faces: %d"%self.nFacesDetected
 						if( len(self.timeFilteredResult) == 1 ):
 							# If a face has been detected for more than 8s but not recognized
 							if(self.timeFilteredResult[0] == 4):
-								print "Human face detected"
-							elif( len(self.timeFilteredResult) == 2 ):
-								# If one or several faces have been recognized
-								if(self.timeFilteredResult[0] in [2, 3]):
-									for s in self.timeFilteredResult[1]:
-										print s
-										self.isRecognized = True
-										self.names.append(s)
+								print "The number of detected human faces: %d"%self.nFacesDetected
+						elif( len(self.timeFilteredResult) == 2 ):
+							# If one or several faces have been recognized
+							if(self.timeFilteredResult[0] in [2, 3]):
+								for s in self.timeFilteredResult[1]:
+									print "Human face recognized: %s"%s
+									self.isRecognized = True
+									self.names.append(s)
 
 				if self.isRecognized==True:
 					break
+				print "---"
 
 				'''## For object recognition:
 				self.val_object = prox_memory.getData(object_memory)
@@ -183,16 +185,9 @@ class RecognizeFacesModule(ALModule):
 					print "Nothing was recognized"
 				'''
 
-				'''if(len(p) > 0):
-            if(len(p[1]) > 0): # just in case of the ALValue is in the wrong format
-                # get the ALValue returned by the time filtered recognition:
-                #    - [] when nothing new.
-                #    - [4] when a face has been detected but not recognized during the first 8s.
-                #    - [2, [faceName]] when one face has been recognized.
-                #    - [3, [faceName1, faceName2, ...]] when several faces have been recognized.
-				'''
-
-				print "---"
+			
+			## Unsubscribe the module.
+			self.faceProxy.unsubscribe("FaceRecognition")
 		
 			
 			print "[RecognizeFaces server] - Done \nNumber of detected faces: %s"%self.nFacesDetected
