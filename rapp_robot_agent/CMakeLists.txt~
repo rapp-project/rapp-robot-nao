@@ -26,8 +26,6 @@ find_package(catkin REQUIRED COMPONENTS
 	LearnFace.srv
    RecognizeFaces.srv
 	FollowMarker.srv
-MoveTo.srv
-MoveVel.srv
  )
 
  add_message_files(

@@ -1,0 +1,7 @@
+<launch>
+
+  <!-- Rapp dynamic agent testing dynamic agent functionality -->
+  
+  <node pkg="rapp_robot_agent" name="adyn_follow_QR_client" type="adyn_follow_QR_client.py" output="screen"/>
+
+</launch>

@@ -1,0 +1,7 @@
+<launch>
+
+  <!-- Rapp core agent testing nodes -->
+  
+  <node pkg="rapp_robot_agent" name="acore_moveTo_server" type="acore_move_server.py" output="screen"/>
+
+</launch>
