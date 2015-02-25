@@ -23,11 +23,19 @@ find_package(catkin REQUIRED COMPONENTS
    GetImage.srv
    GetTransform.srv
    PhotoCapture.srv
-	LearnFace.srv
+   LearnFace.srv
    RecognizeFaces.srv
-	FollowMarker.srv
-MoveTo.srv
-MoveVel.srv
+
+###  MOVE & NAVIGATION SERVICES
+   FollowMarker.srv
+   MoveTo.srv
+   MoveVel.srv
+   MoveHead.srv
+   MoveStop.srv
+   GetPlan.srv
+   GetPose.srv
+   UpdatePose.srv
+   MoveGetCollisionStatus.srv	
  )
 
  add_message_files(

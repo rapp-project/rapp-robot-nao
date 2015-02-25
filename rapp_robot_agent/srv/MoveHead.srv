@@ -1,0 +1,5 @@
+float32 yaw
+float32 pitch
+---
+float32 yaw_now
+float32 pitch_now
