@@ -6,6 +6,10 @@ project(rapp_libraries)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  rospy
+  std_msgs
+  message_generation
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -42,17 +46,18 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
+ add_message_files(
+   FILES
+	Matrix4x4.msg
 #   Message1.msg
 #   Message2.msg
-# )
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
 #   FILES
-#   Service1.srv
-#   Service2.srv
+#   GetImage.srv
+#   GetTransform.srv
 # )
 
 ## Generate actions in the 'action' folder
@@ -63,10 +68,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs
+   sensor_msgs
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -96,8 +102,10 @@ include_directories(
 )
 
 add_library(NaoNavigation SHARED src/NaoNavigation.cpp)
+add_library(NaoVision SHARED src/NaoVision.cpp)
 
 target_link_libraries(NaoNavigation
+  NaoVision
   ${catkin_LIBRARIES}
  )
 

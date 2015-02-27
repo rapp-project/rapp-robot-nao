@@ -103,6 +103,7 @@ include_directories(
 
 ## Declare a cpp executable
 add_executable(dyn_client src/dyn_client.cpp)
+add_executable(dyn_QRcodeDetection src/dyn_QRcodeDetection.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -111,7 +112,8 @@ add_executable(dyn_client src/dyn_client.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(dyn_client
    ${catkin_LIBRARIES}
-NaoNavigation
+	NaoNavigation
+	NaoVision
  )
 
 #############
