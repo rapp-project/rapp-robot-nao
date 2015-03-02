@@ -10,7 +10,11 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   sensor_msgs
+  cv_bridge
+  image_transport
 )
+
+find_package(OpenCV REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -83,12 +87,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-#catkin_package(
-#  INCLUDE_DIRS include/${PROJECT_NAME}/
-#  LIBRARIES NaoNavigation
-#  CATKIN_DEPENDS roscpp
-#  DEPENDS system_lib
-#)
+catkin_package(
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/
+  LIBRARIES NaoNavigation NaoVision
+  CATKIN_DEPENDS roscpp
+  DEPENDS system_lib
+)
 
 ###########
 ## Build ##
@@ -99,15 +103,22 @@ find_package(catkin REQUIRED COMPONENTS
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 add_library(NaoNavigation SHARED src/NaoNavigation.cpp)
 add_library(NaoVision SHARED src/NaoVision.cpp)
 
-target_link_libraries(NaoNavigation
-  NaoVision
+target_link_libraries(NaoVision
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+ )
+
+target_link_libraries(NaoNavigation 
+  #NaoVision
   ${catkin_LIBRARIES}
  )
+
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -124,12 +135,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(rapp_libraries_node rapp_libraries_generate_messages_cpp)
+#add_dependencies(rapp_libraries_node rapp_libraries_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(rapp_libraries_node
-#   ${catkin_LIBRARIES}
-# )
+ target_link_libraries(NaoVision /usr/lib/libzbar.so
+   #${catkin_LIBRARIES}
+ )
+
 
 #############
 ## Install ##

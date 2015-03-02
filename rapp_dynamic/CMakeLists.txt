@@ -6,6 +6,12 @@ project(rapp_dynamic)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  rospy
+  std_msgs
+  message_generation
+  sensor_msgs
+  cv_bridge
+  image_transport
 )
 
 ## System dependencies are found with CMake's conventions
@@ -93,7 +99,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
- ${rapp_libraries_INCLUDE_DIRS}
+  ${rapp_libraries_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -113,6 +119,10 @@ add_executable(dyn_QRcodeDetection src/dyn_QRcodeDetection.cpp)
 target_link_libraries(dyn_client
    ${catkin_LIBRARIES}
 	NaoNavigation
+	NaoVision
+ )
+target_link_libraries(dyn_QRcodeDetection
+   ${catkin_LIBRARIES}
 	NaoVision
  )
 

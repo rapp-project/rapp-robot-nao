@@ -32,8 +32,8 @@ from std_msgs.msg import String
 
 #######################################
 
-# Global variables to store the RecognizeFaces module instance and proxy to ALMemory Module
-face_memory = "FaceDetected"
+## Global variables to store the RecognizeFaces module instance and proxy to ALMemory Module
+#face_memory = "FaceDetected"
 object_memory = "PictureDetected"
 face_name = None
 prox_memory = None
@@ -77,9 +77,9 @@ class RecognizeFacesModule(ALModule):
 		print "[RecognizeFaces server] - Initialization of Naoqi modules"
 		
 		print "[RecognizeFaces server] - ALMemory proxy initialization"		
-		global prox_memory
-		prox_memory = ALProxy("ALMemory")
-		if prox_memory is None:
+		#global prox_memory
+		self.prox_memory = ALProxy("ALMemory")
+		if self.prox_memory is None:
 			rospy.logerr("[RecognizeFaces server] - Could not get a proxy to ALMemory")
 			exit(1)
 		print "[RecognizeFaces server] - ALFaceDetection proxy initialization"
@@ -95,7 +95,7 @@ class RecognizeFacesModule(ALModule):
 	def openServices(self):
 		try:
 			print "[RecognizeFaces server] - setting services"
-			print "[RecognizeFaces server] - service - [rapp_learn_face]"
+			print "[RecognizeFaces server] - service - [rapp_recognize_faces]"
 			self.service_rlface = rospy.Service('rapp_recognize_faces',RecognizeFaces, self.handle_rapp_face_recognition)
 		except Exception, ex:
 			print "[RecognizeFaces server] - Exception (services) %s" % str(ex)
@@ -168,7 +168,6 @@ class RecognizeFacesModule(ALModule):
 
 				if self.isRecognized==True:
 					break
-				print "---"
 
 				'''## For object recognition:
 				self.val_object = prox_memory.getData(object_memory)
@@ -185,10 +184,19 @@ class RecognizeFacesModule(ALModule):
 					print "Nothing was recognized"
 				'''
 
+				'''if(len(p) > 0):
+            if(len(p[1]) > 0): # just in case of the ALValue is in the wrong format
+                # get the ALValue returned by the time filtered recognition:
+                #    - [] when nothing new.
+                #    - [4] when a face has been detected but not recognized during the first 8s.
+                #    - [2, [faceName]] when one face has been recognized.
+                #    - [3, [faceName1, faceName2, ...]] when several faces have been recognized.
+				'''
+
+				#print "---"
 			
 			## Unsubscribe the module.
 			self.faceProxy.unsubscribe("FaceRecognition")
-		
 			
 			print "[RecognizeFaces server] - Done \nNumber of detected faces: %s"%self.nFacesDetected
 		except AttributeError, ex:
@@ -226,6 +234,7 @@ def main():
 		
 	except (KeyboardInterrupt, SystemExit):
 		print "[RecognizeFaces server] - SystemExit Exception caught"
+		
 		myBroker.shutdown()
 		sys.exit(0)
 		

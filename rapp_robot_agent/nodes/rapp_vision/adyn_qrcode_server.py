@@ -415,13 +415,13 @@ class QRcodeDetectionModule(ALModule):
 					response_robotToCamera.transformMatrix.r13[0],
 					response_robotToCamera.transformMatrix.r14[0]],
 				[response_robotToCamera.transformMatrix.r21[0],
-					response_robotToCamera.transformMatrix.r12[0],
-					response_robotToCamera.transformMatrix.r13[0],
-					response_robotToCamera.transformMatrix.r14[0]],
+					response_robotToCamera.transformMatrix.r22[0],
+					response_robotToCamera.transformMatrix.r23[0],
+					response_robotToCamera.transformMatrix.r24[0]],
 				[response_robotToCamera.transformMatrix.r31[0],
-					response_robotToCamera.transformMatrix.r12[0],
-					response_robotToCamera.transformMatrix.r13[0],
-					response_robotToCamera.transformMatrix.r14[0]],
+					response_robotToCamera.transformMatrix.r32[0],
+					response_robotToCamera.transformMatrix.r33[0],
+					response_robotToCamera.transformMatrix.r34[0]],
 				[0.0,0.0,0.0,1.0]])
 				
 		#print self.robotToCameraMatrix

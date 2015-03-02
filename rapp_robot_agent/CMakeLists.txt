@@ -23,7 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
    GetImage.srv
    GetTransform.srv
    PhotoCapture.srv
-   LearnFace.srv
+	LearnFace.srv
    RecognizeFaces.srv
 
 ###  MOVE & NAVIGATION SERVICES

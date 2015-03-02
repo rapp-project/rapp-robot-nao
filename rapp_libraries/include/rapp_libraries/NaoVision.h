@@ -15,11 +15,16 @@
 #include <string>
 
 #include <cv_bridge/cv_bridge.h>
-#include <opencv/cv.h>
+//#include <opencv/cv.h>
+//#include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv/highgui.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv/highgui.h>
+#include <opencv2/calib3d/calib3d.hpp>
 
 #include <zbar.h> // for QRcode detection
+
 
 using namespace std;
 using namespace cv;
@@ -31,33 +36,28 @@ public:
 	NaoVision (int argc, char **argv);
 	ros::ServiceClient client_captureImage;
 	ros::ServiceClient client_getTransform;
-	//ros::NodeHandle *n;
-	ros::NodeHandle nh_;
-	ros::Publisher pub_;
+	ros::NodeHandle *n;
+	//ros::NodeHandle nh_;
+	//ros::Publisher pub_;
 	
 	std::string NAO_IP;// = "nao.local";
 	int NAO_PORT;// = 9559;
 
 	//std::vector< std::vector<float> > cameraTopMatrix(3, vector<float>(3,0.0));
-	//double camera_top_matrix[3][3] = {{182.0992346/0.16, 0., 658.7582}, {0., 185.0952141/0.16, 484.2186}, {0., 0., 1.}};
-	cv::Mat cameraTopMatrix;// = cv::Mat(3, 3, CV_64F, camera_top_matrix);
+	double camera_top_matrix[3][3];
 
 	struct QRcodeDetection
    {
-		bool isQRcodeFound;
-		int numberOfQRcodes; //number of detected QRcodes
+		bool isQRcodeFound;// = false;
+		int numberOfQRcodes;// = 0; //number of detected QRcodes
 		std::vector< cv::Mat > LandmarkInCameraCoordinate;//Transformation matrix from camera to Landmark
 		std::vector< cv::Mat > LandmarkInRobotCoordinate;//Transformation matrix from camera to robot
-		//std::vector< std::vector< std::vector<float> > > LandmarkInCameraCoordinate(0/*empty*/,std::vector<std::vector<float>>(4,std::vector<float>(4,0.0)));//Transformation matrix from camera to Landmark
-		//std::vector< std::vector< std::vector<float> > > LandmarkInRobotCoordinate(0/*empty*/,std::vector<std::vector<float>>(4,std::vector<float>(4,0.0)));//Transformation matrix from camera to robot
-		std::vector<std::string> QRmessage; //vector for messages from QRcodes	
-		//Matrix4x4Camera;
-		//Matrix4x4Robot;
+		std::vector<std::string> QRmessage; //vector for messages from QRcodes		
    };
 	
 	struct QRcodeHazardDetection
    {
-		bool isHazardFound;
+		bool isHazardFound;// = false;
 		std::vector<float> hazardPosition_x; // in robot coordinate system - x-axis is directed to the front
 		std::vector<float> hazardPosition_y; // in robot coordinate system - y-axis is directed to the left
 		std::vector<std::string> openedObject; //message from QRcode of an open object
@@ -66,13 +66,15 @@ public:
 	void init(int argc, char **argv);
 	sensor_msgs::Image captureImage(std::string cameraId);	 // For frame capture from selected camera
 
+	/*std::vector< std::vector<float> >*/
 	cv::Mat getTransform(std::string chainName, int space); // For computing transforamtion matrix from one coordinate system to another
 
-	struct QRcodeDetection qrCodeDetection(sensor_msgs::Image frame_, zbar::ImageScanner set_zbar, /*std::vector< std::vector<float> >*/ cv::Mat robotToCameraMatrix); // For QRcode detection
+	struct QRcodeDetection qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat robotToCameraMatrix); // For QRcode detection
+//‘NaoVision::QRcodeDetection NaoVision::qrCodeDetection(sensor_msgs::Image, zbar::ImageScanner, cv::Mat)///*std::vector< std::vector<float> >*/
 
 
 protected:
 	// For QRcode detection:
-	const double landmarkTheoreticalSize = 0.16; //# QRcode real size in meters
-	const std::string currentQRcodeCamera = "CameraTop";
+	float landmarkTheoreticalSize;// = 0.16; //# QRcode real size in meters
+	std::string currentQRcodeCamera;// = "CameraTop";
 };
