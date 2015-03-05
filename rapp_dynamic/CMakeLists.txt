@@ -110,6 +110,7 @@ include_directories(
 ## Declare a cpp executable
 add_executable(dyn_client src/dyn_client.cpp)
 add_executable(dyn_QRcodeDetection src/dyn_QRcodeDetection.cpp)
+add_executable(dyn_Hazard-QRcodeDetection src/dyn_Hazard-QRcodeDetection.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -125,6 +126,11 @@ target_link_libraries(dyn_QRcodeDetection
    ${catkin_LIBRARIES}
 	NaoVision
  )
+target_link_libraries(dyn_Hazard-QRcodeDetection
+   ${catkin_LIBRARIES}
+	NaoVision
+ )
+
 
 #############
 ## Install ##

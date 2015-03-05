@@ -1,3 +1,7 @@
+//#####################
+// written by Jan Figat
+//#####################
+
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "rapp_robot_agent/GetImage.h"//change it for core
@@ -14,10 +18,10 @@
 #include <vector>
 #include <string>
 
+#include <math.h>       // for atan2
+
+//openCV library
 #include <cv_bridge/cv_bridge.h>
-//#include <opencv/cv.h>
-//#include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv/highgui.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -52,26 +56,46 @@ public:
 		int numberOfQRcodes;// = 0; //number of detected QRcodes
 		std::vector< cv::Mat > LandmarkInCameraCoordinate;//Transformation matrix from camera to Landmark
 		std::vector< cv::Mat > LandmarkInRobotCoordinate;//Transformation matrix from camera to robot
-		std::vector<std::string> QRmessage; //vector for messages from QRcodes		
+		std::vector<std::string> QRmessage; //vector for messages from QRcodes
+
+		void clear()
+		{
+			isQRcodeFound = false;
+			numberOfQRcodes = 0;
+			LandmarkInCameraCoordinate.clear();
+			LandmarkInRobotCoordinate.clear();
+			QRmessage.clear();
+		}
    };
 	
 	struct QRcodeHazardDetection
    {
 		bool isHazardFound;// = false;
-		std::vector<float> hazardPosition_x; // in robot coordinate system - x-axis is directed to the front
-		std::vector<float> hazardPosition_y; // in robot coordinate system - y-axis is directed to the left
+		std::vector<double> hazardPosition_x; // in robot coordinate system - x-axis is directed to the front
+		std::vector<double> hazardPosition_y; // in robot coordinate system - y-axis is directed to the left
 		std::vector<std::string> openedObject; //message from QRcode of an open object
+
+		void clear()
+		{
+			isHazardFound = false;
+			hazardPosition_x.clear();
+			hazardPosition_y.clear();
+			openedObject.clear();
+		}
    };
 	
 	void init(int argc, char **argv);
 	sensor_msgs::Image captureImage(std::string cameraId);	 // For frame capture from selected camera
 
-	/*std::vector< std::vector<float> >*/
 	cv::Mat getTransform(std::string chainName, int space); // For computing transforamtion matrix from one coordinate system to another
 
 	struct QRcodeDetection qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat robotToCameraMatrix); // For QRcode detection
-//‘NaoVision::QRcodeDetection NaoVision::qrCodeDetection(sensor_msgs::Image, zbar::ImageScanner, cv::Mat)///*std::vector< std::vector<float> >*/
 
+	struct QRcodeHazardDetection openDoorDetection(std::vector< cv::Mat > &LandmarkInRobotCoordinate, std::vector<std::string> &QRmessage); // For Hazard detection while using QRcodes
+
+	std::vector<double> compute_euler_x( std::vector<double> m12, std::vector<double> m22); //For the computation of the 1-st euler angle
+	std::vector<double> compute_euler_y( std::vector<double> m00, std::vector<double> m01, std::vector<double> m02); //For the computation of the 2-nd euler angle
+	std::vector<double> compute_euler_z( std::vector<double> m00, std::vector<double> m01); //For the computation of the 3-rd euler angle
 
 protected:
 	// For QRcode detection:

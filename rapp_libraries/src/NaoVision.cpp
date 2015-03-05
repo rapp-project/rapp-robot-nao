@@ -1,22 +1,10 @@
+//#####################
+// written by Jan Figat
+//#####################
+
 #include "NaoVision.h"
-#include "ros/ros.h"
-//#include "rapp_robot_agent/DetectQRcode.h"
 
-#include <cv_bridge/cv_bridge.h>
-//#include <opencv/cv.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
-
-#include <zbar.h> // for QRcode detection
-
-using namespace std;
-using namespace cv;
-using namespace zbar;
-
-//const double PI = 3.14159265359;
-
+//#########################################################################
 	NaoVision::NaoVision(int argc,char **argv)
 	{
 		ros::init(argc, argv,"QRcodeDetection_client");
@@ -29,34 +17,30 @@ using namespace zbar;
 		NaoVision::camera_top_matrix[1][1]=185.0952141/0.16; NaoVision::camera_top_matrix[1][2]=484.2186;
 		NaoVision::camera_top_matrix[2][2]=1.0;
 		NaoVision::camera_top_matrix[0][1]=0.0; NaoVision::camera_top_matrix[1][0]=0.0; NaoVision::camera_top_matrix[2][0]=0.0; NaoVision::camera_top_matrix[2][1]=0.0;
+
 		//cout<<cv::Mat(3, 3, cv::DataType<double>::type, NaoVision::camera_top_matrix)<<endl;
 		
 		NaoVision::landmarkTheoreticalSize = 0.16f; //# QRcode real size in meters
-		cout<<NaoVision::landmarkTheoreticalSize<<endl;
+		//cout<<NaoVision::landmarkTheoreticalSize<<endl;
 		NaoVision::currentQRcodeCamera = "CameraTop";
 
 	}
 
-	
+//#########################################################################
+//#########################################################################
 
-	//////////////////////
-		// Create a zbar reader
-    	//ImageScanner scanner;
-    
-    	// Configure the reader
-    	//scanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
-
-	struct NaoVision::QRcodeDetection NaoVision::qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, /*vector< vector<float> >*/ cv::Mat robotToCameraMatrix_)
+	struct NaoVision::QRcodeDetection NaoVision::qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat robotToCameraMatrix_)
 	{	
 		//cout<<cv::Mat(3, 3, cv::DataType<double>::type, NaoVision::camera_top_matrix)<<endl;
 
 		// initializing the structure QRcodeDetection -- set to default
 		NaoVision::QRcodeDetection QRcodeDetectionStruct;
-		QRcodeDetectionStruct.isQRcodeFound = false;
-		QRcodeDetectionStruct.numberOfQRcodes = 0;
-		QRcodeDetectionStruct.LandmarkInCameraCoordinate.clear();
-		QRcodeDetectionStruct.LandmarkInRobotCoordinate.clear();
-		QRcodeDetectionStruct.QRmessage.clear();
+		QRcodeDetectionStruct.clear();
+		//QRcodeDetectionStruct.isQRcodeFound = false;
+		//QRcodeDetectionStruct.numberOfQRcodes = 0;
+		//QRcodeDetectionStruct.LandmarkInCameraCoordinate.clear();
+		//QRcodeDetectionStruct.LandmarkInRobotCoordinate.clear();
+		//QRcodeDetectionStruct.QRmessage.clear();
 		
 		cv::Mat cv_frame,frame_grayscale;
 		boost::shared_ptr<void const> tracked_object;
@@ -117,8 +101,6 @@ using namespace zbar;
 			//object_points.push_back(Point3f (-w/2,w/2,0));
 			//object_points.push_back(Point3f (w/2,w/2,0));
 			//object_points.push_back(Point3f (w/2,-w/2,0));
-			
-			
 
 			// Camera Intrinsic Matrix -- from Camera calibration
 			cameraIntrinsicMatrix = cv::Mat(3, 3, cv::DataType<double>::type, NaoVision::camera_top_matrix);
@@ -162,15 +144,6 @@ using namespace zbar;
 			//## Transformation from the camera coordinate system to the robot coordinate system
 			robotToLandmarkMatrix = cameraToLandmarkTransformMatrix*robotToCameraMatrix_;
 
-			//cout<<landmarkToCameraTransform<<endl;
-			//cout<<Rotx_minus90<<endl;
-			//cout<<Rotz_plus90<<endl;
-			//cout<<cameraToLandmarkTransformMatrix<<endl;	
-			//cout<<robotToCameraMatrix_<<endl;		
-			//cout<<robotToLandmarkMatrix<<endl;
-
-
-
 			QRcodeDetectionStruct.LandmarkInCameraCoordinate.push_back(cameraToLandmarkTransformMatrix);
 			QRcodeDetectionStruct.LandmarkInRobotCoordinate.push_back(robotToLandmarkMatrix);
 			
@@ -183,8 +156,94 @@ using namespace zbar;
 
 		return QRcodeDetectionStruct;
 	}
+//#########################################################################
+//#########################################################################
 	
+	std::vector<double> NaoVision::compute_euler_x( std::vector<double> m12, std::vector<double> m22) //For the computation of the 1-st euler angle
+	{
+		std::vector<double> euler1;
+		euler1.clear();
+		for (int i=0;i<m12.size();i++)
+			euler1.push_back( atan2(m12[i], m22[i]) );// in radians
+		return euler1;
+	}
+	std::vector<double> NaoVision::compute_euler_y( std::vector<double> m00, std::vector<double> m01, std::vector<double> m02) //For the computation of the 2-nd euler angle
+	{
+		std::vector<double> euler2;
+		euler2.clear();
+		for (int i=0;i<m00.size();i++)
+			euler2.push_back( atan2(-m02[i], sqrt(pow(m00[i],2) + pow(m01[i],2))) );// in radians
+		return euler2;
+	}
+	std::vector<double> NaoVision::compute_euler_z( std::vector<double> m00, std::vector<double> m01) //For the computation of the 3-rd euler angle
+	{
+		std::vector<double> euler3;
+		euler3.clear();
+		for (int i=0;i<m00.size();i++)
+			euler3.push_back( atan2(m01[i], m00[i]) );// in radians
+		return euler3;
+	}
 
+//#########################################################################
+
+	// Hazard -- open door detection	
+	struct NaoVision::QRcodeHazardDetection NaoVision::openDoorDetection(std::vector< cv::Mat > &LandmarkInRobotCoordinate, std::vector<std::string> &QRmessage)
+	{
+		// initializing the structure QRcodeHazardDetection -- set to default
+		NaoVision::QRcodeHazardDetection QRcodeHazardStruct;
+		QRcodeHazardStruct.clear();
+		//QRcodeHazardStruct.isHazardFound = false;
+		//QRcodeHazardStruct.hazardPosition_x.clear();
+		//QRcodeHazardStruct.hazardPosition_y.clear();
+		//QRcodeHazardStruct.openedObject.clear();
+		vector<double> euler3;
+		vector<double> m00, m01;
+
+		const double PI = 3.14159265359f;
+
+		double precision = 4*PI/180.f; //established precision of QRcodes detection -- in degrees
+		vector<int> wall_number;
+
+		//computation of the 3-rd euler angle
+		euler3.clear();
+		m00.clear(); m01.clear();
+		wall_number.clear();
+
+		// creates vectors with selected one value, per detected QRcode, from vector of localization matrices
+		for (int i=0; i<LandmarkInRobotCoordinate.size(); i++)
+		{
+			m00.push_back(LandmarkInRobotCoordinate[i].at<double>(0,0));
+			m01.push_back(LandmarkInRobotCoordinate[i].at<double>(0,1));
+		}
+		euler3 = NaoVision::compute_euler_z(m00, m01);
+
+		for (int i=0; i<LandmarkInRobotCoordinate.size(); i++)
+		{
+			if ( (QRmessage[i].find("Wall") != std::string::npos) || (QRmessage[i].find("Stable object") != std::string::npos) ) //checks if "Wall" or "Stable object" are a substring of QRmessage[i]
+				wall_number.push_back(i);
+		}
+		for (int i=0; i<wall_number.size(); i++)
+			for (int k=-2;k<=2;k++)
+			{
+				if ( (k!=0) && (wall_number[i]+k>=0) && (wall_number[i]+k<LandmarkInRobotCoordinate.size()) )
+				{
+					//comparing the angles (euler3)
+					if ( ! ( ((euler3[wall_number[i]]+precision > euler3[wall_number[i]+k]) && (euler3[wall_number[i]]-precision < euler3[wall_number[i]+k])) || ((euler3[wall_number[i]]+precision - PI> euler3[wall_number[i]+k]) && (euler3[wall_number[i]]-precision - PI< euler3[wall_number[i]+k])) || ((euler3[wall_number[i]]+precision + PI> euler3[wall_number[i]+k]) && (euler3[wall_number[i]]-precision + PI< euler3[wall_number[i]+k])) ) )
+					{
+						//detected an open door
+						QRcodeHazardStruct.isHazardFound = true;
+						QRcodeHazardStruct.hazardPosition_x.push_back( LandmarkInRobotCoordinate[wall_number[i]+k].at<double>(0,3) );
+						QRcodeHazardStruct.hazardPosition_y.push_back( LandmarkInRobotCoordinate[wall_number[i]+k].at<double>(1,3) );
+						QRcodeHazardStruct.openedObject.push_back( QRmessage[wall_number[i]+k] );
+					}
+				}
+			}
+
+		return QRcodeHazardStruct;
+	}
+
+//#########################################################################
+//#########################################################################
 	// CAMERA
 	sensor_msgs::Image NaoVision::captureImage(std::string cameraId)
 	{
@@ -206,7 +265,7 @@ using namespace zbar;
 		return img;
 	}
 
-	/*std::vector< std::vector<float> >*/
+//#########################################################################
 	cv::Mat NaoVision::getTransform(std::string chainName, int space)
 	{
 		//ros::NodeHandle nh;
