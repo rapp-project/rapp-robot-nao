@@ -89,13 +89,13 @@ public:
 
 	cv::Mat getTransform(std::string chainName, int space); // For computing transforamtion matrix from one coordinate system to another
 
-	struct QRcodeDetection qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat robotToCameraMatrix); // For QRcode detection
+	struct QRcodeDetection qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix); // For QRcode detection
 
 	struct QRcodeHazardDetection openDoorDetection(std::vector< cv::Mat > &LandmarkInRobotCoordinate, std::vector<std::string> &QRmessage); // For Hazard detection while using QRcodes
 
-	std::vector<double> compute_euler_x( std::vector<double> m12, std::vector<double> m22); //For the computation of the 1-st euler angle
-	std::vector<double> compute_euler_y( std::vector<double> m00, std::vector<double> m01, std::vector<double> m02); //For the computation of the 2-nd euler angle
-	std::vector<double> compute_euler_z( std::vector<double> m00, std::vector<double> m01); //For the computation of the 3-rd euler angle
+	std::vector<double> compute_euler_x( std::vector<double> &m12, std::vector<double> &m22); //For the computation of the 1-st euler angle
+	std::vector<double> compute_euler_y( std::vector<double> &m00, std::vector<double> &m01, std::vector<double> &m02); //For the computation of the 2-nd euler angle
+	std::vector<double> compute_euler_z( std::vector<double> &m00, std::vector<double> &m01); //For the computation of the 3-rd euler angle
 
 protected:
 	// For QRcode detection:
