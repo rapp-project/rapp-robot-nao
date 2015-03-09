@@ -80,18 +80,17 @@ class Transform_class:
 			Transform_class.transformMatrix=[]
 			### Get current camera position in NAO space.
 			motionProxy = ALProxy("ALMotion", Constants.NAO_IP, Constants.NAO_PORT)
-			transform = motionProxy.getTransform(chainName_, space_, True)#space_=2 - for robot coordinate system
+			transform = motionProxy.getTransform(chainName_, space_, True)#space_=2 - for robot coordinate system; FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2
+			#transform = motionProxy.getTransform(chainName_, space_, False)#space_=2 - for robot coordinate system; FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2
 			transformList = almath.vectorFloat(transform)
-			robotToCamera = almath.Transform(transformList)
+			cameraToRobot = almath.Transform(transformList)
 
-			transformMatrix_= np.asarray([ [robotToCamera.r1_c1,robotToCamera.r1_c2,robotToCamera.r1_c3,robotToCamera.r1_c4],
-													[robotToCamera.r2_c1,robotToCamera.r2_c2,robotToCamera.r2_c3,robotToCamera.r2_c4],
-													[robotToCamera.r3_c1,robotToCamera.r3_c2,robotToCamera.r3_c3,robotToCamera.r3_c4],
+			transformMatrix_= np.asarray([ [cameraToRobot.r1_c1,cameraToRobot.r1_c2,cameraToRobot.r1_c3,cameraToRobot.r1_c4],
+													[cameraToRobot.r2_c1,cameraToRobot.r2_c2,cameraToRobot.r2_c3,cameraToRobot.r2_c4],
+													[cameraToRobot.r3_c1,cameraToRobot.r3_c2,cameraToRobot.r3_c3,cameraToRobot.r3_c4],
 													[0.0,0.0,0.0,1.0]])
+			transformMatrix_=np.linalg.inv(transformMatrix_) #robotToCamera
 				
-			### -----------------------------------------
-			#print "robot To Landmark"
-			#print transformMatrix_
 			Transform_class.transformMatrix.append(transformMatrix_)
 
 										

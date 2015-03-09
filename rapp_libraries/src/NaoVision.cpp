@@ -29,7 +29,7 @@
 //#########################################################################
 //#########################################################################
 
-	struct NaoVision::QRcodeDetection NaoVision::qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat robotToCameraMatrix_)
+	struct NaoVision::QRcodeDetection NaoVision::qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
 	{	
 		//cout<<cv::Mat(3, 3, cv::DataType<double>::type, NaoVision::camera_top_matrix)<<endl;
 
@@ -62,6 +62,8 @@
 
 		// Extract results
       int counter = 0;
+
+
       for (Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
 			//vector<vector<Point3f> > object_points;
 			//vector<vector<Point2f> > image_points;
@@ -76,7 +78,6 @@
 			pixel_coords.push_back(Point2f (symbol->get_location_x(3),symbol->get_location_y(3)));
 			//cout<<pixel_coords<<endl;
 
-			
 			cv::Mat rvec;//(3,1,cv::DataType<float>::type);
 			cv::Mat tvec;//(3,1,cv::DataType<float>::type);
 			cv::Mat rotationMatrix;//(3,3,cv::DataType<float>::type);
@@ -87,20 +88,29 @@
 			cv::Mat cameraToLandmarkTransformMatrix = cv::Mat::zeros(4,4,cv::DataType<double>::type);
 			cv::Mat robotToLandmarkMatrix = cv::Mat::zeros(4,4,cv::DataType<double>::type);
 			cv::Mat Rotx_minus90 = cv::Mat::zeros(4,4,cv::DataType<double>::type);
+			cv::Mat Rotx_plus90 = cv::Mat::zeros(4,4,cv::DataType<double>::type);
 			cv::Mat Rotz_plus90 = cv::Mat::zeros(4,4,cv::DataType<double>::type);
-			
-			//float w= NaoVision::landmarkTheoreticalSize;
+			cv::Mat Roty_plus90 = cv::Mat::zeros(4,4,cv::DataType<double>::type);
+			cv::Mat Roty_minus90 = cv::Mat::zeros(4,4,cv::DataType<double>::type);
+			cv::Mat Rotz_180 = cv::Mat::zeros(4,4,cv::DataType<double>::type);
+
+			//$$$$$$$$$$$$$$$$$$
+			vector<double> m00,m01,m02,m12,m22,euler1, euler2, euler3;
+			const double PI = 3.14159265359f;
+		
 			// Model for SolvePnP // x-> y^
 			object_points.clear();
-			object_points.push_back(Point3f (-NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2,0.));
+			/*object_points.push_back(Point3f (-NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2,0.));
 			object_points.push_back(Point3f (-NaoVision::landmarkTheoreticalSize/2,-NaoVision::landmarkTheoreticalSize/2,0.));
 			object_points.push_back(Point3f (NaoVision::landmarkTheoreticalSize/2,-NaoVision::landmarkTheoreticalSize/2,0.));
 			object_points.push_back(Point3f (NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2,0.));
+			*/
+			//z^y->
+			object_points.push_back(Point3f (0.,-NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2));
+			object_points.push_back(Point3f (0.,-NaoVision::landmarkTheoreticalSize/2,-NaoVision::landmarkTheoreticalSize/2));
+			object_points.push_back(Point3f (0.,NaoVision::landmarkTheoreticalSize/2,-NaoVision::landmarkTheoreticalSize/2));
+			object_points.push_back(Point3f (0.,NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2));
 						
-			//object_points.push_back(Point3f (-w/2,-w/2,0));
-			//object_points.push_back(Point3f (-w/2,w/2,0));
-			//object_points.push_back(Point3f (w/2,w/2,0));
-			//object_points.push_back(Point3f (w/2,-w/2,0));
 
 			// Camera Intrinsic Matrix -- from Camera calibration
 			cameraIntrinsicMatrix = cv::Mat(3, 3, cv::DataType<double>::type, NaoVision::camera_top_matrix);
@@ -118,31 +128,74 @@
 			{
 				for (int j=0;j<3;j++)
 					landmarkToCameraTransform.at<double>(i,j)=rotationMatrix.at<double>(i,j);
-				landmarkToCameraTransform.at<double>(i,3)=tvec.at<double>(i,0);
 			}
+			landmarkToCameraTransform.at<double>(0,3)=tvec.at<double>(2,0); //y->z^ : x
+			landmarkToCameraTransform.at<double>(1,3)=tvec.at<double>(0,0); //y->z^ : y
+			landmarkToCameraTransform.at<double>(2,3)=tvec.at<double>(1,0); //y->z^ : z
 			landmarkToCameraTransform.at<double>(3,3)=1.0;
-			
-			Rotx_minus90.at<double>(0,0)=1.0;
-			//Rotx_minus90.at<float>(1,1)=cos(-CV_PI/2); Rotx_minus90.at<float>(1,2)=-sin(-CV_PI/2);
-			//Rotx_minus90.at<float>(2,1)=sin(-CV_PI/2); Rotx_minus90.at<float>(2,2)=cos(-CV_PI/2);
-			Rotx_minus90.at<double>(1,1)=0.; 	Rotx_minus90.at<double>(1,2)=1.;
-			Rotx_minus90.at<double>(2,1)=-1.; 	Rotx_minus90.at<double>(2,2)=0.;
-			Rotx_minus90.at<double>(3,3)=1.0;
 
-			//Rotz_plus90.at<float>(0,0)=cos(CV_PI/2); Rotz_plus90.at<float>(0,1)=-sin(CV_PI/2);
-			//Rotz_plus90.at<float>(1,0)=sin(CV_PI/2); Rotz_plus90.at<float>(1,1)=cos(CV_PI/2);
-			Rotz_plus90.at<double>(0,0)=0.; 	Rotz_plus90.at<double>(0,1)=-1.;
-			Rotz_plus90.at<double>(1,0)=1.;	Rotz_plus90.at<double>(1,1)=0.;
-			Rotz_plus90.at<double>(2,2)=1.0;
-			Rotz_plus90.at<double>(3,3)=1.0;
+									
+			Rotz_180.at<double>(0,0)=-1.f; Rotz_180.at<double>(0,1)=0.f;
+			Rotz_180.at<double>(1,0)=0.f;	Rotz_180.at<double>(1,1)=-1.f;
+			Rotz_180.at<double>(2,2)=1.f;
+			Rotz_180.at<double>(3,3)=1.f;
 			
 			//## Transformation from the QR-code coordinate system to the camera coordinate system
-			cameraToLandmarkTransformMatrix = Rotx_minus90*landmarkToCameraTransform;
-			cameraToLandmarkTransformMatrix = Rotz_plus90*cameraToLandmarkTransformMatrix;
-			cameraToLandmarkTransformMatrix.at<double>(0,3)*=-1.;	cameraToLandmarkTransformMatrix.at<double>(2,3)*=-1.;
+			cameraToLandmarkTransformMatrix = Rotz_180*landmarkToCameraTransform;
+			//cameraToLandmarkTransformMatrix.at<double>(0,3)*=-1.; //instead of translation about vector
+			cameraToLandmarkTransformMatrix.at<double>(0,3)=tvec.at<double>(2,0); //translation about x axis from QRcode coordinate system to Camera coordinate system
+			cameraToLandmarkTransformMatrix.at<double>(1,3)=-tvec.at<double>(0,0); //translation about y axis from QRcode coordinate system to Camera coordinate system
+			cameraToLandmarkTransformMatrix.at<double>(2,3)=-tvec.at<double>(1,0); //translation about z axis from QRcode coordinate system to Camera coordinate system
 
+						
 			//## Transformation from the camera coordinate system to the robot coordinate system
-			robotToLandmarkMatrix = cameraToLandmarkTransformMatrix*robotToCameraMatrix_;
+			robotToLandmarkMatrix = robotToCameraMatrix_*cameraToLandmarkTransformMatrix;
+			//robotToLandmarkMatrix = (robotToCameraMatrix_.inv())*cameraToLandmarkTransformMatrix;
+			
+
+			// ####################			
+			//&&&&&&&&&&&&&&&&&&&&&
+			std::cout<<"landmarkToCameraTransform"<<landmarkToCameraTransform<<std::endl;
+			m00.clear();m01.clear();m02.clear();m12.clear();m22.clear();euler1.clear();euler2.clear();euler3.clear();
+			m00.push_back(landmarkToCameraTransform.at<double>(0,0)); m01.push_back(landmarkToCameraTransform.at<double>(0,1));
+			m02.push_back(landmarkToCameraTransform.at<double>(0,2)); m12.push_back(landmarkToCameraTransform.at<double>(1,2));
+			m22.push_back(landmarkToCameraTransform.at<double>(2,2));
+			euler3 = NaoVision::compute_euler_z(m00, m01);
+			euler1 = NaoVision::compute_euler_x(m12, m22);
+			euler2 = NaoVision::compute_euler_y(m00, m01, m02);
+			std::cout<<"landmarkToCameraTransform >> Euler 1:\t"<<euler1[0]*180.f/PI<<"\tEuler 2:\t"<<euler2[0]*180.f/PI<<"\tEuler 3:\t"<<euler3[0]*180.f/PI<<std::endl;
+			//&&&&&&&&&&&&&&&&&&&&&
+			std::cout<<"cameraToLandmarkTransformMatrix"<<cameraToLandmarkTransformMatrix<<std::endl;
+			m00.clear();m01.clear();m02.clear();m12.clear();m22.clear();euler1.clear();euler2.clear();euler3.clear();
+			m00.push_back(cameraToLandmarkTransformMatrix.at<double>(0,0)); m01.push_back(cameraToLandmarkTransformMatrix.at<double>(0,1));
+			m02.push_back(cameraToLandmarkTransformMatrix.at<double>(0,2)); m12.push_back(cameraToLandmarkTransformMatrix.at<double>(1,2));
+			m22.push_back(cameraToLandmarkTransformMatrix.at<double>(2,2));
+			euler3 = NaoVision::compute_euler_z(m00, m01);
+			euler1 = NaoVision::compute_euler_x(m12, m22);
+			euler2 = NaoVision::compute_euler_y(m00, m01, m02);
+			std::cout<<"cameraToLandmarkTransformMatrix >> Euler 1:\t"<<euler1[0]*180.f/PI<<"\tEuler 2:\t"<<euler2[0]*180.f/PI<<"\tEuler 3:\t"<<euler3[0]*180.f/PI<<std::endl;
+			//&&&&&&&&&&&&&&&&&&&&&
+			std::cout<<"robotToCameraMatrix \n\t"<<robotToCameraMatrix_<<std::endl;
+			m00.clear();m01.clear();m02.clear();m12.clear();m22.clear();euler1.clear();euler2.clear();euler3.clear();
+			m00.push_back(robotToCameraMatrix_.at<double>(0,0));	m01.push_back(robotToCameraMatrix_.at<double>(0,1));
+			m02.push_back(robotToCameraMatrix_.at<double>(0,2));	m12.push_back(robotToCameraMatrix_.at<double>(1,2));
+			m22.push_back(robotToCameraMatrix_.at<double>(2,2));
+			euler3 = NaoVision::compute_euler_z(m00, m01);
+			euler1 = NaoVision::compute_euler_x(m12, m22);
+			euler2 = NaoVision::compute_euler_y(m00, m01, m02);
+			std::cout<<"robotToCameraMatrix >> Euler 1:\t"<<euler1[0]*180.f/PI<<"\tEuler 2:\t"<<euler2[0]*180.f/PI<<"\tEuler 3:\t"<<euler3[0]*180.f/PI<<std::endl;
+			//&&&&&&&&&&&&&&&&&&&&&
+			std::cout<<"robotToLandmarkMatrix \n\t"<<robotToLandmarkMatrix<<std::endl;
+			m00.clear();m01.clear();m02.clear();m12.clear();m22.clear();euler1.clear();euler2.clear();euler3.clear();
+			m00.push_back(robotToLandmarkMatrix.at<double>(0,0));	m01.push_back(robotToLandmarkMatrix.at<double>(0,1));
+			m02.push_back(robotToLandmarkMatrix.at<double>(0,2));	m12.push_back(robotToLandmarkMatrix.at<double>(1,2));
+			m22.push_back(robotToLandmarkMatrix.at<double>(2,2));
+			euler3 = NaoVision::compute_euler_z(m00, m01);
+			euler1 = NaoVision::compute_euler_x(m12, m22);
+			euler2 = NaoVision::compute_euler_y(m00, m01, m02);
+			std::cout<<"robotToLandmarkMatrix >> Euler 1:\t"<<euler1[0]*180.f/PI<<"\tEuler 2:\t"<<euler2[0]*180.f/PI<<"\tEuler 3:\t"<<euler3[0]*180.f/PI<<std::endl;
+			//&&&&&&&&&&&&&&&&&&&&&
+			// ####################
 
 			QRcodeDetectionStruct.LandmarkInCameraCoordinate.push_back(cameraToLandmarkTransformMatrix);
 			QRcodeDetectionStruct.LandmarkInRobotCoordinate.push_back(robotToLandmarkMatrix);
@@ -159,7 +212,7 @@
 //#########################################################################
 //#########################################################################
 	
-	std::vector<double> NaoVision::compute_euler_x( std::vector<double> m12, std::vector<double> m22) //For the computation of the 1-st euler angle
+	std::vector<double> NaoVision::compute_euler_x( std::vector<double> &m12, std::vector<double> &m22) //For the computation of the 1-st euler angle
 	{
 		std::vector<double> euler1;
 		euler1.clear();
@@ -167,7 +220,7 @@
 			euler1.push_back( atan2(m12[i], m22[i]) );// in radians
 		return euler1;
 	}
-	std::vector<double> NaoVision::compute_euler_y( std::vector<double> m00, std::vector<double> m01, std::vector<double> m02) //For the computation of the 2-nd euler angle
+	std::vector<double> NaoVision::compute_euler_y( std::vector<double> &m00, std::vector<double> &m01, std::vector<double> &m02) //For the computation of the 2-nd euler angle
 	{
 		std::vector<double> euler2;
 		euler2.clear();
@@ -175,7 +228,7 @@
 			euler2.push_back( atan2(-m02[i], sqrt(pow(m00[i],2) + pow(m01[i],2))) );// in radians
 		return euler2;
 	}
-	std::vector<double> NaoVision::compute_euler_z( std::vector<double> m00, std::vector<double> m01) //For the computation of the 3-rd euler angle
+	std::vector<double> NaoVision::compute_euler_z( std::vector<double> &m00, std::vector<double> &m01) //For the computation of the 3-rd euler angle
 	{
 		std::vector<double> euler3;
 		euler3.clear();
@@ -196,8 +249,11 @@
 		//QRcodeHazardStruct.hazardPosition_x.clear();
 		//QRcodeHazardStruct.hazardPosition_y.clear();
 		//QRcodeHazardStruct.openedObject.clear();
+		
+		//vector<double> euler1;
+		//vector<double> euler2;
 		vector<double> euler3;
-		vector<double> m00, m01;
+		vector<double> m00, m01;//, m02, m12, m22;
 
 		const double PI = 3.14159265359f;
 
@@ -206,6 +262,7 @@
 
 		//computation of the 3-rd euler angle
 		euler3.clear();
+		//euler1.clear();euler2.clear();
 		m00.clear(); m01.clear();
 		wall_number.clear();
 
@@ -214,11 +271,18 @@
 		{
 			m00.push_back(LandmarkInRobotCoordinate[i].at<double>(0,0));
 			m01.push_back(LandmarkInRobotCoordinate[i].at<double>(0,1));
+			//m02.push_back(LandmarkInRobotCoordinate[i].at<double>(0,2));
+			//m12.push_back(LandmarkInRobotCoordinate[i].at<double>(1,2));
+			//m22.push_back(LandmarkInRobotCoordinate[i].at<double>(2,2));
 		}
 		euler3 = NaoVision::compute_euler_z(m00, m01);
+		//euler1 = NaoVision::compute_euler_x(m12, m22);
+		//euler2 = NaoVision::compute_euler_y(m00, m01, m02);
 
 		for (int i=0; i<LandmarkInRobotCoordinate.size(); i++)
 		{
+			//std::cout<<"Euler 1:\t"<<euler1[i]*180/PI<<"\tEuler 2:\t"<<euler2[i]*180/PI<<"\tEuler 3:\t"<<euler3[i]*180/PI<<std::endl;
+
 			if ( (QRmessage[i].find("Wall") != std::string::npos) || (QRmessage[i].find("Stable object") != std::string::npos) ) //checks if "Wall" or "Stable object" are a substring of QRmessage[i]
 				wall_number.push_back(i);
 		}
@@ -227,7 +291,7 @@
 			{
 				if ( (k!=0) && (wall_number[i]+k>=0) && (wall_number[i]+k<LandmarkInRobotCoordinate.size()) )
 				{
-					//comparing the angles (euler3)
+					//comparing the angles (euler2)
 					if ( ! ( ((euler3[wall_number[i]]+precision > euler3[wall_number[i]+k]) && (euler3[wall_number[i]]-precision < euler3[wall_number[i]+k])) || ((euler3[wall_number[i]]+precision - PI> euler3[wall_number[i]+k]) && (euler3[wall_number[i]]-precision - PI< euler3[wall_number[i]+k])) || ((euler3[wall_number[i]]+precision + PI> euler3[wall_number[i]+k]) && (euler3[wall_number[i]]-precision + PI< euler3[wall_number[i]+k])) ) )
 					{
 						//detected an open door
