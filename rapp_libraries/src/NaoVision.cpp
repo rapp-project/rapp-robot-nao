@@ -153,7 +153,7 @@
 			
 
 			
-			// ####################			for tests
+			/*// ####################			for tests
 			//&&&&&&&&&&&&&&&&&&&&&
 			std::cout<<"landmarkToCameraTransform"<<landmarkToCameraTransform<<std::endl;
 			m00.clear();m01.clear();m02.clear();m12.clear();m22.clear();euler1.clear();euler2.clear();euler3.clear();
