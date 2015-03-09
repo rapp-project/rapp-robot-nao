@@ -152,7 +152,7 @@
 			robotToLandmarkMatrix = robotToCameraMatrix_*cameraToLandmarkTransformMatrix;
 			
 
-			/*
+			
 			// ####################			for tests
 			//&&&&&&&&&&&&&&&&&&&&&
 			std::cout<<"landmarkToCameraTransform"<<landmarkToCameraTransform<<std::endl;
@@ -196,7 +196,7 @@
 			std::cout<<"robotToLandmarkMatrix >> Euler 1:\t"<<euler1[0]*180.f/PI<<"\tEuler 2:\t"<<euler2[0]*180.f/PI<<"\tEuler 3:\t"<<euler3[0]*180.f/PI<<std::endl;
 			//&&&&&&&&&&&&&&&&&&&&&
 			// ####################
-			*/
+			//*/
 
 			QRcodeDetectionStruct.LandmarkInCameraCoordinate.push_back(cameraToLandmarkTransformMatrix);
 			QRcodeDetectionStruct.LandmarkInRobotCoordinate.push_back(robotToLandmarkMatrix);
