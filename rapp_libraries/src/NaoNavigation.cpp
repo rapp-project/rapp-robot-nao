@@ -24,7 +24,14 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  srv.request.destination_theta = theta;
 		  if (client_moveTo.call(srv))
 		  {
+		  	if (srv.response.isDestinationReached == true){
+
 		    ROS_INFO("Nao moved ");
+
+		  	}else{
+		    ROS_INFO("Nao sees obstacle");
+
+		  	}
 		  }
 		  else
 		  {

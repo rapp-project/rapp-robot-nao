@@ -115,7 +115,6 @@ target_link_libraries(NaoVision
  )
 
 target_link_libraries(NaoNavigation 
-  #NaoVision
   ${catkin_LIBRARIES}
  )
 
@@ -139,7 +138,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(NaoVision /usr/lib/libzbar.so
-   #${catkin_LIBRARIES}
  )
 
 

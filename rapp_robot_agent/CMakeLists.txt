@@ -41,7 +41,8 @@ find_package(catkin REQUIRED COMPONENTS
  add_message_files(
 	FILES
 	Matrix4x4.msg
- )
+	MatrixRot.msg 
+)
 
  generate_messages(
    DEPENDENCIES
