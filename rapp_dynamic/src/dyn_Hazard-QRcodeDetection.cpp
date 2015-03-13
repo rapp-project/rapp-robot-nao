@@ -28,7 +28,7 @@ main(int argc, char **argv)
 	{
 		std::cout<<"QRcode detection ..."<<std::endl;
 		QRcodeDetectionStruct = NAO_Vision.qrCodeDetection(frame, scanner, robotToCameraMatrix); // QRcode detection
-		if (QRcodeDetectionStruct.QRmessage.size()>=2)
+		if (QRcodeDetectionStruct.QRmessage.size()>=2) 
 			QRcodeHazardStruct = NAO_Vision.openDoorDetection(QRcodeDetectionStruct.LandmarkInRobotCoordinate, QRcodeDetectionStruct.QRmessage); // Hazard detection -- open door detection while using QRcodes
 
 		for (int i=0; i<QRcodeDetectionStruct.QRmessage.size(); i++) //QRcode detected

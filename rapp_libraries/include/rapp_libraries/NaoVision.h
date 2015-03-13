@@ -93,9 +93,9 @@ public:
 
 	struct QRcodeHazardDetection openDoorDetection(std::vector< cv::Mat > &LandmarkInRobotCoordinate, std::vector<std::string> &QRmessage); // For Hazard detection while using QRcodes
 
-	std::vector<double> compute_euler_x( std::vector<double> &m12, std::vector<double> &m22); //For the computation of the 1-st euler angle
-	std::vector<double> compute_euler_y( std::vector<double> &m00, std::vector<double> &m01, std::vector<double> &m02); //For the computation of the 2-nd euler angle
-	std::vector<double> compute_euler_z( std::vector<double> &m00, std::vector<double> &m01); //For the computation of the 3-rd euler angle
+	std::vector<double> compute_euler_x( std::vector<double> &m21, std::vector<double> &m22, std::vector<double> &euler_y); //For the computation of the 1-st euler angle
+	std::vector<double> compute_euler_y(std::vector<double> &m20); //For the computation of the 2-nd euler angle
+	std::vector<double> compute_euler_z(std::vector<double> &m10, std::vector<double> &m00, std::vector<double> &euler_y); //For the computation of the 3-rd euler angle
 
 protected:
 	// For QRcode detection:

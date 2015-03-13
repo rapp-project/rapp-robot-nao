@@ -88,7 +88,7 @@ ros::NodeHandle nh;
 	//NaoVision_.QRcodeDetection QRcodeDetectionStruct;
 	NaoVision::QRcodeDetection QRcodeDetectionStruct;
 	double theta_marker;
-	std::vector<double> vector1,vector2;
+	std::vector<double> vector1,vector2, vector3, euler_y;
 	// Create a zbar reader
 	zbar::ImageScanner scanner;
 	bool NaoMoved = false;
@@ -111,7 +111,7 @@ while (NaoMoved != true && yaw<3){
 		QRcodeDetectionStruct.clear();
 		QRcodeDetectionStruct = NAO_Vision.qrCodeDetection(frame, scanner, robotToCameraMatrix);
 		std::cout<<QRcodeDetectionStruct.QRmessage.size();
-		std::cout<<"test";
+		//std::cout<<"test";
 
 		for (int i=0; i<QRcodeDetectionStruct.QRmessage.size(); i++)
 		{
@@ -125,19 +125,25 @@ while (NaoMoved != true && yaw<3){
 
 		vector1.clear();
 		vector2.clear();
+		vector3.clear();
 		vector1.push_back(QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(0,0));
-		vector2.push_back(QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(0,1));
+		vector2.push_back(QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(1,0)); //modyfikacja
+		vector3.push_back(QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(2,0)); //modyfikacja
+		//vector2.push_back(QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(0,1));
 		x_goal = QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(0,3);
 		y_goal = QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(1,3);
-
-		theta_marker = NAO_Vision.compute_euler_z(vector1,vector2)[0];
-		nh.setParam("/marker/pose/x",QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(0,3));
+		
+		euler_y = NAO_Vision.compute_euler_y(vector3); //modyfikacja
+		theta_marker = NAO_Vision.compute_euler_z(vector2,vector1,euler_y)[0]; //modyfikacja
+		//theta_marker = NAO_Vision.compute_euler_z(vector1,vector2)[0];
+		nh.setParam("/marker/pose/x",QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(0,3)-0.5);
 		nh.setParam("/marker/pose/y",QRcodeDetectionStruct.LandmarkInRobotCoordinate[0].at<double>(1,3));
 		nh.setParam("/marker/pose/t",theta_marker);
+		std::cout<<"rotation of QR-code around OZ axis in robot frame: "<<theta_marker*180.f/M_PI<<" in degrees"<<std::endl;
 
 		theta_goal = getGoalTheta(x_goal,y_goal);
 
-		Nao.moveTo(0,0,theta_goal);
+		Nao.moveTo(0,0,theta_goal); //modyfikacja
 		distance = sqrt(x_goal*x_goal+y_goal*y_goal);
 		Nao.moveTo(distance,0,0);
 		NaoMoved = true;
