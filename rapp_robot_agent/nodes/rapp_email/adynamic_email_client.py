@@ -9,7 +9,7 @@ import rosparam
 from std_msgs.msg import String
 
 # Importing services
-from rapp_core_agent.srv import *
+from rapp_robot_agent.srv import *
 
 # Importing messages
 from rapp.msg import Status
