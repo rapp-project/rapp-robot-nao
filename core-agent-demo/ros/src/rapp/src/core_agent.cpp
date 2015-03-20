@@ -9,8 +9,8 @@
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "rapp_core_agent/RecognizeWord.h"
-#include "rapp_core_agent/Say.h"
+#include "rapp_robot_agent/RecognizeWord.h"
+#include "rapp_robot_agent/Say.h"
 
 #include "rapp/Status.h"
 
@@ -77,7 +77,7 @@ protected:
 	//Constructor of class CoreAgent
 	CoreAgent::CoreAgent(){
 		// Create a client for the rapp_get_recognizes_word serivce
-		client_ = nh_.serviceClient<rapp_core_agent::RecognizeWord>("rapp_get_recognizes_word");
+		client_ = nh_.serviceClient<rapp_robot_agent::RecognizeWord>("rapp_get_recognizes_word");
 			
 		// Create a subscriber object.
 		subHopCommunication_ = nh_.subscribe(RESPONSE_TOPIC, 100, &CoreAgent::responseReceived, this);
@@ -153,7 +153,7 @@ protected:
 	{
 		std::cout << "Get command\n";
 		std::string dictionary_ [3] ={"rapp", "email", "exit"};
-		rapp_core_agent::RecognizeWord srv;
+		rapp_robot_agent::RecognizeWord srv;
 		
 		srv.request.wordsList=getVector(dictionary_,3);
 		
