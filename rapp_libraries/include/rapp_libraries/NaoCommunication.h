@@ -2,6 +2,10 @@
 #include <iostream>
 #include <string>
 
+#include "rapp_robot_agent/Say.h"
+#include "rapp_robot_agent/RecognizeWord.h"
+#include "rapp_robot_agent/Record.h"
+
 using namespace std;
 
 class NaoCommunication {
@@ -16,11 +20,11 @@ public:
 	ros::NodeHandle *n;
 
 	void init(int argc, char **argv);
-	void say(string str);
-	void recognizeWord(string dictionary[], int size);
-	void record(int time);
+	bool say(string str);
+	string recognizeWord(string dictionary[], int size);
+	string record(int time);
 
 	template<typename T>
-	inline vector<T> copyTable(T table[], int size);
+	inline vector<basic_string<char> > copyTable(T table[], int size);
 
 };

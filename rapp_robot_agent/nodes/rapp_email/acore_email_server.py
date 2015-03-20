@@ -156,8 +156,8 @@ class EmailRecognitionModule(ALModule):
 			self.service_rgea = rospy.Service('rapp_get_email_address', GetEmailAddress, self.handle_rapp_get_email_address)
 			print "[Email server] - service - [rapp_record]"
 			self.service_rr = rospy.Service('rapp_record', Record, self.handle_rapp_record)
-			print "[Email server] - service - [rapp_get_recognizes_word]"
-			self.service_rrw = rospy.Service('rapp_get_recognizes_word', RecognizeWord, self.handle_rapp_get_recognizes_word)
+			print "[Email server] - service - [rapp_get_recognized_word]"
+			self.service_rrw = rospy.Service('rapp_get_recognized_word', RecognizeWord, self.handle_rapp_get_recognized_word)
 			'''print "[Email server] - service - [rapp_send_email]"
 			self.service_rse = rospy.Service('rapp_send_email', SendEmail, self.handle_rapp_send_email)'''
 		except Exception, ex:
@@ -252,7 +252,8 @@ class EmailRecognitionModule(ALModule):
 				self.stopListening = True
 				self.wordRecognized = val[0]
 				print "[Email server] - [onSoundDetected] - Word recognized: %s" % self.wordRecognized
-				
+				val[1]=0
+				prox_memory.insertData(self.memValue,val)
 				return
 				
 			# Subscribe again to the event
@@ -300,10 +301,10 @@ class EmailRecognitionModule(ALModule):
 		self.prox_tts.say("GO")
 	
 	# Record an email message
-	def recordEmail(self):
+	def recordSound(self):
 		try:
 			print "[Send Email] - Recording an email"
-			self.countDown("Recording an email")
+			#self.countDown("Recording an email")
 						
 			#self.prox_ar.stopMicrophonesRecording()
 			
@@ -315,7 +316,7 @@ class EmailRecognitionModule(ALModule):
 			# Recording stops and the file is being closed after recordingTime
 			self.prox_ar.stopMicrophonesRecording()
 			print "[Send Email] - Recording stops"
-			self.prox_tts.say("Recording stops")
+			#self.prox_tts.say("Recording stops")
 
 		except Exception, e:
 			print "[Send Email] - Error during recording an message"
@@ -332,7 +333,7 @@ class EmailRecognitionModule(ALModule):
 		print "[Email server receives]: \t%s\n[Email server returns]: \t%s" % (req.request, "Said: %s"% req.request)
 		#self.prox_tts.say("Nao says : %s"% req.request)
 		self.prox_tts.say(req.request)
-		return SayResponse(req.request)
+		return SayResponse(1)
 		
 	def handle_rapp_get_email_address(self, req):
 		print "[Email server] - receives path to dictionary \t%s" % req.pathToDictionary
@@ -368,12 +369,12 @@ class EmailRecognitionModule(ALModule):
 	def handle_rapp_record(self,req):
 		print "[Email server]: - Nao records %d [s]" %req.recordingTime
 		self.recordingTime = req.recordingTime
-		self.prox_tts.say("Nao records : ")
-		self.recordEmail()
+		#self.prox_tts.say("Nao records : ")
+		self.recordSound()
 		reponse = Constants.recorded_file_dest
 		return RecordResponse(reponse)
 		
-	def handle_rapp_get_recognizes_word(self,req):
+	def handle_rapp_get_recognized_word(self,req):
 		print "[Email server]: - Nao recognizes a word from a list:"
 		for i in req.wordsList:
 			print "[Email server module] - Database = %s" % i
@@ -390,7 +391,7 @@ class EmailRecognitionModule(ALModule):
 				time.sleep(4)
 			print "[Email Email] - Unsubscribing events"
 			self.unsubscribe()
-			self.prox_tts.say("Word recognized %s" % self.wordRecognized)
+			#self.prox_tts.say("Word recognized %s" % self.wordRecognized)
 			
 		except AttributeError, ex:
 			print "[Email server] - Exception AtrributeError = %s" % str(ex)

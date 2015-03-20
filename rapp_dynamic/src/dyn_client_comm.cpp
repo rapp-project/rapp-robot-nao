@@ -3,6 +3,7 @@
 //#####################
 
 #include "NaoCommunication.h"
+#include <sstream>
 
 main(int argc, char **argv)
 {
@@ -14,11 +15,23 @@ main(int argc, char **argv)
    Nao_comm.say(str);
    
    // Robot recognizes word from given dictionary
+   Nao_comm.say("Setting dictionary");
    string dictionary[] = {"Nao", "Max", "John", "Tom", "Exit"};
-   Nao_comm.recognizeWord(dictionary,5);
+   Nao_comm.say("Recognizing a word");
+   string recognized_word = Nao_comm.recognizeWord(dictionary,5);
+   Nao_comm.say("Recognized word:");
+   Nao_comm.say(recognized_word);
 
    // Robot records a message for a time period
    int time = 10;
+   string record_str = "Recording a message for ";
+   ostringstream record_tmp;  
+   record_tmp<<time;
+   record_str = record_str.append(record_tmp.str());
+   record_str = record_str.append(" seconds");
+   //"Recording a message for a given time
+   Nao_comm.say(record_str);
    Nao_comm.record(time);
+   Nao_comm.say("Recording stopped");
    return 0;
 }
