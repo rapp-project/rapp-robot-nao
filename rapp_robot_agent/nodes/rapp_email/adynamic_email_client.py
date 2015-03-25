@@ -9,7 +9,7 @@ import rosparam
 from std_msgs.msg import String
 
 # Importing services
-from rapp_core_agent.srv import *
+from rapp_robot_agent.srv import *
 
 # Importing messages
 from rapp.msg import Status
@@ -119,12 +119,12 @@ class AdynamicEmailClient():
 			exit(1)
 			
 			
-	# Handling a communication with service "rapp_get_recognizes_word"
+	# Handling a communication with service "rapp_get_recognized_word"
 	def recognizeWord(self,request):
-		print "[Dynamic agent] - Waiting for service [/rapp_get_recognizes_word]"
-		rospy.wait_for_service('rapp_get_recognizes_word')
+		print "[Dynamic agent] - Waiting for service [/rapp_get_recognized_word]"
+		rospy.wait_for_service('rapp_get_recognized_word')
 		try:
-			recognizeWord = rospy.ServiceProxy('rapp_get_recognizes_word', RecognizeWord)
+			recognizeWord = rospy.ServiceProxy('rapp_get_recognized_word', RecognizeWord)
 			# Setting as a request list of words within which will be recognized word
 			resp_recognizeWord = recognizeWord(request)
 			return resp_recognizeWord.recognizedWord
@@ -261,8 +261,8 @@ def main():
 		# Sending to topic a message - status about dynamic agent. Dynamic agent starts computation.
 		client.informAboutStatus("Working")
 		
-		# Testing [/rapp_get_recognizes_word] service"
-		print "[Email client] - Testing [/rapp_get_recognizes_word] service"
+		# Testing [/rapp_get_recognized_word] service"
+		print "[Email client] - Testing [/rapp_get_recognized_word] service"
 		dictionary = ["Max", "John", "Exit"]
 		response_recognie_word = client.recognizeWord(dictionary)
 		print "[Email client module] - word recognized: [%s]"%response_recognie_word

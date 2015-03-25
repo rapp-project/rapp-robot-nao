@@ -109,6 +109,7 @@ include_directories(
 
 ## Declare a cpp executable
 add_executable(dyn_client src/dyn_client.cpp)
+add_executable(dyn_client_comm src/dyn_client_comm.cpp)
 add_executable(dyn_QRcodeDetection src/dyn_QRcodeDetection.cpp)
 add_executable(dyn_Hazard-QRcodeDetection src/dyn_Hazard-QRcodeDetection.cpp)
 
@@ -121,6 +122,11 @@ target_link_libraries(dyn_client
    ${catkin_LIBRARIES}
 	NaoNavigation
 	NaoVision
+ )
+ 
+target_link_libraries(dyn_client_comm
+   ${catkin_LIBRARIES}
+	NaoCommunication
  )
 target_link_libraries(dyn_QRcodeDetection
    ${catkin_LIBRARIES}
