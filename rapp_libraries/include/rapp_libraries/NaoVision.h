@@ -6,6 +6,7 @@
 #include "std_msgs/String.h"
 #include "rapp_robot_agent/GetImage.h"//change it for core
 #include "rapp_robot_agent/GetTransform.h"//change it for core
+#include "rapp_robot_agent/Say.h"//change it for core
 #include "sensor_msgs/Image.h"
 
 #include <stdio.h>
@@ -40,6 +41,7 @@ public:
 	NaoVision (int argc, char **argv);
 	ros::ServiceClient client_captureImage;
 	ros::ServiceClient client_getTransform;
+	ros::ServiceClient client_textToSpeech;
 	ros::NodeHandle *n;
 	//ros::NodeHandle nh_;
 	//ros::Publisher pub_;
@@ -48,7 +50,9 @@ public:
 	int NAO_PORT;// = 9559;
 
 	//std::vector< std::vector<float> > cameraTopMatrix(3, vector<float>(3,0.0));
-	double camera_top_matrix[3][3];
+	double camera_top_matrix_3[3][3];
+	double camera_top_matrix_2[3][3];
+	double camera_top_matrix_1[3][3];
 
 	struct QRcodeDetection
    {
@@ -85,7 +89,10 @@ public:
    };
 	
 	void init(int argc, char **argv);
-	sensor_msgs::Image captureImage(std::string cameraId);	 // For frame capture from selected camera
+
+	void textToSpeech( std::string str);// Method which calls ros service rapp_say. It causes nao robot says provided string message.
+
+	sensor_msgs::Image captureImage(std::string cameraId, int cameraResolution);	 // For frame capture from selected camera; with the desired camera resolution: 3->4VGA,2->VGA,1->QVGA
 
 	cv::Mat getTransform(std::string chainName, int space); // For computing transforamtion matrix from one coordinate system to another
 
