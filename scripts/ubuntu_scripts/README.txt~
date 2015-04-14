@@ -1,0 +1,16 @@
+===============================================
+	written by Maksym Figat
+===============================================
+
+		
+
+===============================================
+
+There are three folders containing scripts:
+a) rapp_nao - scripts used on NAO robot
+b) rapp_ubuntu - scripts used on Ubuntu
+c) rapp_vm - scripts used on Virtual Machine
+
+Each folder contains README.txt file which explains every given script.
+
+===============================================
