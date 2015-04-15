@@ -23,7 +23,7 @@ else
   ~/my_workspace/src/catkin/bin/catkin_init_workspace
 fi
 
-if [ $1 -eq 0 ]; then #clone from github
+if [ $1 -eq 1 ]; then #clone from github
   echo "Clonning from github"
   mkdir -p ~/download/git
   cd ~/download/git
