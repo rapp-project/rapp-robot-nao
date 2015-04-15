@@ -10,8 +10,10 @@ if [ "$#" -ne 1 ]; then
 fi
 
 if [ -d $GIT_DIRECTORY ]; then #If direcotory exists
-  echo "Removing - a directory. Cleaning git folder."
-  rm $GIT_DIRECTORY -rf
+  if [ $1 -eq 1 ]; then #clone from github
+    echo "Removing - a directory. Cleaning git folder."
+    rm $GIT_DIRECTORY -rf
+  fi
 fi
 
 if [ -d $WS_RAPP_DIRECTORY ]; then #If direcotory exists
