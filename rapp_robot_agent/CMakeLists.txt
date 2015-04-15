@@ -26,6 +26,8 @@ find_package(catkin REQUIRED COMPONENTS
    PhotoCapture.srv
 	LearnFace.srv
    RecognizeFaces.srv
+	RecognizeWord.srv
+	VoiceRecord.srv
 
 ###  MOVE & NAVIGATION SERVICES
    FollowMarker.srv
