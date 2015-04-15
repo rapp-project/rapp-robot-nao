@@ -13,7 +13,9 @@ if [ -d $WS_RAPP_DIRECTORY ]; then #If direcotory exists
   echo "ws_rapp/src exists"
 else
   echo "Creating - a directory. Creating ~/ws_rapp/src folder."
-  mkdir -p $WS_RAPP_DIRECTORY 
+  mkdir -p $WS_RAPP_DIRECTORY
+  cd $WS_RAPP_DIRECTORY
+  ~/my_workspace/src/catkin/bin/catkin_init_workspace
 fi
 
 mkdir -p ~/download/git
