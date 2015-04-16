@@ -110,6 +110,7 @@ include_directories(
 ## Declare a cpp executable
 add_executable(dyn_client src/dyn_client.cpp)
 add_executable(dyn_client_comm src/dyn_client_comm.cpp)
+add_executable(dyn_demo_audio src/dyn_demo_audio.cpp)
 add_executable(dyn_QRcodeDetection src/dyn_QRcodeDetection.cpp)
 add_executable(dyn_Hazard-QRcodeDetection src/dyn_Hazard-QRcodeDetection.cpp)
 add_executable(dyn_demo_audio src/dyn_demo_audio.cpp)
@@ -119,10 +120,11 @@ add_executable(dyn_demo_audio src/dyn_demo_audio.cpp)
 # add_dependencies(rapp_dynamic_node rapp_dynamic_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(dyn_client
+target_link_libraries(dyn_demo_audio
    ${catkin_LIBRARIES}
 	NaoCommunication
-	NaoVision
+	NaoVision	
+	#NaoNavigation
  )
 target_link_libraries(dyn_client
    ${catkin_LIBRARIES}

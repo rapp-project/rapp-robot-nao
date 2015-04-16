@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    Say.srv
-   RecognizeWord.srv
    GetEmailAddress.srv
    Record.srv
    SendEmail.srv
@@ -28,6 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
    RecognizeFaces.srv
 	RecognizeWord.srv
 	VoiceRecord.srv
+	MicrophoneEnergy.srv
 
 ###  MOVE & NAVIGATION SERVICES
    FollowMarker.srv
@@ -50,7 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    std_msgs
-   sensor_msgs
+	sensor_msgs
  )
 
 catkin_package(
