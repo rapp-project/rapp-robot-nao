@@ -49,14 +49,16 @@ public:
 	ros::NodeHandle *n;
 
 	//std::vector<AUDIO_BUFFER_FORMAT> audioBuffer;//[BUFSIZE];
+	/*
 	std::vector<std::string> audioBuffer;
 	struct audio_buffer_struct
 	{
 		char ch[BUFSIZE];
 	};
+	*/
 
 	//std::vector<audio_buffer_struct> audio_buffer_vector;
-	std::vector<std::string> audio_buffer_vector;
+	std::vector<unsigned char> audio_buffer_vector;
 
 	void init(int argc, char **argv);
 	bool say(string str);
@@ -64,11 +66,8 @@ public:
 	string recognizeWord(string dictionary[], int size);
 	string record(int time);
 	int microphoneEnergy(std::string name);
-	//void voiceRecord(string filename, int microphoneEnergy, int silenceTime, std::vector<audio_buffer_struct> &audio_buffer_vector);//[BUFSIZE] );// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
-	void voiceRecord(bool startRecording, std::vector<std::string> &audio_buffer_vector);//[BUFSIZE] );// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
-	//void voiceRecord(string filename, int microphoneEnergy, int silenceTime, std::vector<std::string> &vectorFileName);// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
-	// vectorFileName -- vector with the recorded audio file names
-
+	void voiceRecord(bool startRecording, std::vector<unsigned char> &audio_buffer_vector);//[BUFSIZE] );// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
+	
 	template<typename T>
 	inline vector<basic_string<char> > copyTable(T table[], int size);
 

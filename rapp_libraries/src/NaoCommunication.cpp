@@ -101,7 +101,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 
 	//#############
 	// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
-	void NaoCommunication::voiceRecord(bool startRecording, std::vector<std::string> &audio_buffer_vector )//std::vector<std::string> &vectorFileName)
+	void NaoCommunication::voiceRecord(bool startRecording, std::vector<unsigned char> &audio_buffer_vector )//std::vector<std::string> &vectorFileName)
 	{
 		client_voiceRecord = n->serviceClient<rapp_robot_agent::VoiceRecord>("rapp_voice_record");
 		rapp_robot_agent::VoiceRecord srv;
@@ -115,14 +115,13 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 			
 			// for buffer usage
 			ROS_INFO("Nao recorded sound to the buffer");
-			/*std::cout<<srv.response.buffer_[0]<<std::endl;
+			//std::cout<<srv.response.buffer_[0]<<std::endl;
 			std::cout<<srv.response.buffer_.size()<<std::endl;
 			fflush(stdout);
-			*/
 			
-			audio_buffer_vector.push_back(srv.response.buffer_);
-			
-			//std::cout<<"audio vector of buffers "<<audio_buffer_vector.size()<<std::endl;
+			for (int i=0; i<srv.response.buffer_.size();i++)
+				audio_buffer_vector.push_back(srv.response.buffer_[i]); // is this correctly working?
+
 			
 			return;
 		}

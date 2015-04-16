@@ -4,4 +4,4 @@
 bool startRecording
 ---
 #string[] recordedFileDest
-string buffer_
+uint8[] buffer_

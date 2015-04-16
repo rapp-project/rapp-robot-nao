@@ -527,36 +527,24 @@ class CommunicationModule(ALModule):
 		if (req.startRecording==True):
 			if (self.isAudDeviceSubscribed == False):
 				self.buff = []
+				self.processIterator = 0 # for limitation of getting buffer from processRemote method
 				self.prox_audevice.setClientPreferences( self.getName(),  nSampleRate, nNbrChannelFlag, nDeinterleave ); # setting same as default generate a bug !?!
 				print 'Subscribe AudioDevice will start the processRemote \n\t The recording started'
 				self.prox_audevice.subscribe(self.getName()) # start recording -- start the processRemote
 				self.isAudDeviceSubscribed = True;
-				while (type(self.buff)!= str):
+				while (len(self.buff) < 8192):
 					self.isAudDeviceSubscribed = True;
+			'''if (self.processIterator == 1):
+				self.buff = []
+				return self.buff
+			'''
+			#print self.processIterator
+
 		elif (req.startRecording==False):
 			print 'Unsubscribe AudioDevice will start the processRemote'
 			self.prox_audevice.unsubscribe(self.getName()) # stop recording -- stops the processRemote
 			self.isAudDeviceSubscribed = False;
-
-
-		#self.response = self.buff # copy the buffer from processRemote to the list
-		'''
-		self.prox_audevice.enableEnergyComputation(); #Enables the computation of the energy on each input channel (this computation is off by default)
-		energy = self.prox_audevice.getFrontMicEnergy();
-		if energy > req.microphoneEnergy:
-			#print "Energy: %f"%energy
-			print "Sound detected"
-			voice_detect = True
-			print 'Subscribe AudioDevice will start the processRemote'
-			if (self.isAudDeviceSubscribed == False):
-				self.prox_audevice.subscribe(self.getName()) # start recording -- start the processRemote
-				self.isAudDeviceSubscribed = True;
-			#while self.freeze == False:
-			#	sleep(0.085);
-			if self.freeze == True:
-				response = self.buff ## from processRemote
-			#response = self.startAudioRecord(req.file_path, req.microphoneEnergy, req.silenceTime); # recording function -- by sound level
-		'''
+			self.processIterator=0;
 		
 		return VoiceRecordResponse(self.buff)#response)
 
@@ -567,45 +555,26 @@ class CommunicationModule(ALModule):
 		#print(("%.3f receive audio buffer composed of " +  str(nbOfInputChannels) +" channels and " + str(nbOfInputSamples) + " samples")%t)
 		#self.saveFile.write(inputBuff) # records to the one file
 		self.freeze = True
-		self.buff = "".join(inputBuff)
+		if (self.processIterator==0):
+			self.buff = inputBuff;
+			self.processIterator+=1; # for copying the buffer once per 170ms; microphone buffer should be 170ms
+			#print self.processIterator
+		else:
+			
+			if (self.buff == inputBuff and self.processIterator > 0):
+				self.buff = []
+				self.processIterator=0;
+			else:
+				self.buff = inputBuff;
+				self.processIterator=1;
+			
 		#print len(self.buff) # for testing
+		#print type(inputBuff)
+		#print type(self.buff)
+
 		self.freeze = False
 
-		## // for saving buffer to file		
-		'''
-		## records to multiple files
-		max_iterator = 4
-
-		# File openning for audio recording
-		if self.iterator == 0 : # opens the file for buffer writting
-			if not (self.packages == 0):
-				if not (self.saveAudioBuffer.closed): # checks if the file is still open
-					self.saveAudioBuffer.close() # close the old buffer file
-			self.packages+=1 # buffer number -- new buffer = max_iterator*85 [ms]
-			self.fileName=(self.recordedAudioFile+str(self.packages)+".raw")
-			#print "%s -- file name with audio buffer inside it"%self.fileName
-			try:
-				self.saveAudioBuffer= open(self.fileName, 'wb') # open the file
-				print "File real path: %s" %os.path.realpath(self.fileName) #returns the real path od the file
-			except IOError:
-				# If not exists, create the file
-				self.saveAudioBuffer = open(self.fileName, 'w+') #create the file
-				print "Real path of created file: %s" %os.path.realpath(self.fileName) #returns the real path od the file
-
-		# Recording -- appending the file with buffer
-		self.saveAudioBuffer.write(inputBuff)
-
-		self.iterator += 1
-		if self.iterator >= max_iterator: # or ==
-			self.iterator = 0 # resetting the iterator
-			if not (self.saveAudioBuffer.closed): # checks if the file is still open
-				self.saveAudioBuffer.close() # close the file
-		if self.iterator == 0:
-			# Appending the file name to the list of file names (file paths)
-			self.audioBufferList.append(self.fileName)
 		
-		# ^^
-		'''
 
 	#########################
 	def handle_rapp_microphone_energy(self,req):

@@ -32,7 +32,6 @@ main(int argc, char **argv)
 	zbar::ImageScanner scanner;
 
 	// Communication
-	//const int waitingTime = 5;
 	bool communication = true;
 	std::string recognizedWord;
 	std::string fileName;
@@ -72,7 +71,8 @@ main(int argc, char **argv)
 					{
 						if (iterations< waiting_time/0.085)
 						{
-							Nao_Communication.voiceRecord(true, Nao_Communication.audio_buffer_vector); //audioBuffer);
+							//Nao_Communication.audio_buffer_vector -- vector of chars
+							Nao_Communication.voiceRecord(true, Nao_Communication.audio_buffer_vector);
 							if (Nao_Communication.microphoneEnergy("front")> 2700)
 							{
 								iterations=0; //reseting the waiting time
@@ -85,8 +85,8 @@ main(int argc, char **argv)
 						}	
 						else
 						{
-							//energy = Nao_Communication.microphoneEnergy("front"); //ends the recording
-							Nao_Communication.voiceRecord(false, Nao_Communication.audio_buffer_vector);
+							
+							Nao_Communication.voiceRecord(false, Nao_Communication.audio_buffer_vector);//ends the recording
 							std::cout<<"iterations = "<<iterations<<std::endl;
 							iterations++;
 							end = true;
@@ -97,11 +97,11 @@ main(int argc, char **argv)
 					}
 					once=false;
 				}
-				//energy = Nao_Communication.microphoneEnergy("front",false);
+				
 			}
 			std::cout<<"buffer size = "<<Nao_Communication.audio_buffer_vector.size()<<std::endl;
 			
-			
+			/*
 			fstream myfile;
   			myfile.open ("file_path1.raw", ios::in | ios::out | ios::app );//| ios::binary
   			for(int i=0;i<Nao_Communication.audio_buffer_vector.size();i++)
@@ -114,7 +114,7 @@ main(int argc, char **argv)
   				}
   			}
   			myfile.close();
-			
+			*/
 
 			//Nao_Communication.voiceRecord("voice_record", 2700, waitingTime, audioBuffer); // recording the message until the silence will last for waitingTime[s] // will return raw files
 			// sending audioBuffer
