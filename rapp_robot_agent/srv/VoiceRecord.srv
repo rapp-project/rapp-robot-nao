@@ -1,0 +1,7 @@
+#string file_path
+#uint32 microphoneEnergy
+#uint32 silenceTime
+bool startRecording
+---
+#string[] recordedFileDest
+string buffer_

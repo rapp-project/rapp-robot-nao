@@ -101,25 +101,29 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 
 	//#############
 	// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
-	void NaoCommunication::voiceRecord(string file_path, int microphoneEnergy /* 0 -- default*/, int silenceTime, std::vector<std::string> &vectorFileName)
+	void NaoCommunication::voiceRecord(bool startRecording, std::vector<std::string> &audio_buffer_vector )//std::vector<std::string> &vectorFileName)
 	{
 		client_voiceRecord = n->serviceClient<rapp_robot_agent::VoiceRecord>("rapp_voice_record");
 		rapp_robot_agent::VoiceRecord srv;
-		srv.request.file_path = file_path; //desired file name with file path
-		srv.request.microphoneEnergy = microphoneEnergy; // minimal microphone energy for the sound detection
-		srv.request.silenceTime = silenceTime; // in seconds
+		//srv.request.file_path = file_path; //desired file name with file path
+		//srv.request.microphoneEnergy = microphoneEnergy; // minimal microphone energy for the sound detection
+		//srv.request.silenceTime = silenceTime; // in seconds
+		srv.request.startRecording = startRecording; //if true, the recording will start if false, the recording will be stoped
+		
 		if (client_voiceRecord.call(srv))
 		{
-			vectorFileName.clear();
-			ROS_INFO("Nao recorded sound");
-			cout<<"Recorded sound to files, from '" << srv.response.recordedFileDest.front()<<"' to the '"<<srv.response.recordedFileDest.back()<<endl;
-			for (int i=0;i<srv.response.recordedFileDest.size();i++)
-			{
-				//cout<<"Recorded sound to the file: '" << srv.response.recordedFileDest[i]<<endl;
-				vectorFileName.push_back(srv.response.recordedFileDest[i]); // adds srv.response.recordedFileDest to the vectorFileName
-			}
-			//return srv.response.recordedFileDest;
-			//return "file recorded";
+			
+			// for buffer usage
+			ROS_INFO("Nao recorded sound to the buffer");
+			/*std::cout<<srv.response.buffer_[0]<<std::endl;
+			std::cout<<srv.response.buffer_.size()<<std::endl;
+			fflush(stdout);
+			*/
+			
+			audio_buffer_vector.push_back(srv.response.buffer_);
+			
+			//std::cout<<"audio vector of buffers "<<audio_buffer_vector.size()<<std::endl;
+			
 			return;
 		}
 		else
@@ -128,6 +132,28 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		}
 		return;
 	}
+
+	int NaoCommunication::microphoneEnergy(std::string name){
+		client_microphoneEnergy = n->serviceClient<rapp_robot_agent::MicrophoneEnergy>("rapp_get_microphone_energy");
+		rapp_robot_agent::MicrophoneEnergy srv;
+		srv.request.microphone = name;
+		//srv.request.start = start_recording;
+		int energy;
+		if (client_microphoneEnergy.call(srv))
+		{
+			//ROS_INFO("Nao microphone energy - check");
+			cout<<"Energy detected:" << srv.response.energy<<endl;
+			energy = srv.response.energy;
+		}
+		else
+		{
+			ROS_ERROR("Failed to call service MicrophoneEnergy"); 
+			energy = 0;
+		}
+		return energy;
+	}
+
+	
 	//#############
 	// Method that copies table of given type to vector
 	template<typename T>
