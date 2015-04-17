@@ -2,8 +2,10 @@
 
 # written by Maksym Figat
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <package_name>"
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <package_name> <flags>"
+  echo "flag = 0 - without building packages"
+  echo "flag = 1 - building packages"
   exit 1
 fi
 
@@ -14,14 +16,15 @@ RAPP_DIRECTORY=$RAPP_PATH"/rapp/hz_packages/packages/$1"
 RAPP_WORKSPACE=$RAPP_PATH"/ws_rapp"
 HZ_PACKAGES="/home/nao/rapp/hz_packages/"
 
-echo "Removing - devel/build/install _ isolated folders from workspace: /home/nao/ws_rapp"
-rm $RAPP_PATH/ws_rapp/build_isolated /home/nao/ws_rapp/devel_isolated /home/nao/ws_rapp/install_isolated -rf
+if [ $2 -eq 1 ]; then #compile
+	echo "Removing - devel/build/install _ isolated folders from workspace: /home/nao/ws_rapp"
+	rm $RAPP_PATH/ws_rapp/build_isolated /home/nao/ws_rapp/devel_isolated /home/nao/ws_rapp/install_isolated -rf
+	echo "Building - packages from workspace: /home/nao/ws_rapp"
+	bash $RAPP_PATH/scripts/catkin_make_isolated.sh
+fi
 
-echo "Building - packages from workspace: /home/nao/ws_rapp"
-bash $RAPP_PATH/scripts/catkin_make_isolated.sh
 
 echo "Creating - temporary catalog for package: $1"
-
 if [ -d $RAPP_DIRECTORY ]; then #If package exists
   echo "Removing - a package. Package $1 already exists."
   rm $HZ_PACKAGES/packages/$1 -rf
