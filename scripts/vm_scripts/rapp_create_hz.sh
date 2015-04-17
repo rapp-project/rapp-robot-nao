@@ -24,7 +24,8 @@ echo "Creating - temporary catalog for package: $1"
 
 if [ -d $RAPP_DIRECTORY ]; then #If package exists
   echo "Removing - a package. Package $1 already exists."
-  rm $RAPP_PATH/rapp/hz_packages/packages/$1 -rf
+  rm $HZ_PACKAGES/packages/$1 -rf
+  rm $HZ_PACKAGES/hz/$1* -rf
 fi
 
 mkdir -p $HZ_PACKAGES/packages/$1/rapp_dynamic_agent/lib
