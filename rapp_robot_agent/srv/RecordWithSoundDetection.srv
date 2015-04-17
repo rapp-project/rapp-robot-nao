@@ -1,0 +1,5 @@
+string file_dest
+uint32 waiting_time
+uint32 microphone_energy
+---
+string output_file_path

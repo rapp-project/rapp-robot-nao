@@ -89,7 +89,7 @@ find_package(OpenCV REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/
-  LIBRARIES NaoNavigation NaoVision
+  LIBRARIES NaoNavigation NaoVision NaoCommunication
   CATKIN_DEPENDS roscpp
   DEPENDS system_lib
 )
@@ -110,6 +110,10 @@ add_library(NaoNavigation SHARED src/NaoNavigation.cpp)
 add_library(NaoVision SHARED src/NaoVision.cpp)
 add_library(NaoCommunication SHARED src/NaoCommunication.cpp)
 
+target_link_libraries(NaoCommunication
+  ${catkin_LIBRARIES}
+ )
+
 target_link_libraries(NaoVision
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
@@ -119,9 +123,6 @@ target_link_libraries(NaoNavigation
   ${catkin_LIBRARIES}
  )
 
-target_link_libraries(NaoCommunication
-  ${catkin_LIBRARIES}
- )
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
