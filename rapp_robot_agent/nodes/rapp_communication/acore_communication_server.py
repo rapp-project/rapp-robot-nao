@@ -321,9 +321,11 @@ class CommunicationModule(ALModule):
 			self.prox_tts.say("Recording starts")
 
 			recording_iterator = 0	# for the waiting time	
-			if (file_dest==""):
+			if (file_dest=="" or (file_dest[len(file_dest)-4:len(file_dest)]!=".ogg")):
 				file_dest = Constants.recorded_file_dest;
+				
 			self.prox_ar.startMicrophonesRecording(file_dest, self.recordedExtention, self.sampleRate, self.channels )
+
 			self.prox_audevice.enableEnergyComputation(); #Enables the computation of the energy on each input channel (this computation is off by default)
 			print  "[Audio record] - Start Microphones Recording"
 			#print recording_iterator
@@ -347,6 +349,7 @@ class CommunicationModule(ALModule):
 			self.prox_ar.stopMicrophonesRecording()
 			print "[Send Email] - Recording stops"
 			self.prox_tts.say("Recording stops")
+
 
 		except Exception, e:
 			print "[Audio record] - Error during recording an message"
@@ -566,7 +569,7 @@ class CommunicationModule(ALModule):
 		microphone_energy = req.microphone_energy
 		#self.prox_tts.say("Nao records : ")
 		self.recordAudio(file_dest, waiting_time, microphone_energy)
-		if (file_dest==""):
+		if (file_dest=="" or (file_dest[len(file_dest)-4:len(file_dest)]!=".ogg")):
 			file_dest = Constants.recorded_file_dest;
 		response = file_dest
 		return RecordWithSoundDetectionResponse(response)

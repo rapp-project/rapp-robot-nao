@@ -42,7 +42,7 @@
 //#########################################################################
 //#########################################################################
 
-void NaoVision::textToSpeech( std::string str)
+void NaoVision::textToSpeech( std::string str, std::string language)
 {
 	client_textToSpeech = n->serviceClient<rapp_robot_agent::Say>("rapp_say");
 	rapp_robot_agent::Say srv;
@@ -55,7 +55,8 @@ void NaoVision::textToSpeech( std::string str)
 	sentence += "\\RST\\ ";
 	std::cout<<sentence<<std::endl;
 	
-	srv.request.request=sentence;//str
+	srv.request.request=sentence;//a message, that will be said
+	srv.request.language=language;//language selection
 
 	if (client_textToSpeech.call(srv))
 	{
@@ -70,7 +71,6 @@ void NaoVision::textToSpeech( std::string str)
 	}
 	return;
 }
-
 //#########################################################################
 //#########################################################################
 
@@ -101,15 +101,15 @@ void NaoVision::textToSpeech( std::string str)
 		// // ZBar
 		set_zbar.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
 		// Wrap image data
-      Image image(width, height, "Y800", raw, width * height);
-      // Scan the image for barcodes
-	   set_zbar.scan(image);
+		Image image(width, height, "Y800", raw, width * height);
+		// Scan the image for barcodes
+		set_zbar.scan(image);
 
 		// Extract results
-      int counter = 0;
+		int counter = 0;
 
 
-      for (Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
+		for (Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
 			//vector<vector<Point3f> > object_points;
 			//vector<vector<Point2f> > image_points;
 			//vector<Point3f> world_coords;
@@ -206,13 +206,25 @@ void NaoVision::textToSpeech( std::string str)
 			Rotz_minus90.at<double>(2,2)=1.f;
 			Rotz_minus90.at<double>(3,3)=1.f;
 
+			/*//
+			Rotx_plus90.at<double>(0,0)=1.f;
+			Rotx_plus90.at<double>(1,1)=0.f;Rotx_plus90.at<double>(1,2)=-1.f;
+			Rotx_plus90.at<double>(2,1)=+1.f;Rotx_plus90.at<double>(2,2)=0.f;
+			Rotx_plus90.at<double>(3,3)=1.f;
+
+			Rotz_plus90.at<double>(0,0)=0.f;Rotz_plus90.at<double>(0,1)=-1.f;
+			Rotz_plus90.at<double>(1,0)=+1.f;Rotz_plus90.at<double>(1,1)=0.f;
+			Rotz_plus90.at<double>(2,2)=1.f;
+			Rotz_plus90.at<double>(3,3)=1.f;
+			
+			Mat_I.at<double>(0,0)=1.f; Mat_I.at<double>(1,1)=1.f;	Mat_I.at<double>(2,2)=1.f;	Mat_I.at<double>(3,3)=1.f;
+			//*/
 
 			//#####################			
 			//## Transformation from the QR-code coordinate system to the camera coordinate system
 			cameraToLandmarkTransformMatrix = Rotz_minus90*Rotx_minus90*landmarkToCameraTransform;
 			//#####################
 
-			
 			//#####################						
 			//## Transformation from the camera coordinate system to the robot coordinate system
 			robotToLandmarkMatrix = robotToCameraMatrix_*cameraToLandmarkTransformMatrix;
@@ -406,27 +418,4 @@ void NaoVision::textToSpeech( std::string str)
 		}
 		return transformMatrix;
 	}
-	
-////
-/*
-main(int argc, char **argv)
-{
-	//NaoVision Nao(argc,argv);
-	sensor_msgs::Image frame;
-	cv::Mat robotToCameraMatrix;
 
-	NaoVision::QRcodeDetection QRcodeDetectionStruct;
-
-	// Create a zbar reader
-	zbar::ImageScanner scanner;
-	
-	frame = NaoVision::captureImage("top - adaptive auto exposure 1");
-	robotToCameraMatrix = NaoVision::getTransform("CameraTop", 2); //From Camera to waist (robot) coordinate system
-	QRcodeDetectionStruct = NaoVision::qrCodeDetection(frame, scanner, robotToCameraMatrix);
-	for (int i=0; i<QRcodeDetectionStruct.QRmessage.size(); i++)
-		std::cout<<QRcodeDetectionStruct.QRmessage[i]<<std::endl;
-
-
-    return 0;
-}
-*/
