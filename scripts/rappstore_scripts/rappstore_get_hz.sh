@@ -20,4 +20,8 @@ else
 	mkdir -p $HZ_DIRECTORY
 fi
 
+echo "Downloading hz package from virtaul machine. Enter --  nao -- as a password"
 scp nao@$1:/home/nao/rapp/hz_packages/hz/$2-1.0.0.hz $HZ_DIRECTORY
+
+cd $HZ_DIRECTORY
+ls
