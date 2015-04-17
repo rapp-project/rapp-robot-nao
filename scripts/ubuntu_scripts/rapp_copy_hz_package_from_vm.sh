@@ -2,12 +2,22 @@
 
 # written by Maksym Figat
 
+RAPP_USER="/home/max"
+HZ_DIRECTORY=$RAPP_WORKSPACE"/rapp/hz_packages/hz"
+
 if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <VM IP ADDRESS> <NAME OF PACKAGE>"
-  exit 1
+	echo "Script that downloads a given RApp as a hz from virtual machine."
+	echo "If script doesnt work change the RAPP_USER to /home/<YOUR_USER>"
+	echo "Usage: $0 <VM_IP_ADDRESS> <PACKAGE_NAME> "
+	echo "VM_IP_ADDRESS - ip address of virtual machine from which hz will be downloaded"
+	echo "PACKAGE_NAME - name of RApp e.g. helloworld, voicemail "
+	exit 1
 fi
 
-RAPP_PATH="/home/max"
+if [ -d $HZ_DIRECTORY ]; then #If package exists
+	echo "$HZ_DIRECTORY already exists."  
+else
+	mkdir -p $HZ_DIRECTORY
+fi
 
-cd $RAPP_PATH/rapp/generated_hz_packages
-scp nao@$1:/home/nao/rapp/hz_packages/$2-1.0.0.hz .
+scp nao@$1:/home/nao/rapp/hz_packages/hz/$2-1.0.0.hz $HZ_DIRECTORY
