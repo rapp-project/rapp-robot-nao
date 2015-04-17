@@ -177,6 +177,9 @@ class CommunicationModule(ALModule):
 			print "[Communication server] - service - [rapp_record]"
 			self.service_rr = rospy.Service('rapp_record', Record, self.handle_rapp_record)
 
+			print "[Communication server] - service - [rapp_record_with_sound_detection]"
+			self.service_rrwsd = rospy.Service('rapp_record_with_sound_detection', RecordWithSoundDetection, self.handle_rapp_record_with_sound_detection)
+
 			'''print "[Communication server] - service - [rapp_send_email]"
 			self.service_rse = rospy.Service('rapp_send_email', SendEmail, self.handle_rapp_send_email)'''
 		except Exception, ex:
@@ -309,6 +312,46 @@ class CommunicationModule(ALModule):
 		except Exception, e:
 			print "[Email server] - onSoundDetected - Exception %s" %e
 	
+	#######################################
+	# Record an audio message
+	def recordAudio(self, file_dest, waiting_time, microphone_energy):
+		try:
+			print "[Audio record] - Recording an audio message"
+			#self.countDown("Recording an audio message")
+			self.prox_tts.say("Recording starts")
+
+			recording_iterator = 0	# for the waiting time	
+			if (file_dest==""):
+				file_dest = Constants.recorded_file_dest;
+			self.prox_ar.startMicrophonesRecording(file_dest, self.recordedExtention, self.sampleRate, self.channels )
+			self.prox_audevice.enableEnergyComputation(); #Enables the computation of the energy on each input channel (this computation is off by default)
+			print  "[Audio record] - Start Microphones Recording"
+			#print recording_iterator
+			while (recording_iterator< waiting_time/0.05):
+				energy = self.prox_audevice.getFrontMicEnergy()
+				if energy <= microphone_energy: # waiting for sound with a sufficient energy level
+					#print energy
+					if recording_iterator == 0:
+						print  "[Audio record] - Waits for the sound for about %.1f seconds"%waiting_time
+					recording_iterator += 1
+					time.sleep(0.05)
+					
+				else:
+					if recording_iterator>0:
+						print  "[Audio record] - Sound detected"
+					recording_iterator = 0 # reseting the iterator
+			#print recording_iterator
+				
+			
+			# Recording stops and the file is being closed after waiting_time, if sound with a sufficient energy level was not detected during this time
+			self.prox_ar.stopMicrophonesRecording()
+			print "[Send Email] - Recording stops"
+			self.prox_tts.say("Recording stops")
+
+		except Exception, e:
+			print "[Audio record] - Error during recording an message"
+			print "[Audio record] - Error: %s" % str(e)
+			self.prox_ar.stopMicrophonesRecording()
 	#######################################
 
 	# Method used to find out an email address just using local file with email addesses located 
@@ -514,6 +557,19 @@ class CommunicationModule(ALModule):
 		self.recordEmail()
 		reponse = Constants.recorded_file_dest
 		return RecordResponse(reponse)
+
+	#########################
+	def handle_rapp_record_with_sound_detection(self,req):
+		print "[Communication server]: - Nao records [s]"
+		file_dest = req.file_dest
+		waiting_time = req.waiting_time
+		microphone_energy = req.microphone_energy
+		#self.prox_tts.say("Nao records : ")
+		self.recordAudio(file_dest, waiting_time, microphone_energy)
+		if (file_dest==""):
+			file_dest = Constants.recorded_file_dest;
+		response = file_dest
+		return RecordWithSoundDetectionResponse(response)
 
 	#########################
 	def handle_rapp_voice_record(self,req):

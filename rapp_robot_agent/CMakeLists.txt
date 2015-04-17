@@ -28,6 +28,7 @@ find_package(catkin REQUIRED COMPONENTS
 	RecognizeWord.srv
 	VoiceRecord.srv
 	MicrophoneEnergy.srv
+	RecordWithSoundDetection.srv
 
 ###  MOVE & NAVIGATION SERVICES
    FollowMarker.srv

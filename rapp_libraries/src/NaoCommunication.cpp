@@ -99,6 +99,26 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		return "";
 	}
 
+	std::string NaoCommunication::record(std::string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
+		client_recordWithSoundDetection = n->serviceClient<rapp_robot_agent::RecordWithSoundDetection>("rapp_record_with_sound_detection");
+		rapp_robot_agent::RecordWithSoundDetection srv;
+		srv.request.file_dest = file_path;
+		srv.request.waiting_time = waiting_time;
+		srv.request.microphone_energy = microphone_energy;
+		if (client_recordWithSoundDetection.call(srv))
+		{
+			ROS_INFO("Nao recorded audio message");
+			//cout<<"File path to the recorded sound:" << srv.response.output_file_path <<endl;
+			return srv.response.output_file_path;
+		}
+		else
+		{
+			ROS_ERROR("Failed to call service Record with sound detection"); 
+		}
+		return "";
+	}
+
+		
 	//#############
 	// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
 	void NaoCommunication::voiceRecord(bool startRecording, std::vector<unsigned char> &audio_buffer_vector )//std::vector<std::string> &vectorFileName)
