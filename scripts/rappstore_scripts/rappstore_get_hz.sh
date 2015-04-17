@@ -3,7 +3,7 @@
 # written by Maksym Figat
 
 RAPP_USER="/home/max"
-HZ_DIRECTORY=$RAPP_WORKSPACE"/rapp/hz_packages/hz"
+HZ_DIRECTORY=$RAPP_USER"/rapp/hz_packages/hz"
 
 if [ "$#" -ne 2 ]; then
 	echo "Script that downloads a given RApp as a hz from virtual machine."
