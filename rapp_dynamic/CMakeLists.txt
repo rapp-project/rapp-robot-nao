@@ -139,10 +139,12 @@ target_link_libraries(dyn_client_comm
 target_link_libraries(dyn_QRcodeDetection
    ${catkin_LIBRARIES}
 	NaoVision
+	NaoCommunication
  )
 target_link_libraries(dyn_Hazard-QRcodeDetection
    ${catkin_LIBRARIES}
 	NaoVision
+	NaoCommunication
  )
 
 
