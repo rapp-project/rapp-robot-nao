@@ -3,7 +3,7 @@
 # written by Maksym Figat
 GIT_DIRECTORY=/home/nao/download/git
 WS_RAPP_DIRECTORY=/home/nao/ws_rapp/src
-HZ_DIRECTORY=/home/nao/rapp/hz_template/template_package
+HZ_DIRECTORY=/home/nao/rapp/hz_packages
 
 if [ "$#" -ne 1 ]; then
 	echo "Usage: $0 <flag>"
@@ -44,6 +44,8 @@ if [  -d $HZ_DIRECTORY ]; then #if directory exists
 	echo "Directory $HZ_DIRECTORY exists"
 else
 	echo "Creating folder $HZ_DIRECTORY"
-	mkdir -p $HZ_DIRECTORY
+	mkdir -p $HZ_DIRECTORY/template_package
+	mkdir -p $HZ_DIRECTORY/hz
 fi
-cp -r ~/download/git/rapp-robot-nao/hz_packages/template_package/* $HZ_DIRECTORY
+
+cp -r ~/download/git/rapp-robot-nao/hz_packages/template_package/* $HZ_DIRECTORY/template_package
