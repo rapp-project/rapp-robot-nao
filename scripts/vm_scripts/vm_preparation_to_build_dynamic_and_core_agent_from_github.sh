@@ -6,6 +6,8 @@ WS_RAPP_DIRECTORY=/home/nao/ws_rapp/src
 
 if [ "$#" -ne 1 ]; then
   echo "Usage: $0 <flag>"
+  echo "flag = 0 - create structure of folders and copy files from downloaded repository"
+  echo "flag = 1 - download rapp-robot-nao repository, create structure of folders and copy files to downloaded repository"
   exit 1
 fi
 
@@ -32,8 +34,5 @@ if [ $1 -eq 1 ]; then #clone from github
   git clone https://github.com/rapp-project/rapp-robot-nao.git
 fi
 
-
 cp -r ~/download/git/rapp-robot-nao/scripts/vm_scripts/* ~/scripts
-cp -r ~/download/git/rapp-robot-nao/rapp_robot_agent ~/ws_rapp/src
-cp -r ~/download/git/rapp-robot-nao/rapp_libraries ~/ws_rapp/src #change to RAPP API
-cp -r ~/download/git/rapp-robot-nao/rapp_dynamic ~/ws_rapp/src
+cp -r ~/download/git/rapp-robot-nao/packages/* ~/ws_rapp/src
