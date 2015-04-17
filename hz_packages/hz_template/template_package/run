@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# written by Maksym Figat
+
+PACKAGE_NAME = "voicemail"
+echo "[Rapp email] - This is your RAPP application speaking!"
+echo "[Rapp email] - It is an application to send an email by robot NAO"
+
+# copy files rapp_dynamic/lib/* and rapp_dynamic/share/* to folder ~/ws_rapp/install_isolated/lib and /share
+echo "[Rapp email] - Moving lib and share folders"
+cp -r ~/.config/hop/weblets/$PACKAGE_NAME/rapp_dynamic_agent/lib/* ~/ws_rapp/install_isolated/lib/
+cp -r ~/.config/hop/weblets/$PACKAGE_NAME/rapp_dynamic_agent/share/* ~/ws_rapp/install_isolated/share/
+
+echo "[Rapp email] - Running rapp_dynamic_agent"
+source ~/ws_rapp/install_isolated/setup.bash
+roslaunch $PACKAGE_NAME dynamic_agent.launch
+
