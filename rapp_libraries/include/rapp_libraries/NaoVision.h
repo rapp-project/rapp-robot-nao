@@ -41,7 +41,6 @@ public:
 	NaoVision (int argc, char **argv);
 	ros::ServiceClient client_captureImage;
 	ros::ServiceClient client_getTransform;
-	ros::ServiceClient client_textToSpeech;
 	ros::NodeHandle *n;
 	
 	std::string NAO_IP;// = "nao.local";

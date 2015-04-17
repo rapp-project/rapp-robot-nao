@@ -40,38 +40,7 @@
 	}
 
 //#########################################################################
-//#########################################################################
 
-void NaoVision::textToSpeech( std::string str, std::string language)
-{
-	client_textToSpeech = n->serviceClient<rapp_robot_agent::Say>("rapp_say");
-	rapp_robot_agent::Say srv;
-	
-	//## slower and lower voice
-	std::string sentence;
-	sentence = "\\RSPD=" + std::string("80") + "\\ ";
-	sentence += "\\VCT="+ std::string("43") + "\\ ";
-	sentence += std::string(str);
-	sentence += "\\RST\\ ";
-	std::cout<<sentence<<std::endl;
-	
-	srv.request.request=sentence;//a message, that will be said
-	srv.request.language=language;//language selection
-
-	if (client_textToSpeech.call(srv))
-	{
-		std::cout<<"[Text to Speech] - received:\t"<< srv.response.response <<"\n"<< std::flush;
-		return;
-	}
-	else
-	{
-		//Failed to call service rapp_say
-		std::cout<<"[Text to Speech] - Error calling service rapp_say\n";
-		return;
-	}
-	return;
-}
-//#########################################################################
 //#########################################################################
 
 	struct NaoVision::QRcodeDetection NaoVision::qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
