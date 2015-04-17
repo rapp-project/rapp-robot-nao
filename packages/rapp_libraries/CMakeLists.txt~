@@ -52,8 +52,8 @@ target_link_libraries(NaoCommunication
 )
 
 add_dependencies(NaoCommunication ${catkin_EXPORTED_TARGETS})
-add_dependencies(NaoNavigation ${catkin_EXPORTED_TARGETS})
-add_dependencies(NaoVision ${catkin_EXPORTED_TARGETS}) 
+#add_dependencies(NaoNavigation ${catkin_EXPORTED_TARGETS})
+#add_dependencies(NaoVision ${catkin_EXPORTED_TARGETS}) 
 
 #target_link_libraries(NaoVision /usr/lib/libzbar.so)
 
