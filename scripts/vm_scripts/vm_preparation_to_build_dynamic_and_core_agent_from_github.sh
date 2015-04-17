@@ -42,6 +42,7 @@ cp -r ~/download/git/rapp-robot-nao/ros_packages/* ~/ws_rapp/src
 
 if [  -d $HZ_DIRECTORY ]; then #if directory exists
 	echo "Directory $HZ_DIRECTORY exists"
+	rm -rf $HZ_DIRECTORY
 else
 	echo "Creating folder $HZ_DIRECTORY"
 	mkdir -p $HZ_DIRECTORY/template_package
