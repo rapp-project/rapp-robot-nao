@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>helloworld</name>
+  <version>0.0.1</version>
+  <description>The helloworld package</description>
+
+  <maintainer email="maksym.figat44@gmail.com">maksym</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>rapp_libraries</build_depend>
+
+  <run_depend>rapp_libraries</run_depend>
+  <run_depend>roscpp</run_depend>
+
+</package>

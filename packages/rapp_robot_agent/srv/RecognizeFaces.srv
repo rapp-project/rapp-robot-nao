@@ -1,0 +1,6 @@
+string request
+byte isRecognitionEnabled
+byte isTrackingEnabled
+---
+string[] names
+byte recognized

@@ -1,0 +1,3 @@
+byte stop_signal
+---
+byte isStopped

@@ -1,0 +1,8 @@
+Matrix4x4 robotToQRcode
+string[] messages
+---
+bool isHazardFound
+float32[] hazardPosition_x
+float32[] hazardPosition_y
+#message from QRcode of an open object
+string[] message

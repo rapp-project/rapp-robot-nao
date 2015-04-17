@@ -1,0 +1,39 @@
+//#####################
+// written by Jan Figat
+//#####################
+
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+#include "rapp_robot_agent/GetImage.h"
+#include "sensor_msgs/Image.h"
+
+#include <stdio.h>
+#include <fstream>
+
+/*#include <cstdio>
+#include <ostream>
+#include <iostream>
+#include <unistd.h>
+#include <vector>
+#include <string>*/
+
+
+
+class NaoVision {
+
+public:
+	NaoVision (int argc, char **argv);
+	ros::ServiceClient client_captureImage;
+	ros::ServiceClient client_getTransform;
+	ros::NodeHandle *n;
+	//ros::NodeHandle nh_;
+	//ros::Publisher pub_;
+	
+	std::string NAO_IP;
+	int NAO_PORT;
+	double camera_top_matrix[3][3];
+
+	void init(int argc, char **argv);
+	sensor_msgs::Image captureImage(std::string cameraId);// For frame
+
+};

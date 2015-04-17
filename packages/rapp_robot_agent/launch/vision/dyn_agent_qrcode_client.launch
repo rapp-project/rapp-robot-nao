@@ -1,0 +1,7 @@
+<launch>
+
+  <!-- Rapp dynamic agent testing nodes -->
+  
+  <node pkg="rapp_robot_agent" name="adyn_qrcode_client" type="adyn_qrcode_client.py" output="screen"/>
+
+</launch>
