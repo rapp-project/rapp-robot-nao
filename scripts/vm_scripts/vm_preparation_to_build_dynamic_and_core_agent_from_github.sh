@@ -34,5 +34,10 @@ if [ $1 -eq 1 ]; then #clone from github
   git clone https://github.com/rapp-project/rapp-robot-nao.git
 fi
 
+echo "Copying scripts to /home/nao/scripts/ directory"
 cp -r ~/download/git/rapp-robot-nao/scripts/vm_scripts/* ~/scripts
+echo "Copying source code to /home/nao/ws_rapp/src/ directory"
 cp -r ~/download/git/rapp-robot-nao/ros_packages/* ~/ws_rapp/src
+
+if [  ]
+
