@@ -46,4 +46,4 @@ else
 	echo "Creating folder $HZ_DIRECTORY"
 	mkdir -p $HZ_DIRECTORY
 fi
-cp -r ~/download/git/rapp-robot-nao/hz_packages/hz_template/template_package/* $HZ_DIRECTORY
+cp -r ~/download/git/rapp-robot-nao/hz_packages/template_package/* $HZ_DIRECTORY
