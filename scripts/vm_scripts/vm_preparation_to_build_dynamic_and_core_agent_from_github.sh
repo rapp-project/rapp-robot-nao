@@ -35,4 +35,4 @@ if [ $1 -eq 1 ]; then #clone from github
 fi
 
 cp -r ~/download/git/rapp-robot-nao/scripts/vm_scripts/* ~/scripts
-cp -r ~/download/git/rapp-robot-nao/packages/* ~/ws_rapp/src
+cp -r ~/download/git/rapp-robot-nao/ros_packages/* ~/ws_rapp/src
