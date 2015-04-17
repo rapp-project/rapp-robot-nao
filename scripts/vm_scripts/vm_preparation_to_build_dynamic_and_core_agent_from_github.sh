@@ -48,6 +48,6 @@ fi
 echo "Creating folder $HZ_DIRECTORY"
 mkdir -p $HZ_DIRECTORY/template_package
 mkdir -p $HZ_DIRECTORY/hz
-
+mkdir -p $HZ_DIRECTORY/packages
 
 cp -r ~/download/git/rapp-robot-nao/hz_packages/template_package/* $HZ_DIRECTORY/template_package
