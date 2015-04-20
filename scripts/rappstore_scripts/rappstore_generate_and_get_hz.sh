@@ -6,9 +6,9 @@ PATH_TO_SCRIPTS="/home/max/scripts/rapp/"
 
 if [ "$#" -ne 4 ]; then
 	echo "Generates hz package"
-	echo "Usage: $0 <VM_IP_ADDRESS> <package_name> <FLAG1> <FLAG2>"
+	echo "Usage: $0 <VM_IP_ADDRESS> <PACKAGE_NAME> <FLAG1> <FLAG2>"
 	echo "FLAG1 = 0 - without downloading repository from github"
-	echo "FLAG1 = 1 - downloading repository from github"
+	echo "FLAG1 = 1 - downloading repository from github - set FLAG2 to 1"
 	echo "FLAG2 = 0 - without compilation"
 	echo "FLAG2 = 1 - with compilation"
 	exit 1

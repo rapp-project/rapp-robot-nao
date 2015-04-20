@@ -30,10 +30,16 @@ cp /usr/bin/rosversion install_isolated/bin/
 cp /usr/bin/ros* install_isolated/bin/
 
 cp /usr/local/lib/libvmime* install_isolated/lib/
-cp /usr/local/include/vmime install_isolated/include/
+cp -r /usr/local/include/vmime install_isolated/include/
 
 cp /usr/local/lib/libgsasl* install_isolated/lib/
 cp /usr/local/include/gsasl* install_isolated/include/
 
+cp /usr/local/bin/bigloo* install_isolated/bin/
+cp /usr/local/bin/hop* install_isolated/bin/
+
+cp -r /usr/local/lib/hop install_isolated/lib/
+cp -r /usr/local/lib/bigloo install_isolated/lib/
+
 tar -czvf install_clean.tar.gz install_isolated
-scp install_clean.tar.gz nao@$1:/home/nao/my_workspace/
+scp install_clean.tar.gz nao@$1:/home/nao/download/
