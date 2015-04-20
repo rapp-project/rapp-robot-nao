@@ -1,0 +1,7 @@
+<launch>
+
+  <group ns="hello_world_nao">
+    <node pkg="hello_world_nao" name="hello_world" type="hello"/>
+  </group> 
+  
+</launch>
