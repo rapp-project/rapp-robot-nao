@@ -41,7 +41,7 @@ main(int argc, char **argv)
    Nao_comm.say("Recording stopped");
 
    //Nao_comm.sendEmail("rapp.nao@gmail.com", "rapp.nao1", "maksym.figat44@gmail.com");
-   NaoCommunication::sendEmail("rapp.nao@gmail.com", "rapp.nao1", "maksym.figat44@gmail.com");     
+   NaoCommunication::sendEmail("rapp.nao@gmail.com", "password", "maksym.figat44@gmail.com");     
 
    return 0;
 }
