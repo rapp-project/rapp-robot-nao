@@ -4,12 +4,20 @@
 
 PROGRAMS_DIRECTORY="/home/nao/programs"
 MY_WORKSPACE_SRC_DIR="/home/nao/my_workspace/src"
+MY_WORKSPACE_INSTALL_ISOLATED="/home/nao/my_workspace/install_isolated"
 
 if [ -d $PROGRAMS_DIRECTORY ]; then #If direcotory exists
-	echo "Programs folder exists"
+	echo "Folder $PROGRAMS_DIRECTORY exists"
 else
 	mkdir -p PROGRAMS_DIRECTORY
-	echo "Creating program folder"
+	echo "Creating $PROGRAMS_DIRECTORY folder"
+fi
+
+if [ -d $MY_WORKSPACE_INSTALL_ISOLATED ]; then #If direcotory exists
+	echo "Folder $MY_WORKSPACE_INSTALL_ISOLATED exists"
+else
+	mkdir -p MY_WORKSPACE_INSTALL_ISOLATED
+	echo "Creating $MY_WORKSPACE_INSTALL_ISOLATED folder"
 fi
 
 # Yaml-cpp
@@ -57,8 +65,6 @@ wget http://sourceforge.net/projects/vmime/files/vmime/0.9/libvmime-0.9.1.tar.bz
 tar -xjf libvmime-0.9.1.tar.bz2
 ./configure --prefix=/home/nao/my_workspace/install_isolated
 make install
-
-
 
 cd MY_WORKSPACE_SRC_DIR
 echo "Downloading source code from image_common repository
