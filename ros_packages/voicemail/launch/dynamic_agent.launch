@@ -1,5 +1,0 @@
-<launch>
-
-    <node pkg="voicemail" name="voicemail" type="voicemail" output="screen"/> 
-  
-</launch>

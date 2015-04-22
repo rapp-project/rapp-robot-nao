@@ -1,8 +1,0 @@
-float32 marker_x
-float32 marker_y
-float32 head_yaw
-float32 head_pitch
----
-byte isMarkerReached
-float32 Nao_x
-float32 Nao_y

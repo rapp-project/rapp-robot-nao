@@ -1,7 +1,0 @@
-<launch>
-
-  <!-- Rapp core agent nodes -->
-  
-  <node pkg="rapp_robot_agent" name="core_recognize_faces_client" type="acore_recognize_faces_client.py" output="screen"/>
-
-</launch>

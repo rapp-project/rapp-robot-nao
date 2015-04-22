@@ -23,13 +23,13 @@ class AcoreCameraClient():
 	
 
 	# Handling a communication with service "rapp_capture_image"
-	def getCameraFrame(self,request, resolution):
+	def getCameraFrame(self,request):
 		print "[Camera client] - Waits for server"
 		rospy.wait_for_service('rapp_capture_image')
 		try:
 			print "[Camera client] - getCameraFrame"
 			getImage = rospy.ServiceProxy('rapp_capture_image', GetImage)
-			resp_capture_image = getImage(request, resolution)
+			resp_capture_image = getImage(request)
 			print "[Camera client] - Image captured"
 			return resp_capture_image
 		except rospy.ServiceException, e:
@@ -89,8 +89,7 @@ def main():
 	
 	# Testing [/rapp_capture_image] service
 	print "[Camera client] - Testing [/rapp_capture_image] service"
-	response_image = client_camera.getCameraFrame("top - adaptive auto exposure 1", 2)
-	# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights ;","; 3:1280x960; 2:640x480; 1:320x240
+	response_image = client_camera.getCameraFrame("top - adaptive auto exposure 1")# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
 	while response_image.frame==None:
 		print "[Camera client] Frame is empty"
 	print "[QRcode client] - Requesting %s" % (xy)

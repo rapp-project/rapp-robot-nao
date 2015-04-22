@@ -1,5 +1,0 @@
-<launch>
-
-    <node pkg="rapp_dynamic" name="rapp_email" type="rapp_email" output="screen"/> 
-  
-</launch>

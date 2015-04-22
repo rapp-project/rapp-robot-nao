@@ -1,5 +1,0 @@
-<launch>
-
-    <node pkg="helloworld" name="helloworld" type="helloworld" output="screen"/> 
-  
-</launch>

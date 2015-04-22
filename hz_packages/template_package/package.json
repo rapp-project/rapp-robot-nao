@@ -1,7 +1,0 @@
-{
-   "name": "voicemail",
-   "version": "1.0.0",
-   "description": "An RAPP application to send an email by NAO",
-   "private": true,
-   "homepage": "http://rapp-project.eu/"
-}

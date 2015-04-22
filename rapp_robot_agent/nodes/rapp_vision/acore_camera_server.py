@@ -42,7 +42,6 @@ CameraServer = None
 prox_memory = None
 
 
-
 # Constants
 class Constants:
 	NAO_IP = "nao.local"
@@ -55,8 +54,7 @@ class CameraModule(ALModule):
 	""" A simple module able to react to
 	sound detection events
 	"""
-	#nameID = None
-
+	
 	# Constructor of CameraModule
 	def __init__(self,name):
 		ALModule.__init__(self,name)
@@ -84,24 +82,23 @@ class CameraModule(ALModule):
 		print "[Camera server] - Initialization of Naoqi modules"
 		
 		print "[Camera server] - ALMemory proxy initialization"		
-		global prox_memory, prox_camera
-		
+		global prox_memory#, prox_camera
 		prox_memory = ALProxy("ALMemory")
 		if prox_memory is None:
 			rospy.logerr("[Camera server] - Could not get a proxy to ALMemory")
 			exit(1)
 		print "[Camera server] - ALVideoDevice proxy initialization"
-		prox_camera = ALProxy("ALVideoDevice")
-		if prox_camera is None:
+		self.prox_camera = ALProxy("ALVideoDevice")
+		if self.prox_camera is None:
 			rospy.logerr("[Camera server] - Could not get a proxy to ALVideoDevice")
 			exit(1)
 			
 		## Camera parameters
-		#self.resolution = 3	## k4VGA;
-		#self.colorSpace = 13	## kBGRColorSpace
-		#self.fps = 29;# maximum value for the highest camera resolution
+		self.resolution = 3	## k4VGA;
+		self.colorSpace = 13	## kBGRColorSpace
+		self.fps = 29;# maximum value for the highest camera resolution
 		## Subscribe to the camera
-		#self.nameId = prox_camera.subscribe(CameraModule.nameID, self.resolution, self.colorSpace, self.fps);
+		self.nameId = self.prox_camera.subscribe("python_camera", self.resolution, self.colorSpace, self.fps);
 	
 	# Initialization of ROS services
 	def openServices(self):
@@ -127,60 +124,41 @@ class CameraModule(ALModule):
 	#########################
 		
 	def handle_rapp_capture_image(self,req):
-		print "[Camera server receives]: \t%s\t ;resolution:%d" % (req.request,req.resolution)
+		print "[Camera server receives]: \t%s" % (req.request)
 		# Get Frame from Camera
 		
 		try:
-			##Modifying camera parameters
-			#kCameraSelectID = 18
+			#Modifying camera parameters
+			kCameraSelectID = 18
 			kCameraExposureAlgorithmID = 22
-			#kCameraResolutionID = 14
-			
-			## Changes camera parameters
-			if (req.resolution in [0,1,2,3]):#req.resolution==2 or req.resolution==1 or req.resolution==0 or req.resolution==3):#req.resolution in [0,1,2,3]:
-				self.resolution = req.resolution;
-				self.colorSpace = 13;	## kBGRColorSpace
-				self.fps = 29;# maximum value for the highest camera resolution
-			else:
-				self.resolution = 2;
-				self.colorSpace = 13;	## kBGRColorSpace
-				self.fps = 29;# maximum value for the highest camera resolution
-
-			if (req.request.find("bottom") != -1):
-				self.selectedCamera=1;
-			else:
-				self.selectedCamera=0;
-
-
-			## Subscribe to the camera
-			self.nameId = prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
-			##
-
-						
-			if (req.request=="top - adaptive auto exposure 0"):# Average scene Brightness
-				prox_camera.setParam(kCameraExposureAlgorithmID,0)# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
+			if (req.request=="top"):
+				self.prox_camera.setParam(kCameraSelectID,0)# 0 for top, 1 for bottom
+			elif (req.request=="bottom"):
+				self.prox_camera.setParam(kCameraSelectID,1)# bottom camera
+			elif (req.request=="top - adaptive auto exposure 0"):# Average scene Brightness
+				self.prox_camera.setParam(kCameraSelectID,0)# camera selection
+				self.prox_camera.setParam(kCameraExposureAlgorithmID,0)# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
 				print "[Camera server]: Using - Average scene Brightness"
 			elif (req.request=="top - adaptive auto exposure 1"):# weighted average scene Brightness
-				prox_camera.setParam(kCameraExposureAlgorithmID,1)# Weighted average scene Brightness
+				self.prox_camera.setParam(kCameraSelectID,0)# camera selection
+				self.prox_camera.setParam(kCameraExposureAlgorithmID,1)# Weighted average scene Brightness
 				print "[Camera server]: Using - Weighted average scene Brightness"
 			elif (req.request=="top - adaptive auto exposure 2"):# Adaptive weighted auto exposure for hightlights
-				prox_camera.setParam(kCameraExposureAlgorithmID,2)# Adaptive weighted auto exposure for hightlights
+				self.prox_camera.setParam(kCameraSelectID,0)# camera selection
+				self.prox_camera.setParam(kCameraExposureAlgorithmID,2)# Adaptive weighted auto exposure for hightlights
 				print "[Camera server]: Using - Adaptive weighted auto exposure for hightlights"
 			elif (req.request=="top - adaptive auto exposure 3"):# Adaptive weighted auto exposure for lowlights
-				prox_camera.setParam(kCameraExposureAlgorithmID,3)# Adaptive weighted auto exposure for lowlights
+				self.prox_camera.setParam(kCameraSelectID,0)# camera selection
+				self.prox_camera.setParam(kCameraExposureAlgorithmID,3)# Adaptive weighted auto exposure for lowlights
 				print "[Camera server]: Using - Adaptive weighted auto exposure for lowlights"
+			else :
+				self.prox_camera.setParam(kCameraSelectID,0)# top camera as default
 			#----
 			
-			
 			# Capture image from selected camera
-			self.naoImage = prox_camera.getImageRemote(self.nameId)
-
-			print self.naoImage[0]
-			print self.naoImage[1]
-
+			self.naoImage = self.prox_camera.getImageRemote(self.nameId)
 			while self.naoImage[6]==None:
-				print "-EMPTY-"
-				self.naoImage = prox_camera.getImageRemote(self.nameId) # for avoidance of the black image (empty frame)
+				self.naoImage = self.prox_camera.getImageRemote(self.nameId) # for avoidance of the black image (empty frame)
 
 			if self.naoImage[6]!=None:
 				self.frame_img=Image.fromstring("RGB", (self.naoImage[0], self.naoImage[1]), self.naoImage[6]) ## tuple
@@ -189,9 +167,9 @@ class CameraModule(ALModule):
 				#print self.frame_img.shape[2]
 				
 				#self.frame_img= cv2.cv.fromarray(self.frame_img[:,:])##from numpy array to CvMat
+				
 				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"rgb8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
 				#self.cv_image = self.bridge.imgmsg_to_cv2(self.image_message,"rgb8")
-				prox_camera.unsubscribe(self.nameId);
 		except AttributeError, ex:
 			print "[Camera server] - Exception AtrributeError = %s" % str(ex)
 		except Exception, ex:
@@ -224,21 +202,21 @@ def main():
 	except AttributeError:
 		print "[Camera server] -  - AttributeError"
 		#unsubscribe from camera
-		CameraServer.prox_camera.unsubscribe(self.nameId);
+		CameraServer.prox_camera.unsubscribe(CameraServer.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 		
 	except (KeyboardInterrupt, SystemExit):
 		print "[Camera server] - SystemExit Exception caught"
 		#unsubscribe from camera
-		CameraServer.prox_camera.unsubscribe(self.nameId);
+		CameraServer.prox_camera.unsubscribe(CameraServer.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 		
 	except Exception, ex:
 		print "[Camera server] - Exception caught %s" % str(ex)
 		#unsubscribe from camera
-		CameraServer.prox_camera.unsubscribe(self.nameId);
+		CameraServer.prox_camera.unsubscribe(CameraServer.nameId);
 		myBroker.shutdown()
 		sys.exit(0)
 	

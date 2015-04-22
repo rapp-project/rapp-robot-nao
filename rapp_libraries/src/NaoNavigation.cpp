@@ -1,4 +1,4 @@
-#include "NaoNavigation.h"
+#include "rapp_libraries/NaoNavigation.h"
 #include "ros/ros.h"
 #include "rapp_robot_agent/MoveTo.h"
 #include "rapp_robot_agent/MoveVel.h"

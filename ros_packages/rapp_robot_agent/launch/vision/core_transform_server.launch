@@ -1,7 +1,0 @@
-<launch>
-
-  <!-- Rapp core agent nodes -->
-  
-  <node pkg="rapp_robot_agent" name="acore_transform_server" type="acore_transform_server.py" output="screen"/>
-
-</launch>

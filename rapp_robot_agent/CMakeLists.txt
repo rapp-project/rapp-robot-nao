@@ -6,52 +6,51 @@ find_package(catkin REQUIRED COMPONENTS
 	rospy
 	std_msgs
 	message_generation
-	cv_bridge
+	#cv_bridge
 	sensor_msgs
-	image_transport
+	#image_transport
 )
-
 
  add_service_files(
    FILES
+### COMMUNICATION SERVICES
    Say.srv
+   RecognizeWord.srv
    GetEmailAddress.srv
    Record.srv
    SendEmail.srv
-   DetectQRcodes.srv
-   DetectHazardByQRcodes.srv
-   GetImage.srv
-   GetTransform.srv
-   PhotoCapture.srv
-	LearnFace.srv
-   RecognizeFaces.srv
-	RecognizeWord.srv
-	VoiceRecord.srv
-	MicrophoneEnergy.srv
-	RecordWithSoundDetection.srv
+
+###  VISION SERVICES 
+   #DetectQRcodes.srv
+   #DetectHazardByQRcodes.srv
+   #GetImage.srv
+   #GetTransform.srv
+   #PhotoCapture.srv
+   #LearnFace.srv
+   #RecognizeFaces.srv
 
 ###  MOVE & NAVIGATION SERVICES
-   FollowMarker.srv
-   MoveTo.srv
-   MoveVel.srv
-   MoveHead.srv
-   MoveStop.srv
-   GetPlan.srv
-   GetPose.srv
-   UpdatePose.srv
-   MoveGetCollisionStatus.srv	
+   #FollowMarker.srv
+   #MoveTo.srv
+   #MoveVel.srv
+   #MoveHead.srv
+   #MoveStop.srv
+   #GetPlan.srv
+   #GetPose.srv
+   #UpdatePose.srv
+   #MoveGetCollisionStatus.srv	
  )
 
  add_message_files(
 	FILES
-	Matrix4x4.msg
-	MatrixRot.msg 
+	#Matrix4x4.msg
+	#MatrixRot.msg 
 )
 
  generate_messages(
    DEPENDENCIES
    std_msgs
-	sensor_msgs
+   sensor_msgs
  )
 
 catkin_package(
