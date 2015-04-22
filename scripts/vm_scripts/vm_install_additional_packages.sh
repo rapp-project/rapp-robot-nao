@@ -82,11 +82,6 @@ git clone https://github.com/ros-perception/vision_opencv.git
 echo "Downloading source code from rosbridge_suite repository"
 git clone https://github.com/RobotWebTools/rosbridge_suite.git
 
-cd ..
-echo "Building ros packages"
-$ROS_DIR/src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
-
-
 #########################################################
 # Copying ROS stuff given in a Ros tutorial
 #########################################################
@@ -109,4 +104,10 @@ cp -r /usr/local/include/console_bridge* install_isolated/include/
 cp -r /usr/lib/python2.7/site-packages/* install_isolated/lib/python2.7/site-packages/
 cp /usr/bin/rosversion install_isolated/bin/
 cp /usr/bin/ros* install_isolated/bin/
+
+#########################################################
+cd ..
+echo "Building ros packages"
+$ROS_DIR/src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
+
 
