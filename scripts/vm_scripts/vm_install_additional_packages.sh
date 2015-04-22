@@ -10,7 +10,7 @@ MY_WORKSPACE_INSTALL_ISOLATED=$ROS_DIR"/install_isolated"
 if [ -d $PROGRAMS_DIRECTORY ]; then #If directory exists
 	echo "Folder $PROGRAMS_DIRECTORY exists"
 else
-	mkdir -p PROGRAMS_DIRECTORY
+	mkdir -p $PROGRAMS_DIRECTORY
 	echo "Creating $PROGRAMS_DIRECTORY folder"
 fi
 
@@ -18,7 +18,7 @@ if [ -d $MY_WORKSPACE_INSTALL_ISOLATED ]; then #If directory exists
 	echo "Removes folders $ROS_DIR/install_isolated $ROS_DIR/build_isolated $ROS_DIR/devel_isolated"
 	rm devel_isolated build_isolated install_isolated -rf
 else
-	mkdir -p MY_WORKSPACE_INSTALL_ISOLATED
+	mkdir -p $MY_WORKSPACE_INSTALL_ISOLATED
 	echo "Creating $MY_WORKSPACE_INSTALL_ISOLATED folder"
 fi
 
