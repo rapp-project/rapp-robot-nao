@@ -264,7 +264,7 @@ class QRdetector_class:
 				cameraToLandmarkTransformMatrix=np.dot(Rotz_plus90,cameraToLandmarkTransformMatrix)
 				cameraToLandmarkTransformMatrix[0][3]*=-1.0;	cameraToLandmarkTransformMatrix[2][3]*=-1.0;
 				
-				QRdetector_class.LandmarkInCameraCoordinate.append(cameraToLandmarkTransformMatrix)		
+				QRdetector_class.LandmarkInCameraCoordinate.append(landmarkToCameraTransform)		
 				QRdetector_class.QRmessage.append(symbol.data)#Adds QR-code message to the class variable
 				QRdetector_class.detected += 1 #Number of detected QR-codes
 				
@@ -406,7 +406,6 @@ class QRcodeDetectionModule(ALModule):
 		self.message = []
 		self.cornersMatrix= []
 		self.robotToCameraMatrix= []
-		
 		# Communicate with the GetTransform service
 		response_robotToCamera = self.TransformClient.getTransform(self.QRdetector.currentCamera, 2) # Transform from currentCamera to the robot coordinate system
 		self.robotToCameraMatrix=np.asarray([ 
@@ -444,14 +443,27 @@ class QRcodeDetectionModule(ALModule):
 			
 		self.numberOfQRcodes = self.QRdetector.detected
 		self.message = (self.QRdetector.QRmessage)
-
 		## Copy matrices to class object for the ros communication		
 		Matrix4x4Camera = Matrix4x4Message()	#LandmarkInCameraCoordinate
 		Matrix4x4Camera.get_values(self.QRdetector.LandmarkInCameraCoordinate,self.numberOfQRcodes)
-		
+
 		Matrix4x4Robot = Matrix4x4Message() #LandmarkInRobotCoordinate
 		Matrix4x4Robot.get_values(self.QRdetector.LandmarkInRobotCoordinate,self.numberOfQRcodes)
 		
+		##WD
+
+		WD_y = np.arctan2(-Matrix4x4Camera.r31[0],np.sqrt(Matrix4x4Camera.r32[0]*Matrix4x4Camera.r32[0]+Matrix4x4Camera.r33[0]*Matrix4x4Camera.r33[0]))		
+
+		cam = np.array([[Matrix4x4Camera.r11[0],Matrix4x4Camera.r12[0],Matrix4x4Camera.r13[0],Matrix4x4Camera.r14[0]],[Matrix4x4Camera.r21[0],Matrix4x4Camera.r22[0],Matrix4x4Camera.r23[0],Matrix4x4Camera.r24[0]],[Matrix4x4Camera.r31[0],Matrix4x4Camera.r32[0],Matrix4x4Camera.r33[0],Matrix4x4Camera.r34[0]],[Matrix4x4Camera.r41[0],Matrix4x4Camera.r42[0],Matrix4x4Camera.r43[0],Matrix4x4Camera.r44[0]]])
+		matrix_90_x = np.array([[np.cos(-WD_y),0,np.sin(-WD_y),0],
+					[0,1,0,0],
+					[-np.sin(-WD_y),0,np.cos(-WD_y),0],
+					[0,0,0,1]])	
+		
+		print "cam: \n",cam	
+		WD_matrix = np.dot(cam,matrix_90_x)
+		WD_matrix =  np.dot(WD_matrix,matrix_90_x)
+		print "WD: \n",WD_matrix
 		return DetectQRcodesResponse(self.isQRcodeFound, self.numberOfQRcodes, Matrix4x4Camera, Matrix4x4Robot, self.message)
 			
 # Testng SIGINT signal handler
