@@ -1,3 +1,6 @@
+//#####################
+// written by Wojciech Dudek
+//#####################
 #include "NaoNavigation.h"
 #include "ros/ros.h"
 #include "rapp_robot_agent/MoveTo.h"
@@ -26,10 +29,10 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  {
 		  	if (srv.response.isDestinationReached == true){
 
-		    ROS_INFO("Nao moved ");
+		    ROS_INFO("I stand at the goal!");
 
 		  	}else{
-		    ROS_INFO("Nao sees obstacle");
+		    ROS_INFO("Sorry, I can't reach the goal. I can see an obstacle in front of me.");
 
 		  	}
 		  }

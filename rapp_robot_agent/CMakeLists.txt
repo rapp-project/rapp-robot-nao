@@ -39,7 +39,8 @@ find_package(catkin REQUIRED COMPONENTS
    GetPlan.srv
    GetPose.srv
    UpdatePose.srv
-   MoveGetCollisionStatus.srv	
+   MoveGetCollisionStatus.srv
+   VisOdom.srv		
  )
 
  add_message_files(

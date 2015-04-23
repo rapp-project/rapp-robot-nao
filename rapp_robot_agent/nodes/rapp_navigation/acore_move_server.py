@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-
+######################
+## written by Wojciech Dudek
+######################
 __author__ = "Wojciech Dudek"
 
 ########################
@@ -14,7 +16,11 @@ import sys, os
 import rospy
 import almath as m
 import numpy
+from geometry_msgs.msg import PoseStamped
+
 import tf.transformations
+#import transformPose
+
 # Importing core functionality from Naoqi
 from naoqi import ALProxy
 from naoqi import ALBroker
@@ -56,18 +62,10 @@ class MoveNaoModule(ALModule):
 		self.setVariables()
 		self.subscribeToEvents()
 		self.openServices()
-		#Subscribe to Naoqi events
-
-
-
-		#self.avoideObstacle()
-		#Subscribe to Naoqi events
 
 
 		print "[Move server] - Waits for clients ..."
-		
-		
-	
+				
 	# Initialization of Naoqi modules
 	def initALModule(self):
 		print "[Move server] - Initialization of Naoqi modules"
@@ -91,13 +89,20 @@ class MoveNaoModule(ALModule):
 		if self.prox_memory is None:
 			rospy.logerr("[Move server] - Could not get a proxy to ALSonar")
 			exit(1)
-	
 	# Setting variables
 	def setVariables(self):
 		print "[Move server] - Setting variables"
 		self.MoveIsFailed = False
-	
+		self.GP_seq = -1
 		
+	# NAOqi Event subscribtion
+	def subscribeToEvents(self):
+		self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback")
+		#self.prox_memory.subscribeToEvent("LeftBumperPressed", self.moduleName, "LeftBumperPressed")
+		#self.prox_memory.subscribeToEvent("RightBumperPressed", self.moduleName, "RightBumperPressed")
+		self.avoide_ID = 0
+		#self.proxy_sonar.subscribe("obstacleAvoidance")
+		#self.prox_memory.subscribeToEvent("Navigation/AvoidanceNavigator/ObstacleDetected", self.moduleName, "ObstacleCallback")
 	# Initialization of ROS services
 	def openServices(self):
 		try:
@@ -125,31 +130,17 @@ class MoveNaoModule(ALModule):
 			print "[Move server] - service - [rapp_moveGetCollisionStatus]"
 			self.service_mh = rospy.Service('rapp_moveGetCollisionStatus', MoveGetCollisionStatus, self.handle_rapp_moveGetCollisionStatus)
 		except Exception, ex_mh:
-			print "[Move server] - Exception %s" % str(ex)		
-	def StiffnessOn(self, proxy):
-	# We use the "Body" name to signify the collection of all joints
-		pNames = "Body"
-		pStiffnessLists = 1.0
-		pTimeLists = 1.0
-		proxy.stiffnessInterpolation(pNames, pStiffnessLists, pTimeLists)	
-	
+			print "[Move server] - Exception %s" % str(ex)	
 
-	def SetPose(self,pose):
-
-		try:
-			self.StiffnessOn(self.proxy_motion)
-		except Exception, ex:
-			print "[Move server] - Exception %s" % str(ex)
-		try:	
-			self.proxy_RobotPosture.goToPosture(pose, 0.5)
-		except Exception, e:
-				print "[Move server] - Exception %s" % str(e)	
-		print "[Move server] - Actual Nao pose : %s" % str(pose)
-
-		
+	####
+	##  SERVECE HANDLERS
+	####
 	def handle_rapp_MoveTo(self,req):
-		
-		self.lock =thread.allocate_lock()
+		self.GP_seq +=1
+		#self.lock =thread.allocate_lock()
+
+		self.prox_memory.removeData("ALMotion/Safety/MoveFailed")
+		self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback")
 
 		#####################
 		## Set class variables for MoveTo
@@ -157,18 +148,18 @@ class MoveNaoModule(ALModule):
 		self.destinationX=req.destination_x
 		self.destinationY=req.destination_y
 		self.destinationTheta=req.destination_theta
-
+		self.MoveIsFailed = False
 		#self.move_is_finished = False
-
-		self.setGoalGlobalPose()
+		GoalLocalPosition = numpy.array([req.destination_x,req.destination_y,0,1])
+		self.setGoalGlobalPose(GoalLocalPosition)
 		GP = self.getGoalGlobalPose()
-		x=GP.pose.position[0]
-		y=GP.pose.position[1]
+		x=GP.pose.position.x#[0]
+		y=GP.pose.position.y#[1]
 		t=tf.transformations.euler_from_quaternion(GP.pose.orientation)[2]
-		k=GP.pose.position[0]
-		rospy.set_param('/globalGoal/pose/x',float(x))#Decimal(GP.pose.position[0]))
-		rospy.set_param('/globalGoal/pose/y',float(y))
-		rospy.set_param('/globalGoal/pose/t',float(t))
+		#k#=GP.pose.position[0]
+		
+		self.publishGoal(GP)
+
 
 		isDestinationReached = False
 		self.SetPose('StandInit')
@@ -196,9 +187,6 @@ class MoveNaoModule(ALModule):
 		print "[Move server] - Destination X = %s Destination Y = %s  Destination Theta = %s" %(req.destination_x, req.destination_y, req.destination_theta)
 
 		print "[Move server] - Nao init position = ", InitRobotPosition
-		self.destinationX = req.destination_x
-		self.destinationY = req.destination_y
-		self.destinationTheta = req.destination_theta
 
 		# while self.avoide_ID == False:
 		# 	rospy.sleep(1)
@@ -235,7 +223,7 @@ class MoveNaoModule(ALModule):
 		Nao_x = EndRobotPosition.x
 		Nao_y = EndRobotPosition.y
 		return MoveToResponse(isDestinationReached)
-	
+
 	def handle_rapp_moveVel(self,req):
 
 		self.SetPose('StandInit')
@@ -281,10 +269,11 @@ class MoveNaoModule(ALModule):
 		
 		Nao_x = EndRobotPosition.x
 		Nao_y = EndRobotPosition.y
+
 		return MoveVelResponse(isDestinationReached)	
 
 	def handle_rapp_moveHead(self,req):
-
+		self.StiffnessOn("Head")
 		fractionMaxSpeed = 0.1
 		self.proxy_motion.setAngles('HeadYaw',req.yaw,fractionMaxSpeed)
 
@@ -297,13 +286,13 @@ class MoveNaoModule(ALModule):
 		while True:
 			yaw_end_old = yaw_end
 			pitch_end_old = pitch_end
-			rospy.sleep(0.2)
+			rospy.sleep(0.3)
 			sensorAngles = self.proxy_motion.getAngles(names, useSensors)
 			yaw_end=sensorAngles[0]
 			pitch_end=sensorAngles[1]
 			if yaw_end_old == yaw_end and pitch_end_old == pitch_end: 
 				break
-
+		self.StiffnessOff("Head")
 		return MoveHeadResponse(yaw_end,pitch_end)
 
 	def handle_rapp_moveStop(self,req):
@@ -314,89 +303,128 @@ class MoveNaoModule(ALModule):
 		self.subscribeToEvents()
 		return MoveGetCollisionStatusResponse(self.EventKey,self.EventValue)
 
-	def subscribeToEvents(self):
-		self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback")
-		#self.prox_memory.subscribeToEvent("LeftBumperPressed", self.moduleName, "LeftBumperPressed")
-		#self.prox_memory.subscribeToEvent("RightBumperPressed", self.moduleName, "RightBumperPressed")
-		self.avoide_ID = 0
+	####
+	##  Nao core drivers
+	####
+			# set stiffness
+	def StiffnessOn(self, joint):
+		# We use the "Body" name to signify the collection of all joints
+		pNames = joint
+		pStiffnessLists = 1.0
+		pTimeLists = 1.0
+		self.proxy_motion.stiffnessInterpolation(pNames, pStiffnessLists, pTimeLists)	
+			# set Nao pose
+	def StiffnessOff(self,joint):
+		pNames = joint
+		pStiffnessLists = 0.0
+		pTimeLists = 1.0
+		self.proxy_motion.stiffnessInterpolation(pNames, pStiffnessLists, pTimeLists)	
+
+	def SetPose(self,pose):
+
+		try:
+			self.StiffnessOn("Body")
+		except Exception, ex:
+			print "[Move server] - Exception %s" % str(ex)
+		try:	
+			self.proxy_RobotPosture.goToPosture(pose, 0.3)
+		except Exception, e:
+				print "[Move server] - Exception %s" % str(e)	
+		print "[Move server] - Actual Nao pose : %s" % str(pose)
+			# save SONAR data as self.sonar_data[] -> [0] - RIGHT, [1] - LEFT
+	def getSonarData(self):
+
+		self.sonar_data = [0,0]
+		event_trigger_wait = self.event_trigger.wait()
+		print "\t \t EVENT trigger : %s" %event_trigger_wait
+		self.sonar_data[0] =self.prox_memory.getData("Device/SubDeviceList/US/Right/Sensor/Value")
+		self.sonar_data[1] = self.prox_memory.getData("Device/SubDeviceList/US/Left/Sensor/Value")
 		#self.proxy_sonar.subscribe("obstacleAvoidance")
-		#self.prox_memory.subscribeToEvent("Navigation/AvoidanceNavigator/ObstacleDetected", self.moduleName, "ObstacleCallback")
-	def LeftBumperPressed(self, strVarName, value,message):
-		# get actual NaoPause trigger value
-		#param_trig = rospy.get_param('/rapp_NaoMove/NaoMovePause/trigger')
-		# stop NaoPause
-		#rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', False)
-		# pause avoiding
-		#print "L BUMPER PRESSED avoiding pause param_trig: %s" %param_trig
+		return self.sonar_data
 
-		self.event_trigger.clear()
-		# move backwords 
-		self.proxy_motion.moveToward(0,0,0)		
-		self.proxy_motion.moveToward(-0.4,0,0)
-		rospy.sleep(4)
-		self.proxy_motion.moveToward(0,0,0)		
-		#self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback") < - - - - -  commented at home
-		# wait avoide is being killed
-		rospy.sleep(1)
-		# set NaoPause trigger value as it was before bumper has been pressed
 
-		#rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', param_trig)
-		# resume avoideing
-		self.event_trigger.set()
-		print "L BUMPER PRESSED avoiding resume"
-	def RightBumperPressed(self, strVarName, value,message):
-		# get actual NaoPause trigger value
-		#param_trig = rospy.get_param('/rapp_NaoMove/NaoMovePause/trigger')
-		# stop NaoPause
-		#rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', False)
+	####
+	##  Goal handlers
+	####
+	def setGoalGlobalPose(self,GoalLocalPosition): ### WARNING  - Actual Nao position from Odometry, not from POSE ESTIMATOR !!!!!!!!!!!
 
-		# pause avoiding
-		#print "R BUMPER PRESSED avoiding pause param_trig: %s" %param_trig
+		self.GoalGlobalPose = geometry_msgs.msg.PoseStamped()
+		ActualRobotPosition = m.Pose2D(self.proxy_motion.getRobotPosition(True))
+		rospy.logwarn("WARNING  - Actual Nao position from Odometry, not from POSE ESTIMATOR !!!!!!!!!!!")
+		#print ActualRobotPosition
+		print "[setGoalGlobalPose] - setting Goal global Pose from: \n",GoalLocalPosition
 
-		self.event_trigger.clear()
-		# move backwords 
-		self.proxy_motion.moveToward(0,0,0)	
-		rospy.sleep(1.5)
+		TransformMatrix= numpy.array([[numpy.cos(ActualRobotPosition.theta),-numpy.sin(ActualRobotPosition.theta),0,ActualRobotPosition.x],
+		 								[numpy.sin(ActualRobotPosition.theta),numpy.cos(ActualRobotPosition.theta),0,ActualRobotPosition.y],
+		 								[0,												0,												1,0],
+		 								[0,												0,												0,1]])
+		GoalGlobalPosition = numpy.dot(TransformMatrix,GoalLocalPosition)
+		print "[setGoalGlobalPose] - GoalGlobalPosition: \n",GoalGlobalPosition
+		print "[setGoalGlobalPose] - GoalGlobalPosition: \n",GoalGlobalPosition
+		GlobalOrientation = tf.transformations.quaternion_from_euler(0, 0, self.destinationTheta+ActualRobotPosition.theta)
+		print "[setGoalGlobalPose] - GoalGlobalOrientation (EULER): \n",numpy.array([0, 0, self.destinationTheta+ActualRobotPosition.theta])
+
+		self.GoalGlobalPose.pose.position.x = GoalGlobalPosition[0]#[GoalGlobalPosition[0],GoalGlobalPosition[1],GoalGlobalPosition[2]]
+		self.GoalGlobalPose.pose.position.y = GoalGlobalPosition[1]
+		self.GoalGlobalPose.pose.position.z = GoalGlobalPosition[2]
+		self.GoalGlobalPose.pose.orientation = GlobalOrientation 
+		print "[setGoalGlobalPose] - Goal global pose is set"
+			# publish "GP" on /goal topic | "GP" - geometry_msgs/PoseStamped object
+	def publishGoal(self,GP):
+		pub_pose = rospy.Publisher("/goal", PoseStamped , queue_size=10)
+		print "PUBLISHING!!"
+		print GP
+		GP.header.seq = self.GP_seq
+		GP.header.stamp = rospy.Time.now()
+		GP.header.frame_id = "Nao_footprint"
+		# GOAL = PoseStamped()
+		# GOAL.header.seq = 0
+		# GOAL.header.stamp = rospy.Time.now()
+
+		# GOAL.header.frame_id = "Nao_footprint"
+		# GOAL.pose.position.x = GP.pose.position.x
+		# GOAL.pose.position.y = GP.pose.position.y
+		# GOAL.pose.position.z = 0
+		# q = GP.pose.orientatioin
+		# GOAL.pose.orientation.x = q[0]
+		# GOAL.pose.orientation.y = q[1]
+		# GOAL.pose.orientation.z = q[2]
+		# GOAL.pose.orientation.w = q[3]
+		# rospy.set_param("/globalGoal/pose/x", GP.pose.position.x)
+		# rospy.set_param("/globalGoal/pose/y", GP.pose.position.y)
+
+		# rospy.set_param("/globalGoal/pose/t",self.destinationTheta)
+		print "Publishing on /goal topic :\n",GP
+		pub_pose.publish(GP)
 	
-		self.proxy_motion.moveToward(-0.4,0,0)
-		rospy.sleep(4)
-		self.proxy_motion.moveToward(0,0,0)		
-		#self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback") < - - - - -  commented at home
-		# wait avoide is being killed
-		rospy.sleep(1)
-		# set NaoPause trigger value as it was before bumper has been pressed
+	def getGoalGlobalPose(self):
+		return self.GoalGlobalPose
 
-		#rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', param_trig)
-		# resume avoideing
-		#self.event_trigger.set()
-		print "R BUMPER PRESSED avoiding resume"
-	def NaoPause(self):
-		print "NAoPause - starts"
-		#param_trig = rospy.get_param('/rapp_NaoMove/NaoMovePause/trigger')
-		#param_move = rospy.get_param('/rapp_NaoMove/NaoMovePause/move')
-		#param_sleep = rospy.get_param('/rapp_NaoMove/NaoMovePause/sleep')
-		while True:
-			self.event_trigger.set()
-			if param_trig == True: #<---------------------------------------------------- moze byc potrzeba zmiany na stringa
+	def	getGoalNewLocalPose(self,GoalGlobalPose):
+		GoalNewLocalPose = geometry_msgs.msg.PoseStamped()
+	 	ActualRobotPosition = m.Pose2D(self.proxy_motion.getRobotPosition(True))
 
-				self.event_trigger.set()#set()
-				rospy.sleep(param_move)
-				self.event_trigger.clear()#set()
-				self.proxy_motion.moveToward(0,0,0)		
+	 	TransformMatrix = numpy.linalg.pinv(numpy.array([[numpy.cos(ActualRobotPosition.theta),-numpy.sin(ActualRobotPosition.theta),0,ActualRobotPosition.x],
+	 									[numpy.sin(ActualRobotPosition.theta),numpy.cos(ActualRobotPosition.theta),0,ActualRobotPosition.y],
+	 									[0,												0,												1,0],
+	 									[0,												0,												0,1]]))
+	 	print "[GoalNewLocalPose] Matrix for new coordinations for goal are : %s" %TransformMatrix
+	 	GoalNewLocalPose.pose.position = numpy.dot(TransformMatrix,[GoalGlobalPose.pose.position[0],GoalGlobalPose.pose.position[1],0,1])
+	 	print "[GoalNewLocalPose] move to : %s" %GoalNewLocalPose
+	 	GoalNewLocalPose.pose.orientation = tf.transformations.quaternion_from_euler(0,0,tf.transformations.euler_from_quaternion(GoalGlobalPose.pose.orientation)[2] - ActualRobotPosition.theta)
+	 	x=GoalNewLocalPose.pose.position[0]
+		y=GoalNewLocalPose.pose.position[1]
+		t=tf.transformations.euler_from_quaternion(GoalNewLocalPose.pose.orientation)[2]
+		k=GoalNewLocalPose.pose.position[0]
+		rospy.set_param('/globalNEWGoal/pose/x',float(x))#Decimal(GP.pose.position[0]))
+		rospy.set_param('/globalNEWGoal/pose/y',float(y))
+		rospy.set_param('/globalNEWGoal/pose/t',float(t))
+	 	return GoalNewLocalPose
 
-				rospy.sleep(param_sleep)
-
-			# if param_trig == True: #<---------------------------------------------------- moze byc potrzeba zmiany na stringa
-			# 	self.event_trigger.set()
-			# 	rospy.sleep(param_move)
-			# 	print "NAoPause - przed clear: move: %s     sleep: %s" %(	param_move,	param_sleep )
-
-			# 	self.event_trigger.clear()
-			# 	rospy.sleep(param_sleep)
-			#param_trig = rospy.get_param('/rapp_NaoMove/NaoMovePause/trigger')
-			#param_move = rospy.get_param('/rapp_NaoMove/NaoMovePause/move')
-			#param_sleep = rospy.get_param('/rapp_NaoMove/NaoMovePause/sleep')
-
+	####
+	##  Callbacks
+	####
+			# Obstacle in move direction 
 	def MoveCallback(self, strVarName, value,message):
 		""" Mandatory docstring.
 			comment needed to create a bound method
@@ -426,7 +454,61 @@ class MoveNaoModule(ALModule):
 		#self.avoideObstacleSimple()
 
 		#self.prox_memory.unsubscribeToEvent("ALMotion/Safety/MoveFailed",
+			# Left bumper pressed
+	def LeftBumperPressed(self, strVarName, value,message):
+		# get actual NaoPause trigger value
+		#param_trig = rospy.get_param('/rapp_NaoMove/NaoMovePause/trigger')
+		# stop NaoPause
+		#rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', False)
+		# pause avoiding
+		#print "L BUMPER PRESSED avoiding pause param_trig: %s" %param_trig
 
+		self.event_trigger.clear()
+		# move backwords 
+		self.proxy_motion.moveToward(0,0,0)		
+		self.proxy_motion.moveToward(-0.4,0,0)
+		rospy.sleep(4)
+		self.proxy_motion.moveToward(0,0,0)		
+		#self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback") < - - - - -  commented at home
+		# wait avoide is being killed
+		rospy.sleep(1)
+		# set NaoPause trigger value as it was before bumper has been pressed
+
+		#rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', param_trig)
+		# resume avoideing
+		self.event_trigger.set()
+		print "L BUMPER PRESSED avoiding resume"
+			# Right bumper pressed
+	def RightBumperPressed(self, strVarName, value,message):
+		# get actual NaoPause trigger value
+		#param_trig = rospy.get_param('/rapp_NaoMove/NaoMovePause/trigger')
+		# stop NaoPause
+		#rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', False)
+
+		# pause avoiding
+		#print "R BUMPER PRESSED avoiding pause param_trig: %s" %param_trig
+
+		self.event_trigger.clear()
+		# move backwords 
+		self.proxy_motion.moveToward(0,0,0)	
+		rospy.sleep(1.5)
+	
+		self.proxy_motion.moveToward(-0.4,0,0)
+		rospy.sleep(4)
+		self.proxy_motion.moveToward(0,0,0)		
+		#self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback") < - - - - -  commented at home
+		# wait avoide is being killed
+		rospy.sleep(1)
+		# set NaoPause trigger value as it was before bumper has been pressed
+
+		#rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', param_trig)
+		# resume avoideing
+		#self.event_trigger.set()
+		print "R BUMPER PRESSED avoiding resume"
+	
+	####
+	##  Navigation methods
+	####
 
 	def ObstacleCallback(self, strVarName, value,message):
 
@@ -435,23 +517,12 @@ class MoveNaoModule(ALModule):
 		print "value %s" % str(value)
 		print ""
 
-	def getSonarData(self):
-
-		self.sonar_data = [0,0]
-		event_trigger_wait = self.event_trigger.wait()
-		print "\t \t EVENT trigger : %s" %event_trigger_wait
-		self.sonar_data[0] =self.prox_memory.getData("Device/SubDeviceList/US/Right/Sensor/Value")
-		self.sonar_data[1] = self.prox_memory.getData("Device/SubDeviceList/US/Left/Sensor/Value")
-		#self.proxy_sonar.subscribe("obstacleAvoidance")
-		return self.sonar_data
-
 	def avoiedObstacleSimple(self):
 
 		sonar_data = getSonarData()
 
 		while sonar_data[1]>sonar_data[0]:
 			self.proxy_motion.moveToward(0, 1, 0)
-
 
 	def avoideObstacle(self):
 		#self.last_avoidance_indent = thread.get_ident()
@@ -485,71 +556,11 @@ class MoveNaoModule(ALModule):
 		self.proxy_motion.waitUntilMoveIsFinished()
 		rospy.set_param('/rapp_NaoMove/NaoMovePause/trigger', True)
 
-
 	def setStartCoordinateFrame(self):
 		self.StartRobotPosition = m.Pose2D(self.proxy_motion.getRobotPosition(True))
 
 	def getStartCoordinateFrame(self):
 		return self.StartRobotPosition
-
-	def	getGoalNewLocalPose(self,GoalGlobalPose):
-		GoalNewLocalPose = geometry_msgs.msg.PoseStamped()
-	 	ActualRobotPosition = m.Pose2D(self.proxy_motion.getRobotPosition(True))
-
-	 	TransformMatrix = numpy.linalg.pinv(numpy.array([[numpy.cos(ActualRobotPosition.theta),-numpy.sin(ActualRobotPosition.theta),0,ActualRobotPosition.x],
-	 									[numpy.sin(ActualRobotPosition.theta),numpy.cos(ActualRobotPosition.theta),0,ActualRobotPosition.y],
-	 									[0,												0,												1,0],
-	 									[0,												0,												0,1]]))
-	 	print "[GoalNewLocalPose] Matrix for new coordinations for goal are : %s" %TransformMatrix
-	 	GoalNewLocalPose.pose.position = numpy.dot(TransformMatrix,[GoalGlobalPose.pose.position[0],GoalGlobalPose.pose.position[1],0,1])
-	 	print "[GoalNewLocalPose] move to : %s" %GoalNewLocalPose
-	 	GoalNewLocalPose.pose.orientation = tf.transformations.quaternion_from_euler(0,0,tf.transformations.euler_from_quaternion(GoalGlobalPose.pose.orientation)[2] - ActualRobotPosition.theta)
-	 	x=GoalNewLocalPose.pose.position[0]
-		y=GoalNewLocalPose.pose.position[1]
-		t=tf.transformations.euler_from_quaternion(GoalNewLocalPose.pose.orientation)[2]
-		k=GoalNewLocalPose.pose.position[0]
-		rospy.set_param('/globalNEWGoal/pose/x',float(x))#Decimal(GP.pose.position[0]))
-		rospy.set_param('/globalNEWGoal/pose/y',float(y))
-		rospy.set_param('/globalNEWGoal/pose/t',float(t))
-	 	return GoalNewLocalPose
-	def setGoalGlobalPose(self):
-
-		self.GoalGlobalPose = geometry_msgs.msg.PoseStamped()
-		ActualRobotPosition = m.Pose2D(self.proxy_motion.getRobotPosition(True))
-		LocalPosition = numpy.array([self.destinationX,self.destinationY,0,1])
-		print ActualRobotPosition
-		print "destination from here",LocalPosition
-
-		TransformMatrix= numpy.array([[numpy.cos(ActualRobotPosition.theta),-numpy.sin(ActualRobotPosition.theta),0,ActualRobotPosition.x],
-		 								[numpy.sin(ActualRobotPosition.theta),numpy.cos(ActualRobotPosition.theta),0,ActualRobotPosition.y],
-		 								[0,												0,												1,0],
-		 								[0,												0,												0,1]])
-		GoalGlobalPosition = numpy.dot(TransformMatrix,LocalPosition)
-		print "[setGoalGlobalPose] - GoalGlobalPosition: \n",GoalGlobalPosition
-
-		GlobalOrientation = tf.transformations.quaternion_from_euler(0, 0, self.destinationTheta+ActualRobotPosition.theta)
-		self.GoalGlobalPose.pose.position = GoalGlobalPosition#[GoalGlobalPosition[0],GoalGlobalPosition[1],GoalGlobalPosition[2]]
-		self.GoalGlobalPose.pose.orientation = GlobalOrientation 
-
-	def getGoalGlobalPose(self):
-		return self.GoalGlobalPose
-
-
-		# print "[getGoalGlobalPose] - LocalPosition: \n", LocalPosition
-		# print "[getGoalGlobalPose] - TransformMatrix_actualToMap: \n",TransformMatrix_actualToMap
-		# TransformMatrix = numpy.dot(TransformMatrix_MapToStart,TransformMatrix_actualToMap)
-		# GoalGlobalPosition = numpy.dot(TransformMatrix,LocalPosition)
-		# print "[getGoalGlobalPose] - GoalGlobalPosition: \n",GoalGlobalPosition
-
-		# GlobalOrientation = tf.transformations.quaternion_from_euler(0, 0, self.destinationTheta+ActualRobotPosition.theta)
-		# PoseStamped=[GoalGlobalPosition[0],GoalGlobalPosition[1],GoalGlobalPosition[2]]
-		# GoalGlobalPose.pose.position = GoalGlobalPosition#[GoalGlobalPosition[0],GoalGlobalPosition[1],GoalGlobalPosition[2]]
-		# GoalGlobalPose.pose.orientation = GlobalOrientation 
-		# #,geometry_msgs.Quaternion(GlobalOrientation))
-		# #PoseStamped.Orientation=self.destinationTheta+ActualRobotPosition[2]
-		# #print "Global Nao position is: %s" %(GlobalPosition)
-		# #print "Global Nao orientation is: %s" %(GlobalOrientation)
-		return GoalGlobalPose
 
 	def getEnvirementScenario(self):
 		sonar_data = self.getSonarData()
@@ -601,6 +612,7 @@ class MoveNaoModule(ALModule):
 			print "[Left1] - left sonar > 0.7, right sonar < 0.7 -> starting LEFT2"
 
 			self.avoid2L()
+
 	def avoid1R(self):
 		sonar_data = self.getSonarData()
 
@@ -618,7 +630,6 @@ class MoveNaoModule(ALModule):
 		elif (sonar_data[1]<0.7):
 			self.avoid2R()
 
-
 	def avoid2L(self):
 		checkGoalTheta = "none"#self.checkGoalTheta("left")
 		print "[Left2] - checkGoalTheta :%s" %checkGoalTheta
@@ -632,6 +643,7 @@ class MoveNaoModule(ALModule):
 			if endWall == "corner":
 				self.turn("left")
 				checkGoalTheta = self.checkGoalTheta("left")
+
 	def avoid2R(self):
 		checkGoalTheta = "none"#self.checkGoalTheta("left")
 		print "[Right2] - checkGoalTheta :%s" %checkGoalTheta
@@ -658,6 +670,7 @@ class MoveNaoModule(ALModule):
 		# 	if endWall == "corner":
 		# 		self.turn("right")
 		# 		checkGoalTheta = self.checkGoalTheta("right")
+
 	def rotate(self,direction):
 		print "[Rotate] Direction:  %s" %direction
 		if self.AvoideObstacle == False:
@@ -675,6 +688,7 @@ class MoveNaoModule(ALModule):
 			self.proxy_motion.moveToward(0, 0,theta)
 			rospy.sleep(1)
 			sonar_data = self.getSonarData()
+
 	def followWall(self,direction):
 		i=0
 		sonar_data = self.getSonarData()
@@ -936,145 +950,6 @@ class MoveNaoModule(ALModule):
 			print "[checkGoalTheta] - GoalNotClear - continue avoiding"
 			return "GoalNotClear"
 
-
-
-# 	def followObstaclesBoundary(self,direction):
-# 		k=0.1
-# 		i=0
-# 		#l=0
-# 		print min(self.sonar_data)
-# 		self.proxy_motion.setWalkArmsEnabled(True, True)
-
-# 	 	#while (k >0 and k<0.8 and (i < 5 )):#or l <5)):
-	 	 			
-#  		sonar_data = self.getSonarData()
-# 	 		#      |  <-sonar_left_distance 
-# 	 		#      |  ___________                 AVOIDE LEFT DIRACTION
-# e 		#      |  \ <- sonar_right_distance  
-# 	 		#      | / \
-# 	 		#      |/   \
-# 	 		#      *
-#  		if sonar_data[1]>sonar_data[0]: # [0] - right,  [1] - left
-#  			#avoide_direction = "left"
-#  			theta = 0.1
-#  			i=0
-#  			while i<2:
-#  				sonar_data = self.getSonarData()
-#  				self.proxy_motion.moveToward(0, 0, theta)
-#  				if sonar_data[1]>0.7 and sonar_data[0]>0.7:
-#  					i=i+1
-# 	 	else:
-
-#  			#avoide_direction = "right"
-#  			theta = -0.1
-#  			i=0
-#  			while i<2:
-#  				sonar_data = self.getSonarData()
-# 				self.proxy_motion.moveToward(0, 0, theta)
-# 				if sonar_data[0]>0.7 and sonar_data[1]>0.7:
-# 					i=i+1
- 			
-
-# 	 		#k = min(sonar_data)
-# 	 		# print sonar_data
-# 	 		# if k == sonar_data[0]:
-# 	 		# 	print "\n ROTATE:\n right sonar : %s" %k
-# 	 		# else :
-# 	 		# 	print "\n left sonar : %s" %k
-# 	 		# if (k > 1):# and theta == 0.1):
-# 	 		# 	i=i+1
-# 	 		# 	#l=0
-# 	 		# if (k > 1 and theta == -0.1):
-# 	 		# 	l=l+1
-# 	 		# 	i=0
-# 	 	print "STOP theta: %s" %theta
-# 	 	Xvel = 0.4
-# 	 	maxDist = 0.75
-# 	 	while True:
-# 	 		sonar_data = self.getSonarData()
-# 	 		if theta >0:
-# 	 			print "right sonar : %s" %sonar_data[0]
-# 	 			print "left sonar : %s" %sonar_data[1]
-# 		 		if sonar_data[0]>maxDist: # [0] - right,  [1] - left
-# 		 			#avoide_direction = "left"
-# 			 		self.proxy_motion.moveToward(0.4, 0, -sonar_data[0]/4)
-
-			 		
-# 			 		# if sonar_data[1] < 0.30:
-			 	
-# 			 		# 	self.proxy_motion.moveToward(0.4, 0, sonar_data[0]/4)
-# 			 		# 	print "WATCH OUT - LEFT OBSTACLE"
-
-
-# 		 		else:
-# 			 		self.proxy_motion.moveToward(0.4, 0, 1-sonar_data[0]*sonar_data[0])# 0.9/1.1-sonar_data[0] )
-# 					if sonar_data[1] < 0.40:
-# 			 			self.followLeftUntilRightFree(0.4,0.6)
-
-# 	 		else:
-
-# 		 		if sonar_data[1]>maxDist: # [0] - right,  [1] - left
-# 		 			#avoide_direction = "left"
-# 					print "dociskamy \n : %s" %(sonar_data[1]) 
-# 					print "kat: %s" %(sonar_data[1]/5)#(maxDist-sonar_data[1])*(maxDist-sonar_data[1]))
-# 					if sonar_data[1] > 2:
-# 						sonar_data[1] = 2
-# 			 		self.proxy_motion.moveToward(0.4, 0, sonar_data[1]/2)#(-maxDist+sonar_data[1])*(-maxDist+sonar_data[1]))
-	
-# 			 		# if sonar_data[0] < 0.40 and sonar_data[0] :
-# 			 		# 	self.followRight(0.4)
-# 			 		# 	trzymaj sie prawej az lewa sie zwolni
-# 			 		# 	self.proxy_motion.moveToward(0.4, 0, -sonar_data[1]/4)
-# 						# print "WATCH OUT - RIGHT OBSTACLE"
-
-# 		 		else:
-# 		 			#avoide_direction = "right"
-# 		 			print "odpychamy %s \n " %(sonar_data[1]) 
-# 					print "kat: %s" %(-(maxDist-sonar_data[1])*(maxDist-sonar_data[1]))
-
-# 			 		self.proxy_motion.moveToward(0.4, 0, -maxDist/sonar_data[1]-(maxDist-2*sonar_data[1]/3)*(maxDist-2*sonar_data[1]/3))
-
-# 			 		if sonar_data[0] < maxDist/2:
-# 			 			print "too close"
-# 			 			print "too close"
-# 			 			print "too close"
-# 			 			print "too close"
-# 			 			print "too close"
-# 			 			print "too close"
-# 			 			print "too close"
-# 			 			print "too close"
-# 			 			print "too close"
-# 			 			print "too close"
-			 			
-# 			 			self.followRightUntilLeftFree(0.5,0.8)
-
-	
-# 	 	# while (k >0 and k<1):
-	 	 			
-# 	 	# 	sonar_data = self.getSonarData()
-# 	 	# 	#      |  <-sonar_left_distance 
-# 	 	# 	#      |  ___________                 AVOIDE LEFT DIRACTION
-# 	 	# 	#      |  \ <- sonar_right_distance  
-# 	 	# 	#      | / \
-# 	 	# 	#      |/   \
-# 	 	# 	#      *
-# 	 	# 	if sonar_data[1]>sonar_data[0]: # [0] - right,  [1] - left
-# 	 	# 		#avoide_direction = "left"
-# 	 	# 		theta = 0.1
-# 	 	# 	else:
-# 	 	# 		#avoide_direction = "right"
-# 	 	# 		theta = -0.1
-# 			# self.proxy_motion.moveToward(0, 0, theta)
-# 	 	# 	k = min(sonar_data)
-# 	 	# 	print k
-
-
-
-
-# 	 	self.proxy_motion.moveToward(0, 0, theta)
-
-# 	 	self.proxy_motion.stopMove()
-
 	def followRightUntilLeftFree(self,distR, distL):
 		sonar_data = self.getSonarData()
 		print "followRightUntilLeftFree : %s" %sonar_data[1]
@@ -1117,7 +992,170 @@ class MoveNaoModule(ALModule):
 		#duza przeszkoda:
 		#  obracaj sie w odpowiednia strone az jeden sonar bedzie wolny, idz do przodu az drugi sonar bedzie wolny,
 		#  skrec w ta strone z ktorej uwolnil sie sonar, idz prosto
-# mala:  Kieruj sie non stop na mete, az oba sonary beda wolne.
+		# mala:  Kieruj sie non stop na mete, az oba sonary beda wolne.
+
+	####
+	##  thread operating
+	####
+	def NaoPause(self):
+		print "NaoPause - starts"
+		#param_trig = rospy.get_param('/rapp_NaoMove/NaoMovePause/trigger')
+		#param_move = rospy.get_param('/rapp_NaoMove/NaoMovePause/move')
+		#param_sleep = rospy.get_param('/rapp_NaoMove/NaoMovePause/sleep')
+		while True:
+			self.event_trigger.set()
+			if param_trig == True: #<---------------------------------------------------- moze byc potrzeba zmiany na stringa
+
+				self.event_trigger.set()#set()
+				rospy.sleep(param_move)
+				self.event_trigger.clear()#set()
+				self.proxy_motion.moveToward(0,0,0)		
+
+				rospy.sleep(param_sleep)
+
+			# if param_trig == True: #<---------------------------------------------------- moze byc potrzeba zmiany na stringa
+			# 	self.event_trigger.set()
+			# 	rospy.sleep(param_move)
+			# 	print "NAoPause - przed clear: move: %s     sleep: %s" %(	param_move,	param_sleep )
+
+			# 	self.event_trigger.clear()
+			# 	rospy.sleep(param_sleep)
+			#param_trig = rospy.get_param('/rapp_NaoMove/NaoMovePause/trigger')
+			#param_move = rospy.get_param('/rapp_NaoMove/NaoMovePause/move')
+			#param_sleep = rospy.get_param('/rapp_NaoMove/NaoMovePause/sleep')
+
+
+	# OLD METHOD
+ 	def followObstaclesBoundary(self,direction):
+ 		k=0.1
+ 		i=0
+ 		#l=0
+ 		print min(self.sonar_data)
+ 		self.proxy_motion.setWalkArmsEnabled(True, True)
+
+ 	 	#while (k >0 and k<0.8 and (i < 5 )):#or l <5)):
+	 	 			
+  		sonar_data = self.getSonarData()
+ 	 		#      |  <-sonar_left_distance 
+ 	 		#      |  ___________                 AVOIDE LEFT DIRACTION
+  		#      |  \ <- sonar_right_distance  
+ 	 		#      | / \
+ 	 		#      |/   \
+ 	 		#      *
+  		if sonar_data[1]>sonar_data[0]: # [0] - right,  [1] - left
+  			#avoide_direction = "left"
+  			theta = 0.1
+  			i=0
+  			while i<2:
+  				sonar_data = self.getSonarData()
+  				self.proxy_motion.moveToward(0, 0, theta)
+  				if sonar_data[1]>0.7 and sonar_data[0]>0.7:
+  					i=i+1
+ 	 	else:
+
+  			#avoide_direction = "right"
+  			theta = -0.1
+  			i=0
+  			while i<2:
+  				sonar_data = self.getSonarData()
+ 				self.proxy_motion.moveToward(0, 0, theta)
+ 				if sonar_data[0]>0.7 and sonar_data[1]>0.7:
+ 					i=i+1
+ 			
+
+ 	 		#k = min(sonar_data)
+ 	 		# print sonar_data
+ 	 		# if k == sonar_data[0]:
+ 	 		# 	print "\n ROTATE:\n right sonar : %s" %k
+ 	 		# else :
+ 	 		# 	print "\n left sonar : %s" %k
+ 	 		# if (k > 1):# and theta == 0.1):
+ 	 		# 	i=i+1
+ 	 		# 	#l=0
+ 	 		# if (k > 1 and theta == -0.1):
+ 	 		# 	l=l+1
+ 	 		# 	i=0
+ 	 	print "STOP theta: %s" %theta
+ 	 	Xvel = 0.4
+ 	 	maxDist = 0.75
+ 	 	while True:
+ 	 		sonar_data = self.getSonarData()
+ 	 		if theta >0:
+ 	 			print "right sonar : %s" %sonar_data[0]
+ 	 			print "left sonar : %s" %sonar_data[1]
+ 		 		if sonar_data[0]>maxDist: # [0] - right,  [1] - left
+ 		 			#avoide_direction = "left"
+ 			 		self.proxy_motion.moveToward(0.4, 0, -sonar_data[0]/4)
+
+			 		
+ 			 		# if sonar_data[1] < 0.30:
+			 	
+ 			 		# 	self.proxy_motion.moveToward(0.4, 0, sonar_data[0]/4)
+ 			 		# 	print "WATCH OUT - LEFT OBSTACLE"
+
+
+ 		 		else:
+ 			 		self.proxy_motion.moveToward(0.4, 0, 1-sonar_data[0]*sonar_data[0])# 0.9/1.1-sonar_data[0] )
+ 					if sonar_data[1] < 0.40:
+ 			 			self.followLeftUntilRightFree(0.4,0.6)
+ 	 		else:
+ 		 		if sonar_data[1]>maxDist: # [0] - right,  [1] - left
+ 		 			#avoide_direction = "left"
+ 					print "dociskamy \n : %s" %(sonar_data[1]) 
+ 					print "kat: %s" %(sonar_data[1]/5)#(maxDist-sonar_data[1])*(maxDist-sonar_data[1]))
+ 					if sonar_data[1] > 2:
+ 						sonar_data[1] = 2
+ 			 		self.proxy_motion.moveToward(0.4, 0, sonar_data[1]/2)#(-maxDist+sonar_data[1])*(-maxDist+sonar_data[1]))
+
+ 			 		# if sonar_data[0] < 0.40 and sonar_data[0] :
+ 			 		# 	self.followRight(0.4)
+ 			 		# 	trzymaj sie prawej az lewa sie zwolni
+ 			 		# 	self.proxy_motion.moveToward(0.4, 0, -sonar_data[1]/4)
+ 						# print "WATCH OUT - RIGHT OBSTACLE"
+ 		 		else:
+ 		 			#avoide_direction = "right"
+ 		 			print "odpychamy %s \n " %(sonar_data[1]) 
+ 					print "kat: %s" %(-(maxDist-sonar_data[1])*(maxDist-sonar_data[1]))
+ 			 		self.proxy_motion.moveToward(0.4, 0, -maxDist/sonar_data[1]-(maxDist-2*sonar_data[1]/3)*(maxDist-2*sonar_data[1]/3))
+ 			 		if sonar_data[0] < maxDist/2:
+ 			 			print "too close"
+ 			 			print "too close"
+ 			 			print "too close"
+ 			 			print "too close"
+ 			 			print "too close"
+ 			 			print "too close"
+ 			 			print "too close"
+ 			 			print "too close"
+ 			 			print "too close"
+ 			 			print "too close"
+		 			
+ 			 			self.followRightUntilLeftFree(0.5,0.8)
+
+	
+ 	 	# while (k >0 and k<1):
+	 	 			
+ 	 	# 	sonar_data = self.getSonarData()
+ 	 	# 	#      |  <-sonar_left_distance 
+ 	 	# 	#      |  ___________                 AVOIDE LEFT DIRACTION
+ 	 	# 	#      |  \ <- sonar_right_distance  
+ 	 	# 	#      | / \
+	 	# 	#      |/   \
+ 	 	# 	#      *
+ 	 	# 	if sonar_data[1]>sonar_data[0]: # [0] - right,  [1] - left
+ 	 	# 		#avoide_direction = "left"
+ 	 	# 		theta = 0.1
+ 	 	# 	else:
+ 	 	# 		#avoide_direction = "right"
+ 	 	# 		theta = -0.1
+ 			# self.proxy_motion.moveToward(0, 0, theta)
+ 	 	# 	k = min(sonar_data)
+ 	 	# 	print k
+
+
+ 	 	self.proxy_motion.moveToward(0, 0, theta)
+ 	 	self.proxy_motion.stopMove()
+
+
 
 
 # Testng SIGINT signal handler
