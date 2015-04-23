@@ -9,9 +9,6 @@ mkdir -p $ROS_WORKSPACE/src
 mkdir -p $ROS_WORKSPACE/external
 cd ws_ros
 
-# Let assume that the toolchain is copied in /home/nao
-scp -r -P 2222 /home/nao/linux64-atom-pub-v2.0.5.4 nao@localhost:/home/nao/ws_ros/external/
-
 sudo bash -c 'echo app-portage/gentoolkit >> /etc/portage/package.keywords'
 sudo bash -c 'echo dev-python/setuptools >> /etc/portage/package.keywords'
 sudo emerge setuptools

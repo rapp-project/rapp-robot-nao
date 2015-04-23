@@ -10,7 +10,7 @@ if [ -d $MY_WORKSPACE_INSTALL_ISOLATED ]; then #If directory exists
 	rm devel_isolated build_isolated install_isolated -rf
 fi
 
-cd ROS_DIR
+cd $ROS_DIR
 echo "Building ros packages"
 $ROS_DIR/src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
 
