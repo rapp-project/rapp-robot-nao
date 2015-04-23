@@ -6,6 +6,15 @@ PROGRAMS_DIRECTORY="/home/nao/programs"
 ROS_DIR="/home/nao/my_workspace"
 MY_WORKSPACE_SRC_DIR=$ROS_DIR"/src"
 MY_WORKSPACE_INSTALL_ISOLATED=$ROS_DIR"/install_isolated"
+SCRIPTS_DIR="/home/nao/scripts"
+
+if [ -d $MY_WORKSPACE_INSTALL_ISOLATED ]; then #If directory exists
+	echo "Folder $ROS_DIR/install_isolated exists"
+else
+	echo "Folder $ROS_DIR/install_isolated doesnt exist"
+	echo "Installing ros core packages to $ROS_DIR/install_isolated"
+	bash $SCRIPTS_DIR/vm_ros_install_isolated.sh
+fi
 
 if [ -d $PROGRAMS_DIRECTORY ]; then #If directory exists
 	echo "Folder $PROGRAMS_DIRECTORY exists"
@@ -13,14 +22,6 @@ if [ -d $PROGRAMS_DIRECTORY ]; then #If directory exists
 fi
 mkdir -p $PROGRAMS_DIRECTORY
 echo "Creating $PROGRAMS_DIRECTORY folder"
-
-
-if [ -d $MY_WORKSPACE_INSTALL_ISOLATED ]; then #If directory exists
-	echo "Removes folders $ROS_DIR/install_isolated $ROS_DIR/build_isolated $ROS_DIR/devel_isolated"
-	rm devel_isolated build_isolated install_isolated -rf
-fi
-mkdir -p $MY_WORKSPACE_INSTALL_ISOLATED
-echo "Creating $MY_WORKSPACE_INSTALL_ISOLATED folder"
 
 # Yaml-cpp
 cd $PROGRAMS_DIRECTORY
@@ -82,30 +83,6 @@ git clone https://github.com/ros-perception/vision_opencv.git
 echo "Downloading source code from rosbridge_suite repository"
 git clone https://github.com/RobotWebTools/rosbridge_suite.git
 
-#########################################################
-# Copying ROS stuff given in a Ros tutorial
-#########################################################
-cp /usr/lib/liblog4cxx* install_isolated/lib/
-cp -r /usr/include/log4cxx install_isolated/include/
-cp /usr/lib/libapr* install_isolated/lib/
-cp -r /usr/include/apr* install_isolated/include/
-cp /usr/lib/libtinyxml* install_isolated/lib/
-cp /usr/lib/libPoco* install_isolated/lib/
-cp -r /usr/include/Poco* install_isolated/include/
-cp -r /usr/lib/liburdfdom* install_isolated/lib/
-cp -r /usr/include/urdf* install_isolated/include/
-cp -r /usr/lib/libcxsparse* install_isolated/lib/
-cp -r /usr/lib/libcholmod* install_isolated/lib/
-cp -r /usr/include/cholmod* install_isolated/include/
-cp -r /usr/lib/liblz4* install_isolated/lib/
-cp -r /usr/include/lz4* install_isolated/include/
-cp -r /usr/local/lib/libconsole_bridge* install_isolated/lib/
-cp -r /usr/local/include/console_bridge* install_isolated/include/
-cp -r /usr/lib/python2.7/site-packages/* install_isolated/lib/python2.7/site-packages/
-cp /usr/bin/rosversion install_isolated/bin/
-cp /usr/bin/ros* install_isolated/bin/
-
-#########################################################
 cd ..
 echo "Building ros packages"
 $ROS_DIR/src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
