@@ -114,6 +114,7 @@ cd $PROGRAMS_DIRECTORY
 echo "Downloading source code of libvmime library"
 wget http://sourceforge.net/projects/vmime/files/vmime/0.9/libvmime-0.9.1.tar.bz2
 tar -xjf libvmime-0.9.1.tar.bz2
+cd libvmime-0.9.1
 ./configure --prefix=$MY_WORKSPACE_INSTALL_ISOLATED
 make install
 
