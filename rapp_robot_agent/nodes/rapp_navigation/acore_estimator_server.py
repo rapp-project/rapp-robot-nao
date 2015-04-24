@@ -17,6 +17,8 @@ from rapp_robot_agent.srv import DetectQRcodes
 from rapp_robot_agent.srv import GetTransform
 from rapp_robot_agent.srv import VisOdom
 from rapp_robot_agent.srv import MoveHead
+from rapp_robot_agent.srv import MoveTo
+
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import *
 from tf2_msgs.msg import TFMessage
@@ -184,149 +186,129 @@ class NaoEstimator(ALModule):
 			print "[Estimator server] - Exception %s" % str(ex)
 
 	def handle_rapp_VisOdom(self,req):
-		i=0
-		transformation = self.locateMarker()
-		self.turnNaoHead(transformation)
+		#transform = self.locateMarkers()
 		decomposed_robot_in_QR = self.estimateNaoPosition()
-		# while i < 10:
-		# 	self.updateVO()
-		# 	i+=1
-		# 	self.sensorRate.sleep()
 		self.moveOdom(decomposed_robot_in_QR)
-		return VisOdomResponse(True)
+		feedback = True
+		return VisOdomResponse(feedback)
 
-	def locateMarker(self):
-		# Find closest marker to "Nao_footprint" frame
-		min_dist = 1000
-		can_locate = False
-		while can_locate == False:
-			if self.tl.canTransform("Nao_footprint","Wall",rospy.Time()):
-				i=0
-				can_locate = True
-				for i in range(len(self.markers)):
-					i+=1
+	# def locateMarkers(self):
+	# 	# Find closest marker to "Nao_footprint" frame
+	# 	min_dist = 1000
+	# 	can_locate = False
+	# 	while can_locate == False:
+	# 		if self.tl.canTransform("Nao_footprint","Wall",rospy.Time()):
+	# 			i=0
+	# 			can_locate = True
+	# 			for i in range(len(self.markers)):
+	# 				i+=1
 
-					transform = self.tl.lookupTransform("Nao_footprint", self.markers[i-1], rospy.Time())
-					distance = np.sqrt(transform[0][0]*transform[0][0]+transform[0][1]*transform[0][1])
-					if min_dist > distance:
-						min_dist = distance
-						marker_id = i-1
-						marker_transformation = transform
-					elif min_dist == 1000:
-						i=0
-						print "min_dist == 1000 "
-		print "Closest marker id: %s" %(self.markers[marker_id])
-		return marker_transformation
+	# 				transform = self.tl.lookupTransform("Nao_footprint", self.markers[i-1], rospy.Time())
+	# 				if reachable
+	# 				distance= np.sqrt(transform[0][0]*transform[0][0]+transform[0][1]*transform[0][1])
+	# 				if min_dist > distance:
+	# 					min_dist = distance
+	# 					marker_id = i-1
+	# 					marker_transformation = transform
+	# 				elif min_dist == 1000:
+	# 					i=0
+	# 					print "min_dist == 1000 "
+	# 	print "Closest marker : %s" %(self.markers[i-1])
+	# 	return transform
 
-	def turnNaoHead(self,transformation):
-		print transformation
-		self.head_yaw = np.arctan2(transformation[0][1],transformation[0][0])
-		d = np.sqrt(transformation[0][0]*transformation[0][0]+transformation[0][1]*transformation[0][1])
-		h = transformation[0][2]-0.5
-		self.head_pitch = -np.arctan2(h,d)
-		print "HP",self.head_pitch
+	def turnNaoHead(self,head_yaw,head_pitch):
 		moveNaoHead = rospy.ServiceProxy('rapp_moveHead', MoveHead)
-		resp1 = moveNaoHead(self.head_yaw, self.head_pitch)
+		resp1 = moveNaoHead(head_yaw,head_pitch)
 
 	def estimateNaoPosition(self):
 		# get image
-		getImage = rospy.ServiceProxy('rapp_capture_image', GetImage)
-		image_response= getImage("top - adaptive auto exposure 2")
-		frame = image_response.frame
-		#get transform camera -> torso
-		robot_camera_transform = self.motionProxy.getTransform("CameraTop", 0, True)
-		matrix_camera_torso = (np.array([[robot_camera_transform[0],robot_camera_transform[1],robot_camera_transform[2],robot_camera_transform[3]],
-										[robot_camera_transform[4],robot_camera_transform[5],robot_camera_transform[6],robot_camera_transform[7]],
-										[robot_camera_transform[5],robot_camera_transform[6],robot_camera_transform[7],robot_camera_transform[8]],
-										[robot_camera_transform[9],robot_camera_transform[10],robot_camera_transform[11],robot_camera_transform[12]]]))
+		head_yaw = 0
+		head_pitch = 0
+		head_yaw_max = 2.08
+		gotQRcode = False
+		resetHeadPosition = False
+		while gotQRcode!=True:
+			self.turnNaoHead(head_yaw,head_pitch)
+			getImage = rospy.ServiceProxy('rapp_capture_image', GetImage)
+			image_response= getImage("top - adaptive auto exposure 2")
+			frame = image_response.frame
+			if (frame.height == 0 or frame.width == 0):    # //frame is empty
+				print "Camera frame is empty"
+			else:
+				print "QRcode detection ..."
+				detectQRcodes = rospy.ServiceProxy('rapp_detect_qrcodes',DetectQRcodes)
+				QRcodeDetectionStruct = detectQRcodes(frame)
+				print "number of QRcodes: \n",QRcodeDetectionStruct.numberOfQRcodes
+				# Is Qrcode found
+				if QRcodeDetectionStruct.numberOfQRcodes > 0:
+					gotQRcode = True
+					#get transform camera -> torso
+					robot_camera_transform = self.motionProxy.getTransform("CameraTop", 0, True)
+					matrix_camera_torso = (np.array([[robot_camera_transform[0],robot_camera_transform[1],robot_camera_transform[2],robot_camera_transform[3]],
+											[robot_camera_transform[4],robot_camera_transform[5],robot_camera_transform[6],robot_camera_transform[7]],
+											[robot_camera_transform[5],robot_camera_transform[6],robot_camera_transform[7],robot_camera_transform[8]],
+											[robot_camera_transform[9],robot_camera_transform[10],robot_camera_transform[11],robot_camera_transform[12]]]))
+					print "matrix camera->torso: \n",matrix_camera_torso
+					#compute robot position in QRcode frame
+					self.VO_frame_ID = QRcodeDetectionStruct.message[0]
+					print "Localising via : [",self.VO_frame_ID ,"] position"
 
-		print "matrix camera->torso: \n",matrix_camera_torso
-		if (frame.height == 0 or frame.width == 0):    # //frame is empty
-			print "Camera frame is empty"
-		else:
-			print "QRcode detection ..."
-			detectQRcodes = rospy.ServiceProxy('rapp_detect_qrcodes',DetectQRcodes)
-			QRcodeDetectionStruct = detectQRcodes(frame)
-			print "number of QRcodes: \n",QRcodeDetectionStruct.numberOfQRcodes
-			# frame_ID
-			self.VO_frame_ID = QRcodeDetectionStruct.message[0]
-			print "Localising via : [",self.VO_frame_ID ,"] position"
+					matrix_R_in_C_Rz = np.array([[np.cos((3.14/2)-head_yaw),-np.sin((3.14/2)-head_yaw),0,0],
+										 [np.sin((3.14/2)-head_yaw), np.cos((3.14/2)-head_yaw),0,0],
+										 [0		  ,0        ,1,0],
+										 [0		  ,0        ,0,1]])	
+					matrix_R_in_C_Rx = np.array([[1,0,0,0],
+											[0,np.cos((3.14/2)+head_pitch),-np.sin((3.14/2)+head_pitch),0],
+											[0,np.sin((3.14/2)+head_pitch),np.cos((3.14/2)+head_pitch),0],
+											[0,0,0,1]])		
+					matrix_R_in_C_translation = np.array([[1,0,0,robot_camera_transform[7]],
+											[0,1,0,-robot_camera_transform[3]],
+											[0,0,1,-0.2],
+											[0,0,0,1]])	
+					matrix_camera_in_QR =  np.linalg.pinv(np.array([[QRcodeDetectionStruct.cameraToQRcode.r11[0],QRcodeDetectionStruct.cameraToQRcode.r12[0],QRcodeDetectionStruct.cameraToQRcode.r13[0],QRcodeDetectionStruct.cameraToQRcode.r14[0]],
+												[QRcodeDetectionStruct.cameraToQRcode.r21[0],QRcodeDetectionStruct.cameraToQRcode.r22[0],QRcodeDetectionStruct.cameraToQRcode.r23[0],QRcodeDetectionStruct.cameraToQRcode.r24[0]],
+												[QRcodeDetectionStruct.cameraToQRcode.r31[0],QRcodeDetectionStruct.cameraToQRcode.r32[0],QRcodeDetectionStruct.cameraToQRcode.r33[0],QRcodeDetectionStruct.cameraToQRcode.r34[0]],
+												[QRcodeDetectionStruct.cameraToQRcode.r41[0],QRcodeDetectionStruct.cameraToQRcode.r42[0],QRcodeDetectionStruct.cameraToQRcode.r43[0],QRcodeDetectionStruct.cameraToQRcode.r44[0]]]))
+					print "Rotation matrix: camera in QRcode: \" %s \" : \n"%(QRcodeDetectionStruct.message[0]), matrix_camera_in_QR
 
-			matrix_R_in_C_Rz = np.array([[np.cos((3.14/2)-self.head_yaw),-np.sin((3.14/2)-self.head_yaw),0,0],
-								 [np.sin((3.14/2)-self.head_yaw), np.cos((3.14/2)-self.head_yaw),0,0],
-								 [0		  ,0        ,1,0],
-								 [0		  ,0        ,0,1]])	
-			matrix_R_in_C_Rx = np.array([[1,0,0,0],
-									[0,np.cos((3.14/2)+self.head_pitch),-np.sin((3.14/2)+self.head_pitch),0],
-									[0,np.sin((3.14/2)+self.head_pitch),np.cos((3.14/2)+self.head_pitch),0],
-									[0,0,0,1]])		
-			matrix_R_in_C_translation = np.array([[1,0,0,robot_camera_transform[7]],
-									[0,1,0,-robot_camera_transform[3]],
-									[0,0,1,-0.2],
-									[0,0,0,1]])	
-			matrix_camera_in_QR =  np.linalg.pinv(np.array([[QRcodeDetectionStruct.cameraToQRcode.r11[0],QRcodeDetectionStruct.cameraToQRcode.r12[0],QRcodeDetectionStruct.cameraToQRcode.r13[0],QRcodeDetectionStruct.cameraToQRcode.r14[0]],
-										[QRcodeDetectionStruct.cameraToQRcode.r21[0],QRcodeDetectionStruct.cameraToQRcode.r22[0],QRcodeDetectionStruct.cameraToQRcode.r23[0],QRcodeDetectionStruct.cameraToQRcode.r24[0]],
-										[QRcodeDetectionStruct.cameraToQRcode.r31[0],QRcodeDetectionStruct.cameraToQRcode.r32[0],QRcodeDetectionStruct.cameraToQRcode.r33[0],QRcodeDetectionStruct.cameraToQRcode.r34[0]],
-										[QRcodeDetectionStruct.cameraToQRcode.r41[0],QRcodeDetectionStruct.cameraToQRcode.r42[0],QRcodeDetectionStruct.cameraToQRcode.r43[0],QRcodeDetectionStruct.cameraToQRcode.r44[0]]]))
-			print "Rotation matrix: camera in QRcode: \" %s \" : \n"%(QRcodeDetectionStruct.message[0]), matrix_camera_in_QR
+					matrix_robot_in_QR = (np.dot(matrix_camera_in_QR,matrix_R_in_C_Rx))
+					matrix_robot_in_QR = (np.dot(matrix_robot_in_QR,matrix_R_in_C_translation))
+					matrix_robot_in_QR = (np.dot(matrix_robot_in_QR,matrix_R_in_C_Rz))
+					print "Rotation matrix: Torso in QRcode: \" %s \" : \n"%(QRcodeDetectionStruct.message[0]), matrix_robot_in_QR
+					# decompose matrix
+					decomposed_robot_in_QR=self.decompose_matrix(matrix_robot_in_QR)
+					decomposed_camera_in_QR=self.decompose_matrix(matrix_camera_in_QR)
 
-			matrix_robot_in_QR = (np.dot(matrix_camera_in_QR,matrix_R_in_C_Rx))
-			matrix_robot_in_QR = (np.dot(matrix_robot_in_QR,matrix_R_in_C_translation))
-			matrix_robot_in_QR = (np.dot(matrix_robot_in_QR,matrix_R_in_C_Rz))
-			print "Rotation matrix: Torso in QRcode: \" %s \" : \n"%(QRcodeDetectionStruct.message[0]), matrix_robot_in_QR
-			# decompose matrix
-			decomposed_robot_in_QR=self.decompose_matrix(matrix_robot_in_QR)
-			decomposed_camera_in_QR=self.decompose_matrix(matrix_camera_in_QR)
+					# send transform  Camera in QRcode position
+					self.tf_br.sendTransform((decomposed_camera_in_QR[0][0],decomposed_camera_in_QR[0][1],decomposed_camera_in_QR[0][2]), 
+											tf.transformations.quaternion_from_euler(decomposed_camera_in_QR[1][0],
+																					decomposed_camera_in_QR[1][1],
+																					decomposed_camera_in_QR[1][2]),
+		                                         rospy.Time.now(), "QR_camera", QRcodeDetectionStruct.message[0])
 
-			# send transform  Camera in QRcode position
-			self.tf_br.sendTransform((decomposed_camera_in_QR[0][0],decomposed_camera_in_QR[0][1],decomposed_camera_in_QR[0][2]), 
-									tf.transformations.quaternion_from_euler(decomposed_camera_in_QR[1][0],
-																			decomposed_camera_in_QR[1][1],
-																			decomposed_camera_in_QR[1][2]),
-                                         rospy.Time.now(), "QR_camera", QRcodeDetectionStruct.message[0])
+					# send transform Rrbot in QRcode position
+					self.tf_br.sendTransform((decomposed_robot_in_QR[0][0],decomposed_robot_in_QR[0][1],decomposed_robot_in_QR[0][2]), 
+											tf.transformations.quaternion_from_euler(decomposed_robot_in_QR[1][0],
+																					decomposed_robot_in_QR[1][1],
+																					decomposed_robot_in_QR[1][2]),
+		                                         rospy.Time.now(), "QR_Torso", QRcodeDetectionStruct.message[0])
+					self.marker_id = QRcodeDetectionStruct.message[0]
 
-			# send transform Rrbot in QRcode position
-			self.tf_br.sendTransform((decomposed_robot_in_QR[0][0],decomposed_robot_in_QR[0][1],decomposed_robot_in_QR[0][2]), 
-									tf.transformations.quaternion_from_euler(decomposed_robot_in_QR[1][0],
-																			decomposed_robot_in_QR[1][1],
-																			decomposed_robot_in_QR[1][2]),
-                                         rospy.Time.now(), "QR_Torso", QRcodeDetectionStruct.message[0])
-			self.marker_id = QRcodeDetectionStruct.message[0]
-			return decomposed_robot_in_QR
-	def updateVO(self):
-		# self.tf_br.sendTransform((self.decomposed_robot_in_QR[0][0],self.decomposed_robot_in_QR[0][1],self.decomposed_robot_in_QR[0][2]), 
-		# 						tf.transformations.quaternion_from_euler(self.decomposed_robot_in_QR[1][0],
-		# 																self.decomposed_robot_in_QR[1][1],
-		# 																self.decomposed_robot_in_QR[1][2]),
-  #                                       rospy.Time.now(), "QR_Torso", "Stable object")		
-		if self.tl.canTransform("QR_Torso","odom",rospy.Time()):
-			transform_Nao_odom = self.tl.lookupTransform("odom","QR_Torso", rospy.Time())
-			euler_transform_Nao_odom =  tf.transformations.euler_from_quaternion(transform_Nao_odom[1])	
-			print "QR: --- - -- ",transform_Nao_odom
-	
-			self.visualOdom = Odometry()
-			self.visualOdom.header.frame_id = "odom"
-			self.visualOdom.child_frame_id = "QR_robot"
-			self.visualOdomPub = rospy.Publisher("vo", Odometry, queue_size=10)
-			# /odom
-			self.visualOdom.header.stamp = rospy.Time.now()
-			self.visualOdom.pose.pose.position.x = transform_Nao_odom[0][0]
-			self.visualOdom.pose.pose.position.y = transform_Nao_odom[0][1]
-			self.visualOdom.pose.pose.position.z = transform_Nao_odom[0][2]
-			q_vo = transformations.quaternion_from_euler(transform_Nao_odom[1][0], transform_Nao_odom[1][1], transform_Nao_odom[1][2])
-			self.visualOdom.pose.pose.orientation.x = q_vo[0]
-			self.visualOdom.pose.pose.orientation.y = q_vo[1]
-			self.visualOdom.pose.pose.orientation.z = q_vo[2]
-			self.visualOdom.pose.pose.orientation.w = q_vo[3]
-			Visiual_ODOM_POSE_COVARIANCE = [1e-3, 0, 0, 0, 0, 0, 
-			                      			0, 1e-3, 0, 0, 0, 0,
-					                        0, 0, 1e-3, 0, 0, 0,
-					                        0, 0, 0, 1e-3, 0, 0,
-					                        0, 0, 0, 0, 1e-1, 0,
-					                        0, 0, 0, 0, 0, 1e-3]
-			self.visualOdom.pose.covariance =  Visiual_ODOM_POSE_COVARIANCE
-			# /vo
-			self.visualOdomPub.publish(self.visualOdom)	
+					return decomposed_robot_in_QR
+				else:
+					gotQRcode = False
+					head_yaw += 3.14/5 # turn head + 0.628 rad | + 36 deg
+					if head_yaw > head_yaw_max:
+						head_yaw_max_set = 0
+						if resetHeadPosition == True: # if no QRcode avaliable in robot position, move robot +180 deg
+							moveNaoHead = rospy.ServiceProxy('rapp_moveTo', MoveTo)
+							moveTo_resp = moveNaoHead(0,0,3.14)
+							print "rapp_moveTo image_response: \n",moveTo_resp
+							head_yaw_max_set = 2.08
+						resetHeadPosition = True
+						head_yaw = -2.08
+						head_yaw_max = head_yaw_max_set
+
 	def moveOdom(self,matrix):
 		time = rospy.Time.now()
 		self.tf_br.sendTransform((matrix[0][0],matrix[0][1],matrix[0][2]), 
@@ -413,12 +395,12 @@ class NaoEstimator(ALModule):
 		self.torsoOdom.pose.pose.orientation.z = q_odom[2]
 		self.torsoOdom.pose.pose.orientation.w = q_odom[3]
 
-		ODOM_POSE_COVARIANCE = [1e-3, 0, 0, 0, 0, 0, 
-		                        0, 1e-3, 0, 0, 0, 0,
+		ODOM_POSE_COVARIANCE = [1e-4, 0, 0, 0, 0, 0, 
+		                        0, 1e-4, 0, 0, 0, 0,
 		                        0, 0, 1e-3, 0, 0, 0,
 		                        0, 0, 0, 1e6, 0, 0,
 		                        0, 0, 0, 0, 1e6, 0,
-		                        0, 0, 0, 0, 0, 1e-3]
+		                        0, 0, 0, 0, 0, 1e-2]
 		self.torsoOdom.pose.covariance =  ODOM_POSE_COVARIANCE
 		# /imu_data
 		self.torsoIMU.header.stamp = timestamp
@@ -439,7 +421,7 @@ class NaoEstimator(ALModule):
 												0,0,1e-5]
 		self.torsoIMU.angular_velocity_covariance= [1e3,0,0,
 													0,1e3,0,
-													0,0,1e-5]
+													0,0,1e-3]
 		self.torsoIMU.linear_acceleration_covariance = [1e2,0,0,
 														0,1e2,0,
 														0,0,1e2]
@@ -447,15 +429,14 @@ class NaoEstimator(ALModule):
 		###
 		#  Set required frames IDs
 		###
-
 		self.tf_br.sendTransform((0,0,0), (0,0,0,1),
                                          timestamp, "map", "World")		
 		self.tf_br.sendTransform(self.odom_transformation.position, self.odom_transformation.orientation,
                                          timestamp, "odom", "map")	
 		# self.tf_br.sendTransform(self.odom_combined_transformation.position, self.odom_combined_transformation.orientation,
   #                                        timestamp, "odom_combined", "map")
-		# self.tf_br.sendTransform((self.torsoOdom.pose.pose.position.x,self.torsoOdom.pose.pose.position.y,self.odomData[2]), q_odom,
-  #                                     timestamp, "Nao_T_odom", "odom")
+		self.tf_br.sendTransform((self.torsoOdom.pose.pose.position.x,self.torsoOdom.pose.pose.position.y,self.odomData[2]), q_odom,
+                                      timestamp, "Nao_T_odom", "odom")
 		#
 		#  publishing msgs 
 		#
