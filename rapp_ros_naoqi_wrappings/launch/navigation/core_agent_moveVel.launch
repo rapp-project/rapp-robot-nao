@@ -1,0 +1,7 @@
+<launch>
+
+  <!-- Rapp core agent testing nodes -->
+  
+  <node pkg="rapp_ros_naoqi_wrappings" name="acore_moveVel_server" type="acore_moveVel_server.py" output="screen"/>
+
+</launch>

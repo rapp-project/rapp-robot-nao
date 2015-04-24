@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package>
+  <name>rapp_api</name>
+  <version>0.0.0</version>
+  <description>The rapp_api package</description>
+  <maintainer email="maksym.figat44@gmail.com">Maksym Figat</maintainer>
+  <license>TODO</license>
+  <author email="maksym.figat44@gmail.com">Maksym Figat</author>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rapp_ros_naoqi_wrappings</build_depend>
+  <build_depend>roscpp</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>rapp_ros_naoqi_wrappings</run_depend>
+
+  <!--<build_depend>opencv2</build_depend>  
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend> -->
+
+<!--  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <!- <build_depend>image_geometry</build_depend> ->
+  <build_depend>opencv</build_depend>  
+  <build_depend>OpenCV</build_depend>
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>image_transport</run_depend> -->
+
+  <export>
+
+  </export>
+</package>

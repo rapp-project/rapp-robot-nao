@@ -1,0 +1,8 @@
+<launch>
+
+  <!-- Rapp core agent nodes -->
+  
+  <node pkg="rapp_ros_naoqi_wrappings" name="acore_email_server" type="acore_email_server.py" output="screen"/>
+
+  
+</launch>

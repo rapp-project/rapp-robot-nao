@@ -1,0 +1,5 @@
+<launch>
+
+    <node pkg="rapp_core_agent" name="core_agent" type="core_agent" output="screen"/> 
+  
+</launch>
