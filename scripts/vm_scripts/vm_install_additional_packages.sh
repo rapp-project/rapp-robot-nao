@@ -115,6 +115,8 @@ echo "Downloading source code of libvmime library"
 wget http://sourceforge.net/projects/vmime/files/vmime/0.9/libvmime-0.9.1.tar.bz2
 tar -xjf libvmime-0.9.1.tar.bz2
 cd libvmime-0.9.1
+export CPPFLAGS=$CPPFLAGS:'-I$MY_WORKSPACE_INSTALL_ISOLATED/include'
+export LDFLAGS=$LDFLAGS:'-I$MY_WORKSPACE_INSTALL_ISOLATED/lib'
 ./configure --prefix=$MY_WORKSPACE_INSTALL_ISOLATED
 make install
 
