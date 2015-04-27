@@ -1,53 +1,75 @@
 #!/bin/bash
 
 # written by Maksym Figat
-GIT_DIRECTORY=/home/nao/download/git
-WS_RAPP_DIRECTORY=/home/nao/ws_rapp/src
-HZ_DIRECTORY=/home/nao/rapp/hz_packages
+GIT_WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao/src"
+GIT_WS_RAPP_APPLICATIONS_DIR="/home/nao/ws_rapp_applications"
+
+WS_RAPP_APPLICATIONS_NAO_DIR="/home/nao/ws_rapp_applications_nao"
+WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao"
+
+HZ_DIRECTORY="/home/nao/ws_rapp_applications/rapp-applications/nao/hz_packages"
+
+ROS_ADDITIONAL_PACKAGES_DIR="/home/nao/ws_ros_additional_packages"
+ROS_ADDITIONAL_PACKAGES_SRC_DIR=$ROS_ADDITIONAL_PACKAGES_DIR"/src"
 
 if [ "$#" -ne 1 ]; then
 	echo "Usage: $0 <flag>"
-	echo "flag = 0 - create structure of folders and copy files from downloaded repository"
-	echo "flag = 1 - download rapp-robot-nao repository, create structure of folders and copy files to downloaded repository"
+	echo "flag = 0 - create structure of folders and copy files from downloaded repositories"
+	echo "flag = 1 - download <rapp-robot-nao> and <rapp_application> repositories, create structure of folders and copy files from downloaded repositories"
 	exit 1
 fi
 
-if [ -d $GIT_DIRECTORY ]; then #If direcotory exists
+if [ -d $GIT_WS_RAPP_NAO_DIR ]; then #If directory exists
 	if [ $1 -eq 1 ]; then #clone from github
-		echo "Removing - a directory. Cleaning git folder."
-		rm $GIT_DIRECTORY -rf
+		echo "Removing $GIT_WS_RAPP_NAO_DIR - a directory. Cleaning git folder."
+		rm $GIT_WS_RAPP_NAO_DIR -rf
+		mkdir -p $GIT_WS_RAPP_NAO_DIR
 	fi
+else
+	mkdir -p $GIT_WS_RAPP_NAO_DIR
 fi
 
-if [ -d $WS_RAPP_DIRECTORY ]; then #If direcotory exists
-	echo "ws_rapp/src exists"
+if [ -d $GIT_WS_RAPP_APPLICATIONS_DIR ]; then #If directory exists
+	if [ $1 -eq 1 ]; then #clone from github
+		echo "Removing $GIT_WS_RAPP_APPLICATION_DIR - a directory. Cleaning git folder."
+		rm $GIT_WS_RAPP_APPLICATIONS_DIR -rf
+		mkdir -p $GIT_WS_RAPP_APPLICATIONS_DIR
+	fi
 else
-	echo "Creating - a directory. Creating ~/ws_rapp/src folder."
-	mkdir -p $WS_RAPP_DIRECTORY
-	cd $WS_RAPP_DIRECTORY
-	~/my_workspace/src/catkin/bin/catkin_init_workspace
+	mkdir -p $GIT_WS_RAPP_APPLICATIONS_DIR
+fi
+
+if [ -d $WS_RAPP_APPLICATIONS_NAO_DIR ]; then #If directory exists
+	echo "Directory $WS_RAPP_APPLICATIONS_NAO_DIR exists"
+	if [ $1 -eq 1 ]; then #clone from github
+		echo "Removing $WS_RAPP_APPLICATIONS_NAO_DIR - a directory. Cleaning git folder."
+		rm $WS_RAPP_APPLICATIONS_NAO_DIR -rf
+		mkdir -p $WS_RAPP_APPLICATIONS_NAO_DIR
+	fi
+else
+	echo "Creating - a directory. Creating $WS_RAPP_APPLICATIONS_NAO_DIR directory."
+	mkdir -p $WS_RAPP_APPLICATIONS_NAO_DIR
 fi
 
 if [ $1 -eq 1 ]; then #clone from github
-	echo "Clonning from github"
-	mkdir -p ~/download/git
-	cd ~/download/git
-	git clone https://github.com/rapp-project/rapp-robot-nao.git
+	cd $GIT_WS_RAPP_NAO_DIR
+	echo "Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
+	git clone -b master https://github.com/rapp-project/rapp-robot-nao.git
+	
+	cd $GIT_WS_RAPP_APPLICATIONS_DIR
+	echo "Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
+	git clone -b master https://github.com/rapp-project/rapp-applications.git
 fi
 
-echo "Copying scripts to /home/nao/scripts/ directory"
-cp -r ~/download/git/rapp-robot-nao/scripts/vm_scripts/* ~/scripts
-echo "Copying source code to /home/nao/ws_rapp/src/ directory"
-cp -r ~/download/git/rapp-robot-nao/ros_packages/* ~/ws_rapp/src
-
-if [  -d $HZ_DIRECTORY ]; then #if directory exists
-	echo "Directory $HZ_DIRECTORY exists"
-	rm -rf $HZ_DIRECTORY
-fi
+echo "Copying dynamic agent packages to $WS_RAPP_APPLICATIONS_NAO_DIR directory"
+cp -r $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src $WS_RAPP_APPLICATIONS_NAO_DIR
 
 echo "Creating folder $HZ_DIRECTORY"
-mkdir -p $HZ_DIRECTORY/template_package
-mkdir -p $HZ_DIRECTORY/hz
 mkdir -p $HZ_DIRECTORY/packages
 
-cp -r ~/download/git/rapp-robot-nao/hz_packages/template_package/* $HZ_DIRECTORY/template_package
+if [ -d $ROS_ADDITIONAL_PACKAGES_SRC_DIR ]; then #If directory exists
+	echo "Workspace $ROS_ADDITIONAL_PACKAGES_SRC_DIR exists"
+else
+	echo "Creates $ROS_ADDITIONAL_PACKAGES_SRC_DIR"
+	mkdir -p $ROS_ADDITIONAL_PACKAGES_SRC_DIR
+fi

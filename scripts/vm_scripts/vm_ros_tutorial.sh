@@ -7,7 +7,7 @@ ROS_WORKSPACE="/home/nao/ws_ros"
 
 mkdir -p $ROS_WORKSPACE/src
 mkdir -p $ROS_WORKSPACE/external
-cd ws_ros
+cd $ROS_WORKSPACE
 
 sudo bash -c 'echo app-portage/gentoolkit >> /etc/portage/package.keywords'
 sudo bash -c 'echo dev-python/setuptools >> /etc/portage/package.keywords'
@@ -67,8 +67,6 @@ cd src
 rm -rf diagnostics/self_test diagnostics/test_diagnostic_aggregator
 cd ..
 
-export AL_DIR=~/my_workspace/external/linux64-atom-pub-v2.0.5.4/libnaoqi-sysroot/
-
 rosdep install --from-path src -i -y
 
-bash /home/nao/scripts/vm_ros_install_isolated.sh
+bash /home/nao/ws_ros/scripts/vm_ros_install_isolated.sh

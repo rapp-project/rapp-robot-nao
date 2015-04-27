@@ -7,7 +7,7 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-cd /home/nao/my_workspace/
+cd /home/nao/ws_ros/
 
 tar -czvf install_clean.tar.gz install_isolated
-scp install_clean.tar.gz nao@$1:/home/nao/download/
+scp install_clean.tar.gz nao@$1:/home/nao/ws_ros/
