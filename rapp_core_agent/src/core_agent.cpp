@@ -60,7 +60,7 @@ public:
 		void responseReceived(const std_msgs::String& msg);
 		
 		// A callback function. Executes each time a dynamic agent status arrives
-		void dynamicAgentStatusReceived(const rapp::Status &msg);
+		void dynamicAgentStatusReceived(const rapp_core_agent::Status &msg);
 
 protected:
 		ros::NodeHandle nh_;
@@ -77,7 +77,7 @@ protected:
 	//Constructor of class CoreAgent
 	CoreAgent::CoreAgent(){
 		// Create a client for the rapp_get_recognizes_word serivce
-		client_ = nh_.serviceClient<rapp_robot_agent::RecognizeWord>("rapp_get_recognizes_word");
+		client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognizes_word");
 			
 		// Create a subscriber object.
 		subHopCommunication_ = nh_.subscribe(RESPONSE_TOPIC, 100, &CoreAgent::responseReceived, this);
@@ -153,7 +153,7 @@ protected:
 	{
 		std::cout << "Get command\n";
 		std::string dictionary_ [3] ={"rapp", "email", "exit"};
-		rapp_robot_agent::RecognizeWord srv;
+		rapp_ros_naoqi_wrappings::RecognizeWord srv;
 		
 		srv.request.wordsList=getVector(dictionary_,3);
 		
@@ -230,7 +230,7 @@ protected:
 	}
 	
 	// A callback function. Executes each time a dynamic agent status arrives
-	void CoreAgent::dynamicAgentStatusReceived(const rapp::Status &msg)
+	void CoreAgent::dynamicAgentStatusReceived(const rapp_core_agent::Status &msg)
 	{
 		std::cout << "[Core agent] - Dynamic agent status received\n";
 		std::cout << "[Core agent] - Status = "<<msg.status<<"\n";
