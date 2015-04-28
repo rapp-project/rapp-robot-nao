@@ -9,7 +9,11 @@ fi
 
 echo "Packing rapp packages /home/nao/ws_rapp/install_isolated/"
 bash /home/nao/script/rapp_tar_packages.sh
+
 echo "Sending packages to nao $1:/home/nao/download/"
-scp /home/nao/packages/rapp_install_isolated.tar.gz nao@$1:/home/nao/download/
+scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/
+
+echo "Removing echo /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz"
+rm /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz
 
   
