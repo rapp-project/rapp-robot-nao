@@ -30,7 +30,7 @@ add_executable(core_agent src/core_agent.cpp)
 
 
 target_link_libraries(core_agent ${catkin_LIBRARIES})
-add_dependencies(core_agent rapp_generate_messages_cpp)
+add_dependencies(core_agent ${PROJECT_NAME}_generate_messages_cpp)
 
 #############
 ## Install ##
