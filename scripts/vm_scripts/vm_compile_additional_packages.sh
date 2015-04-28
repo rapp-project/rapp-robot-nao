@@ -88,13 +88,6 @@ echo "Downloading source code from bond_core repository"
 git clone https://github.com/ros/bond_core.git
 echo "Downloading source code from cmake_modules repository"
 git clone -b 0.3-devel https://github.com/ros/cmake_modules.git
-cd ..
-
-echo "Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
-$ROS_SRC_DIR/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
-
-
-cd ROS_ADDITIONAL_PACKAGES_SRC_DIR
 echo "Downloading source code from image_common repository"
 git clone https://github.com/ros-perception/image_common.git
 echo "Downloading source code from nodelet_core repository"
@@ -106,7 +99,7 @@ git clone https://github.com/RobotWebTools/rosbridge_suite.git
 cd ..
 
 echo "Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
-$ROS_SRC_DIR/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
+catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
 
 # Bigloo
 cd $PROGRAMS_DIRECTORY

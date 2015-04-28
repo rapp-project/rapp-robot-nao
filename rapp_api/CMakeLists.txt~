@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   rapp_ros_naoqi_wrappings
 )
 
+find_package(vmime)
 #find_package(OpenCV REQUIRED)
 
 add_message_files(FILES Matrix4x4.msg)
@@ -48,7 +49,7 @@ add_library(NaoCommunication SHARED src/NaoCommunication.cpp src/NaoSendEmail.cp
 
 target_link_libraries(NaoCommunication
   ${catkin_LIBRARIES}
-  vmime
+  ${vmime_LIBRARIES}
 )
 
 add_dependencies(NaoCommunication ${catkin_EXPORTED_TARGETS})
