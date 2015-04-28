@@ -2,5 +2,5 @@
 
 # written by Maksym Figat
 
-source ~/ws_rapp/install_isolated/setup.bash
-roslaunch rapp core_agent.launch --screen
+source /home/nao/ws_rapp_nao/install_isolated/setup.bash
+roslaunch rapp_core_agent core_agent.launch --screen

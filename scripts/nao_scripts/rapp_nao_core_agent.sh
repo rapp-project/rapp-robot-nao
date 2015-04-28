@@ -2,6 +2,6 @@
 
 # written by Maksym Figat
 
-source ~/ws_rapp/install_isolated/setup.bash
-roslaunch rapp_robot_agent core_agent_full.launch
+source /home/nao/ws_rapp_nao/install_isolated/setup.bash
+roslaunch rapp_ros_naoqi_wrappings core_agent_full.launch
 

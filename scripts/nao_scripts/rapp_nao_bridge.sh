@@ -2,5 +2,5 @@
 
 # written by Maksym Figat
 
-source ~/my_workspace/install_isolated/setup.bash
+source /home/nao/ws_ros_additional_packages/install_isolated/setup.bash
 roslaunch rosbridge_server rosbridge_websocket.launch
