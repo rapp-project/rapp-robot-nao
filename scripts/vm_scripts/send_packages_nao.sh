@@ -8,7 +8,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 echo "Packing rapp packages /home/nao/ws_rapp/install_isolated/"
-bash /home/nao/script/rapp_tar_packages.sh
+bash /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/vm_scripts/rapp_tar_workspaces.sh
 
 echo "Sending packages to nao $1:/home/nao/download/"
 scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/
