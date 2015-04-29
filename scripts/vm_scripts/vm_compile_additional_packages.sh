@@ -108,7 +108,9 @@ wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2a-alpha31Mar15.tar.gz
 tar zxvf bigloo4.2a-alpha31Mar15.tar.gz
 cd bigloo4.2a
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+make
 make install
+make clean
 
 # Hop
 cd $PROGRAMS_DIRECTORY
@@ -117,7 +119,9 @@ wget ftp://ftp-sop.inria.fr/indes/fp/Hop/hop-3.0.0-pre14.tar.gz
 tar zxvf hop-3.0.0-pre14.tar.gz
 cd hop-3.0.0-pre14
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+make
 make install
+make clean
 
 # Gsasl
 cd $PROGRAMS_DIRECTORY
@@ -126,7 +130,9 @@ wget ftp://ftp.gnu.org/gnu/gsasl/libgsasl-1.8.0.tar.gz
 tar zxvf libgsasl-1.8.0.tar.gz
 cd libgsasl-1.8.0
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+make
 make install
+make clean
 
 # Vmime
 cd $PROGRAMS_DIRECTORY
@@ -135,5 +141,6 @@ wget http://sourceforge.net/projects/vmime/files/vmime/0.9/libvmime-0.9.1.tar.bz
 tar -xjf libvmime-0.9.1.tar.bz2
 cd libvmime-0.9.1
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED CPPFLAGS='-I/home/nao/ws_ros_additional_packages/install_isolated/include' LDFLAGS='-L/home/nao/ws_ros_additional_packages/install_isolated/lib'
+make
 make install
-
+make clean
