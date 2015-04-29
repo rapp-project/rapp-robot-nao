@@ -101,28 +101,6 @@ cd ..
 echo "Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
 catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
 
-# Bigloo
-cd $PROGRAMS_DIRECTORY
-echo "Downloading source code of Bigloo"
-wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2a-alpha31Mar15.tar.gz
-tar zxvf bigloo4.2a-alpha31Mar15.tar.gz
-cd bigloo4.2a
-./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
-make
-make install
-make clean
-
-# Hop
-cd $PROGRAMS_DIRECTORY
-echo "Downloading source code of Hop"
-wget ftp://ftp-sop.inria.fr/indes/fp/Hop/hop-3.0.0-pre14.tar.gz
-tar zxvf hop-3.0.0-pre14.tar.gz
-cd hop-3.0.0-pre14
-./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
-make
-make install
-make clean
-
 # Gsasl
 cd $PROGRAMS_DIRECTORY
 echo "Downloading source code of Gsasl"
