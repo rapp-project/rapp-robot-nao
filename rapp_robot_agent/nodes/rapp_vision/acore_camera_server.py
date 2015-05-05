@@ -109,6 +109,7 @@ class CameraModule(ALModule):
 			print "[Camera server] - setting services"
 			print "[Camera server] - service - [rapp_capture_image]"
 			self.service_rdqr = rospy.Service('rapp_capture_image', GetImage, self.handle_rapp_capture_image)
+			self.service_rscp = rospy.Service('rapp_set_camera_parameter', SetCameraParam, self.handle_rapp_set_camera_parameter)
 		except Exception, ex:
 			print "[Camera server] - Exception (services) %s" % str(ex)
 
@@ -147,9 +148,9 @@ class CameraModule(ALModule):
 				self.fps = 29;# maximum value for the highest camera resolution
 
 			if (req.request.find("bottom") != -1):
-				self.selectedCamera=1;
+				self.selectedCamera=1; #bottom
 			else:
-				self.selectedCamera=0;
+				self.selectedCamera=0; #top
 
 
 			## Subscribe to the camera
@@ -198,7 +199,31 @@ class CameraModule(ALModule):
 			print "[Camera server] - Unnamed exception = %s" % str(ex)
 
 		return self.image_message
-	
+
+	#########################
+
+	def handle_rapp_set_camera_parameter(self,req):
+		print "[Camera server - SetCameraParam receives]: Camera ID -%d;\tParameter ID - %d;\tParameter value - %d;" % (req.cameraId, req.cameraParameterId, req.newValue)
+		isSet = False
+		try
+			### Subscribe to the camera
+			#self.nameId = prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
+
+			#isSet = prox_camera.setParam(req.cameraParameterId, req.newValue)
+			isSet = prox_camera.setParameter(req.cameraId, req.cameraParameterId, req.newValue) #Modifies camera internal parameter.
+
+			#isSet = prox_camera.setCameraParameter(const std::string& Handle, const int& Id, const int& NewValue) #Sets the value of a specific parameter for the module current active camera. 	Parameters:	Handle – Handle to identify the subscriber. Id – Id of the camera parameter (see Camera parameters). NewValue – New value to set.
+
+			#prox_camera.setParam(17,exposure_time) # setting the exposure time
+			#prox_camera.setParam(11,1)#enable auto exposition
+			
+			#prox_camera.unsubscribe(self.nameId);
+		except AttributeError, ex:
+			print "[Camera server - SetCameraParam] - Exception AtrributeError = %s" % str(ex)
+		except Exception, ex:
+			print "[Camera server - SetCameraParam] - Unnamed exception = %s" % str(ex)
+
+		return isSet
 	
 # Testng SIGINT signal handler
 def signal_handler(signal, frame):
