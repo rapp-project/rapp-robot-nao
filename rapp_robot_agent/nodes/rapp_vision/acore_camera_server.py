@@ -148,9 +148,9 @@ class CameraModule(ALModule):
 				self.fps = 29;# maximum value for the highest camera resolution
 
 			if (req.request.find("bottom") != -1):
-				self.selectedCamera=1; #bottom
+				self.selectedCamera=1; #bottom camera
 			else:
-				self.selectedCamera=0; #top
+				self.selectedCamera=0; #top camera
 
 
 			## Subscribe to the camera
