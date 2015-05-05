@@ -1,3 +1,4 @@
 string request
+string language
 ---
-byte isSaid
+string response

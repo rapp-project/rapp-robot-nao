@@ -325,6 +325,7 @@ class CommunicationModule(ALModule):
 				file_dest = Constants.recorded_file_dest;
 				
 			self.prox_ar.startMicrophonesRecording(file_dest, self.recordedExtention, self.sampleRate, self.channels )
+			#self.prox_ar.startMicrophonesRecording(file_dest)
 
 			self.prox_audevice.enableEnergyComputation(); #Enables the computation of the energy on each input channel (this computation is off by default)
 			print  "[Audio record] - Start Microphones Recording"
@@ -343,9 +344,8 @@ class CommunicationModule(ALModule):
 						print  "[Audio record] - Sound detected"
 					recording_iterator = 0 # reseting the iterator
 			#print recording_iterator
-				
-			
-			# Recording stops and the file is being closed after waiting_time, if sound with a sufficient energy level was not detected during this time
+						
+			## Recording stops and the file is being closed after waiting_time, if sound with a sufficient energy level was not detected during this time
 			self.prox_ar.stopMicrophonesRecording()
 			print "[Send Email] - Recording stops"
 			self.prox_tts.say("Recording stops")
@@ -579,7 +579,7 @@ class CommunicationModule(ALModule):
 		#print "[Communication server]: - Nao records - with sound lvl detection"# until no sound, with the microphone energy above %d, will be detected during the waitnig time equal %d [s]" %(req.microphoneEnergy, req.silenceTime)
 		nNbrChannelFlag = 3; # ALL_Channels: 0,  AL::LEFTCHANNEL: 1, AL::RIGHTCHANNEL: 2; AL::FRONTCHANNEL: 3  or AL::REARCHANNEL: 4.
 		nDeinterleave = 0;
-		nSampleRate = 48000;# 16000 or 48000
+		nSampleRate = 16000;# 16000 or 48000
 		voice_detect = False
 		
 		# response = ""
@@ -591,7 +591,8 @@ class CommunicationModule(ALModule):
 				print 'Subscribe AudioDevice will start the processRemote \n\t The recording started'
 				self.prox_audevice.subscribe(self.getName()) # start recording -- start the processRemote
 				self.isAudDeviceSubscribed = True;
-				while (len(self.buff) < 8192):
+				print "Buffor length: %f"%len(self.buff); #test
+				while (len(self.buff) < 8192):#8192 for 48000Hz
 					self.isAudDeviceSubscribed = True;
 			'''if (self.processIterator == 1):
 				self.buff = []

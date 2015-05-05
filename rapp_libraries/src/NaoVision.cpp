@@ -77,7 +77,6 @@
 		// Extract results
 		int counter = 0;
 
-
 		for (Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
 			//vector<vector<Point3f> > object_points;
 			//vector<vector<Point2f> > image_points;
@@ -194,6 +193,12 @@
 			cameraToLandmarkTransformMatrix = Rotz_minus90*Rotx_minus90*landmarkToCameraTransform;
 			//#####################
 
+			//cameraToLandmarkTransformMatrix = Rotz_180*landmarkToCameraTransform;
+			//cameraToLandmarkTransformMatrix.at<double>(0,3)*=-1.; //instead of translation about vector
+			//cameraToLandmarkTransformMatrix.at<double>(0,3)=tvec.at<double>(2,0); //translation about x axis from QRcode coordinate system to Camera coordinate system
+			//cameraToLandmarkTransformMatrix.at<double>(1,3)=-tvec.at<double>(0,0); //translation about y axis from QRcode coordinate system to Camera coordinate system
+			//cameraToLandmarkTransformMatrix.at<double>(2,3)=-tvec.at<double>(1,0); //translation about z axis from QRcode coordinate system to Camera coordinate system
+
 			//#####################						
 			//## Transformation from the camera coordinate system to the robot coordinate system
 			robotToLandmarkMatrix = robotToCameraMatrix_*cameraToLandmarkTransformMatrix;
@@ -261,10 +266,6 @@
 		// initializing the structure QRcodeHazardDetection -- set to default
 		NaoVision::QRcodeHazardDetection QRcodeHazardStruct;
 		QRcodeHazardStruct.clear();
-		//QRcodeHazardStruct.isHazardFound = false;
-		//QRcodeHazardStruct.hazardPosition_x.clear();
-		//QRcodeHazardStruct.hazardPosition_y.clear();
-		//QRcodeHazardStruct.openedObject.clear();
 		
 		vector<double> euler1;
 		vector<double> euler2;
@@ -295,9 +296,6 @@
 			m22.push_back(LandmarkInRobotCoordinate[i].at<double>(2,2));
 			
 		}
-		//euler3 = NaoVision::compute_euler_z(m00, m01);
-		//euler1 = NaoVision::compute_euler_x(m12, m22);
-		//euler2 = NaoVision::compute_euler_y(m00, m01, m02);
 		
 		euler2 = NaoVision::compute_euler_y(m20);
 		euler3 = NaoVision::compute_euler_z(m10, m00, euler2);
@@ -354,7 +352,31 @@
 		}
 		return img;
 	}
-
+	//#########################################################################
+	bool NaoVision::setCameraParameter(int cameraId, int cameraParameterId, int newValue )
+	{
+		client_setCameraParam = n->serviceClient<rapp_robot_agent::SetCameraParam>("rapp_set_camera_parameter");
+		rapp_robot_agent::SetCameraParam srv;
+		srv.request.cameraId = cameraId;
+		srv.request.cameraParameterId = cameraParameterId;
+		srv.request.newValue = newValue;
+		bool isSet=false;
+				
+		if (client_setCameraParam.call(srv))
+		{
+			isSet = srv.response.isSet;
+			if (isSet == true)
+				std::cout << "[Rapp Set Camera Parameter] - New parameter value was set\n";
+			else
+				std::cout << "[Rapp Set Camera Parameter] - New parameter value wasn't set\n";
+		}
+		else
+		{
+			//Failed to call service rapp_set_camera_parameter
+			std::cout<<"[Rapp Set Camera Parameter] - Error calling service rapp_set_camera_parameter\n";
+		}
+		return isSet;
+	}
 //#########################################################################
 	cv::Mat NaoVision::getTransform(std::string chainName, int space)
 	{
@@ -387,4 +409,3 @@
 		}
 		return transformMatrix;
 	}
-
