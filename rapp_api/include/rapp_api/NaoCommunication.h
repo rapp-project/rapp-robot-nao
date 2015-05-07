@@ -23,9 +23,9 @@ public:
 	ros::NodeHandle *n;
 
 	void init(int argc, char **argv);
-	bool say(string str);
-	string recognizeWord(string dictionary[], int size);
-	string record(int time);
+	bool speak(string str);
+	string wordSpotting(string dictionary[], int size);
+	string captureAudio(int time);
 	static void sendEmail(string login, string password, string sendTo);
 
 	template<typename T>

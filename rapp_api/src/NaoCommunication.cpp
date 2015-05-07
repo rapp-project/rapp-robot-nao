@@ -9,7 +9,7 @@
 	}
 
 	// Function from Rapp API that calls say service from core agent on Nao robot. Robot says a given sentence.
-	bool NaoCommunication::say(string str){	
+	bool NaoCommunication::speak(string str){	
 
 		client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
 		rapp_ros_naoqi_wrappings::Say srv;
@@ -29,7 +29,7 @@
 	// Function from Rapp API that calls word recognition service from core agent on NAO robot. Robot recognizes word.
 	// dictionary - table of words to be recognized
 	// size - size of dictionary
-	string NaoCommunication::recognizeWord(string dictionary[], int size){	
+	string NaoCommunication::wordSpotting(string dictionary[], int size){	
 		client_recognizeWord = n->serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognized_word");
 		rapp_ros_naoqi_wrappings::RecognizeWord srv;
 		srv.request.wordsList = copyTable(dictionary,size);
@@ -48,7 +48,7 @@
 
 	// Function from Rapp API that calls record service from core agent on NAO robot. Robot records the sound.
 	// time - a given time period for recording the sound
-	string NaoCommunication::record(int time){
+	string NaoCommunication::captureAudio(int time){
 		client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Record>("rapp_record");
 		rapp_ros_naoqi_wrappings::Record srv;
 		srv.request.recordingTime = time;

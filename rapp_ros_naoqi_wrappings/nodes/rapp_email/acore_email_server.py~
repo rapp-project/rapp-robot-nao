@@ -7,7 +7,7 @@ __author__ = "Maksym Figat"
 ########################
 
 # Importing services
-from rapp_robot_agent.srv import *
+from rapp_ros_naoqi_wrappings.srv import *
 
 # Importing core system functionality
 import signal
