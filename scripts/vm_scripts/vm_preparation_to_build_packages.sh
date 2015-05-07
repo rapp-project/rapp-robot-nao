@@ -54,9 +54,11 @@ fi
 if [ $1 -eq 1 ]; then #clone from github
 	cd $GIT_WS_RAPP_NAO_DIR
 	echo "Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
+	echo "Enter your github login and password"
 	git clone -b master https://github.com/rapp-project/rapp-robot-nao.git
 	
 	cd $GIT_WS_RAPP_APPLICATIONS_DIR
+	echo "Enter your github login and password"
 	echo "Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
 	git clone -b master https://github.com/rapp-project/rapp-applications.git
 fi
