@@ -1,0 +1,12 @@
+<launch>
+
+<!-- Launching rosbridge -->
+	<include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"/>
+
+<!-- Launching rapp_ros_naoqi_wrappings nodes -->
+	<include file="$(find rapp_ros_naoqi_wrappings)/launch/core_agent_full.launch"/>
+
+<!-- Launching rapp_core_agent node -->
+	<include file="$(find rapp_core_agent)/launch/core_agent.launch"/>
+
+</launch>

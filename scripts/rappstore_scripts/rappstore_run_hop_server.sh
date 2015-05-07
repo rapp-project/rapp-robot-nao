@@ -7,4 +7,4 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-/home/max/programs/hop-3.0.0-pre14/bin/hop -p $1
+/usr/local/bin/hop -p $1
