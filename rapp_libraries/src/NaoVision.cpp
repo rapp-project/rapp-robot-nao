@@ -332,7 +332,7 @@
 //#########################################################################
 //#########################################################################
 	// CAMERA
-	sensor_msgs::Image NaoVision::captureImage(std::string cameraId,int cameraResolution)
+	sensor_msgs::Image NaoVision::captureImage(std::string cameraId, int cameraResolution)
 	{
 		client_captureImage = n->serviceClient<rapp_robot_agent::GetImage>("rapp_capture_image");
 		rapp_robot_agent::GetImage srv;
@@ -353,7 +353,7 @@
 		return img;
 	}
 	//#########################################################################
-	bool NaoVision::setCameraParameter(int cameraId, int cameraParameterId, int newValue )
+	bool NaoVision::setCameraParams(int cameraId, int cameraParameterId, int newValue )
 	{
 		client_setCameraParam = n->serviceClient<rapp_robot_agent::SetCameraParam>("rapp_set_camera_parameter");
 		rapp_robot_agent::SetCameraParam srv;

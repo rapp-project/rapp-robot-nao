@@ -90,7 +90,7 @@ public:
 	void init(int argc, char **argv);
 
 	sensor_msgs::Image captureImage(std::string cameraId, int cameraResolution);	 // For frame capture from selected camera; with the desired camera resolution: 3->4VGA,2->VGA,1->QVGA
-	bool setCameraParameter(int cameraId, int cameraParameterId, int newValue );	 /*// Modifies camera internal parameter. cameraId: 0-top; 1-bottom; cameraParameterId - see Camera parameters [http://doc.aldebaran.com/2-1/family/robots/video_robot.html#cameraparameter-mt9m114]
+	bool setCameraParams(int cameraId, int cameraParameterId, int newValue );	 /*// Modifies camera internal parameter. cameraId: 0-top; 1-bottom; cameraParameterId - see Camera parameters [http://doc.aldebaran.com/2-1/family/robots/video_robot.html#cameraparameter-mt9m114]
 	Parameter			Min	Value	Max Value	Default Value	Camera parameter ID name	cameraParameterId	Remarks
 	Brightness				0			255			55			kCameraBrightnessID					0	Auto Exposition must be enabled
 	Contrast				16			64			32			kCameraContrastID					1	The contrast value represents the gradient of the contrast adjustment curve, measured at the target brightness point (as controlled by Brightness parameter). The device supports a range of gradients from 0.5 to 2.0; Device represents this as a contrast range from 16 (0.5) to 64 (2.0).
@@ -114,6 +114,8 @@ public:
 
 	cv::Mat getTransform(std::string chainName, int space); // For computing transforamtion matrix from one coordinate system to another
 
+	// ---------------------------------------------
+	// ---------------------------------------------
 	struct QRcodeDetection qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix); // For QRcode detection
 
 	struct QRcodeHazardDetection openDoorDetection(std::vector< cv::Mat > &LandmarkInRobotCoordinate, std::vector<std::string> &QRmessage); // For Hazard detection while using QRcodes
