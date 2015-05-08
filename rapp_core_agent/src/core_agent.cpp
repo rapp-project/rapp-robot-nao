@@ -121,10 +121,10 @@ protected:
 		else
 		{
 			std_msgs::String msg;
-			if(name == "rapp")
-				name.append("_email-1.0.0.hz");
+			if(name == "hello")
+				name = "helloworld-1.0.0.hz";
 			else if(name == "email")
-				name = "rapp_email-1.0.0.hz";
+				name = "voicemail-1.0.0.hz";
 			else
 				name = "error";
 			
