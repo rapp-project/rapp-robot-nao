@@ -58,11 +58,11 @@ main(int argc, char **argv)
 		printf("voice message recording program\n");
 		fflush(stdout);
 		file_path ="/home/nao/recordings/microphones/rapp_audio_message.ogg";
-		file_path = Nao_Communication.record(file_path, waiting_time, 2700);
+		file_path = Nao_Communication.captureAudio(file_path, waiting_time, 2700);
 		std::cout<<"Audio message recorded to the file "<<file_path<<std::endl;
 		sleep(1);
 
-		//recognizedWord = Nao_Communication.recognizeWord(dictionary, 2);
+		//recognizedWord = Nao_Communication.wordSpotting(dictionary, 2);
 		if (recognizedWord == "Voice")
 		{
 			Nao_Communication.textToSpeech( "Recording the message", "English" );

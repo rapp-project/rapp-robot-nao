@@ -62,11 +62,11 @@ public:
 	std::vector<unsigned char> audio_buffer_vector;
 
 	void init(int argc, char **argv);
-	bool say(std::string str);
-	void textToSpeech( std::string str, std::string language);// Method which calls ros service rapp_say. It causes nao robot says provided string message.
-	std::string recognizeWord(std::string dictionary[], int size);
-	std::string record(int time); // Recording stops after a specified time (time in [s]) // records in ogg format
-	std::string record(std::string file_path, float waiting_time, int microphone_energy);// Recording stops after a specified time (waiting_time in [s]), if sound with a sufficient energy level (microphone_energy) was not detected during this time // microphone_energy should be > 1700 (noise); // records in ogg format
+	bool textToSpeech(std::string str);
+	bool textToSpeech(std::string str, std::string language);// Method which calls ros service rapp_say. It causes nao robot says provided string message.
+	std::string wordSpotting(std::string dictionary[], int size);
+	std::string captureAudio(int time); // Recording stops after a specified time (time in [s]) // records in ogg format
+	std::string captureAudio(std::string file_path, float waiting_time, int microphone_energy);// Recording stops after a specified time (waiting_time in [s]), if sound with a sufficient energy level (microphone_energy) was not detected during this time // microphone_energy should be > 1700 (noise); // records in ogg format
 	int microphoneEnergy(std::string name);
 	void voiceRecord(bool startRecording, std::vector<unsigned char> &audio_buffer_vector);// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
 	

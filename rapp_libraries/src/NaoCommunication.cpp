@@ -10,7 +10,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 
 	//#############
 	// Function from Rapp API that calls say service from core agent on Nao robot. Robot says a given sentence.
-	bool NaoCommunication::say(std::string str){	
+	bool NaoCommunication::textToSpeech(std::string str){	
 
 		client_say = n->serviceClient<rapp_robot_agent::Say>("rapp_say");
 		rapp_robot_agent::Say srv;
@@ -28,11 +28,11 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 	}
 
 	//#############
-	void NaoCommunication::textToSpeech( std::string str, std::string language)
+	bool NaoCommunication::textToSpeech( std::string str, std::string language)
 	{
 		client_textToSpeech = n->serviceClient<rapp_robot_agent::Say>("rapp_say");
 		rapp_robot_agent::Say srv;
-	
+		bool successful=false;
 		//## slower and lower voice
 		std::string sentence;
 		sentence = "\\RSPD=" + std::string("80") + "\\ ";
@@ -47,22 +47,24 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		if (client_textToSpeech.call(srv))
 		{
 			std::cout<<"[Text to Speech] - received:\t"<< srv.response.response <<"\n"<< std::flush;
-			return;
+			successful = true;
+			return successful;
 		}
 		else
 		{
 			//Failed to call service rapp_say
 			std::cout<<"[Text to Speech] - Error calling service rapp_say\n";
-			return;
+			successful = false;
+			return successful;
 		}
-		return;
+		return successful;
 	}
 
 	//#############
 	// Function from Rapp API that calls word recognition service from core agent on NAO robot. Robot recognizes word.
 	// dictionary - table of words to be recognized
 	// size - size of dictionary
-	std::string NaoCommunication::recognizeWord(std::string dictionary[], int size){	
+	std::string NaoCommunication::wordSpotting(std::string dictionary[], int size){	
 		client_recognizeWord = n->serviceClient<rapp_robot_agent::RecognizeWord>("rapp_get_recognized_word");
 		rapp_robot_agent::RecognizeWord srv;
 		srv.request.wordsList = copyTable(dictionary,size);
@@ -82,7 +84,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 	//#############
 	// Function from Rapp API that calls record service from core agent on NAO robot. Robot records the sound.
 	// time - a given time period for recording the sound
-	std::string NaoCommunication::record(int time){
+	std::string NaoCommunication::captureAudio (int time){
 		client_record = n->serviceClient<rapp_robot_agent::Record>("rapp_record");
 		rapp_robot_agent::Record srv;
 		srv.request.recordingTime = time;
@@ -99,7 +101,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		return "";
 	}
 
-	std::string NaoCommunication::record(std::string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
+	std::string NaoCommunication::captureAudio (std::string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
 		client_recordWithSoundDetection = n->serviceClient<rapp_robot_agent::RecordWithSoundDetection>("rapp_record_with_sound_detection");
 		rapp_robot_agent::RecordWithSoundDetection srv;
 		srv.request.file_dest = file_path;
