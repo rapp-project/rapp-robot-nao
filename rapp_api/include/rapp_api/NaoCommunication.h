@@ -23,7 +23,7 @@ public:
 	ros::NodeHandle *n;
 
 	void init(int argc, char **argv);
-	bool speak(string str);
+	bool textToSpeech(string str);
 	string wordSpotting(string dictionary[], int size);
 	string captureAudio(int time);
 	static void sendEmail(string login, string password, string sendTo);

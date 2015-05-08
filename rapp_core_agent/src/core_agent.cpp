@@ -124,9 +124,11 @@ protected:
 			if(name == "rapp")
 				name.append("_email-1.0.0.hz");
 			else if(name == "email")
-				name= "rapp_email-1.0.0.hz";
+				name = "rapp_email-1.0.0.hz";
+			else
+				name = "error";
 			
-			// Publish a message with the application name.
+			// Publishes a message with the application name. A dynamic agent task of a given name is going tobe downloaded from Rapp Store.
 			
 			msg.data = name;
 			pub.publish(msg);

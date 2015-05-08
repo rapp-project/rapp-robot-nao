@@ -9,7 +9,7 @@
 	}
 
 	// Function from Rapp API that calls say service from core agent on Nao robot. Robot says a given sentence.
-	bool NaoCommunication::speak(string str){	
+	bool NaoCommunication::textToSpeech(string str){	
 
 		client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
 		rapp_ros_naoqi_wrappings::Say srv;
