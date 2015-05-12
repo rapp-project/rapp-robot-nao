@@ -96,6 +96,46 @@ public:
     void publishImage(cv_bridge::CvImagePtr image_ptr, std::string topic);
     cv_bridge::CvImagePtr getImageFromTopic(std::string topic);
     void imageCb(const sensor_msgs::ImageConstPtr& msg);
+
+	struct QRcodeDetection
+   {
+		bool isQRcodeFound;
+		int numberOfQRcodes;//number of detected QRcodes
+		std::vector< cv::Mat > LandmarkInCameraCoordinate;//Transformation matrix from camera to Landmark
+		std::vector< cv::Mat > LandmarkInRobotCoordinate;//Transformation matrix from camera to robot
+		std::vector<std::string> QRmessage; //vector for messages from QRcodes
+
+		void clear()
+		{
+			isQRcodeFound = false;
+			numberOfQRcodes = 0;
+			LandmarkInCameraCoordinate.clear();
+			LandmarkInRobotCoordinate.clear();
+			QRmessage.clear();
+		}
+   };
+	struct QRcodeHazardDetection
+   {
+		bool isHazardFound;
+		std::vector<double> hazardPosition_x; // in robot coordinate system - x-axis is directed to the front
+		std::vector<double> hazardPosition_y; // in robot coordinate system - y-axis is directed to the left
+		std::vector<std::string> openedObject; //message from QRcode of an open object
+
+		void clear()
+		{
+			isHazardFound = false;
+			hazardPosition_x.clear();
+			hazardPosition_y.clear();
+			openedObject.clear();
+		}
+   };
+
+	struct QRcodeDetection qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix); // For QRcode detection
+	struct QRcodeHazardDetection openDoorDetection(std::vector< cv::Mat > &LandmarkInRobotCoordinate, std::vector<std::string> &QRmessage); // For Hazard detection while using QRcodes
+
+	std::vector<double> compute_euler_x( std::vector<double> &m21, std::vector<double> &m22, std::vector<double> &euler_y); //For the computation of the 1-st euler angle
+	std::vector<double> compute_euler_y(std::vector<double> &m20); //For the computation of the 2-nd euler angle
+	std::vector<double> compute_euler_z(std::vector<double> &m10, std::vector<double> &m00, std::vector<double> &euler_y); //For the computation of the 3-rd euler angle
 };
 
 
