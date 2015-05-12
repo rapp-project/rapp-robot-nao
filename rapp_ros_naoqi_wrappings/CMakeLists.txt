@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
    GetEmailAddress.srv
    Record.srv
    SendEmail.srv
+	VoiceRecord.srv
 
 ###  VISION SERVICES 
    #DetectQRcodes.srv
