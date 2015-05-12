@@ -38,7 +38,7 @@ class AcoreCameraClient():
 		try:
 			print "[Camera client] - captureCameraFrame"
 			captureImage = rospy.ServiceProxy('rapp_capture_image', GetImage)
-			resp_capture_image = captureImage(request)
+			resp_capture_image = captureImage(request, resolution)
 			print "[Camera client] - Image captured"
 			return resp_capture_image
 		except rospy.ServiceException, e:
@@ -76,7 +76,7 @@ def main():
 	
 	# Testing [/rapp_capture_image] service
 	print "[Camera client] - Testing [/rapp_capture_image] service"
-	response_image = client.captureCameraFrame("top - adaptive auto exposure 1")# 0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
+	response_image = client.captureCameraFrame("top", 2) # "top - adaptive auto exposure 1" #0: Average scene Brightness; 1: Weighted average scene Brightness; 2: Adaptive weighted auto exposure for hightlights; 3: Adaptive weighted auto exposure for lowlights
 	
 	return
 
