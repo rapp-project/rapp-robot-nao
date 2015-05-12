@@ -20,11 +20,15 @@
 #include <vector>
 #include <string>*/
 
+#include <math.h>       // for atan2
+
+//openCV library
 #include "opencv2/core/core.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/nonfree/features2d.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/nonfree/nonfree.hpp"
+#include "opencv2/calib3d/calib3d.hpp"
 
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -35,7 +39,6 @@
 #include <cv_bridge/cv_bridge.h>
 
 #include <zbar.h> // for QRcode detection
-
 
 using namespace std;
 using namespace cv;
