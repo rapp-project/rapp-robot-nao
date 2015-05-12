@@ -34,7 +34,12 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 
-#include <zbar.h> 
+#include <zbar.h> // for QRcode detection
+
+
+using namespace std;
+using namespace cv;
+using namespace zbar;
 
 class NaoVision {
 
