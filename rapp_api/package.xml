@@ -9,9 +9,11 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>rapp_ros_naoqi_wrappings</build_depend>
+  <build_depend>rapp_core_agent</build_depend>
   <build_depend>roscpp</build_depend>
 
   <run_depend>roscpp</run_depend>
+  <run_depend>rapp_core_agent</run_depend>
   <run_depend>rapp_ros_naoqi_wrappings</run_depend>
 
   <!--<build_depend>opencv2</build_depend>  

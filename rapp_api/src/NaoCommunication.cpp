@@ -28,32 +28,32 @@
 	}
 
 	//#############
-	bool NaoCommunication::textToSpeech( std::string str, std::string language)
+	bool NaoCommunication::textToSpeech( string str, string language)
 	{
 		client_textToSpeech = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
 		rapp_ros_naoqi_wrappings::Say srv;
 		bool successful=false;
 		//## slower and lower voice
-		std::string sentence;
+		string sentence;
 		sentence = "\\RSPD=" + std::string("80") + "\\ ";
 		sentence += "\\VCT="+ std::string("43") + "\\ ";
 		sentence += std::string(str);
 		sentence += "\\RST\\ ";
-		std::cout<<sentence<<std::endl;
+		cout<<sentence<<endl;
 	
 		srv.request.request=sentence;//a message, that will be said
 		srv.request.language=language;//language selection
 
 		if (client_textToSpeech.call(srv))
 		{
-			std::cout<<"[Text to Speech] - received:\t"<< srv.response.response <<"\n"<< std::flush;
+			cout<<"[Text to Speech] - received:\t"<< srv.response.response <<"\n"<< flush;
 			successful = true;
 			return successful;
 		}
 		else
 		{
 			//Failed to call service rapp_say
-			std::cout<<"[Text to Speech] - Error calling service rapp_say\n";
+			cout<<"[Text to Speech] - Error calling service rapp_say\n";
 			successful = false;
 			return successful;
 		}
@@ -99,7 +99,7 @@
 		return "";
 	}
 
-	std::string NaoCommunication::captureAudio (std::string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
+	string NaoCommunication::captureAudio (string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
 		client_recordWithSoundDetection = n->serviceClient<rapp_ros_naoqi_wrappings::RecordWithSoundDetection>("rapp_record_with_sound_detection");
 		rapp_ros_naoqi_wrappings::RecordWithSoundDetection srv;
 		srv.request.file_dest = file_path;
@@ -121,7 +121,7 @@
 		
 	//#############
 	// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
-	void NaoCommunication::voiceRecord(bool startRecording, std::vector<unsigned char> &audio_buffer_vector )
+	void NaoCommunication::voiceRecord(bool startRecording, vector<unsigned char> &audio_buffer_vector )
 	{
 		client_voiceRecord = n->serviceClient<rapp_ros_naoqi_wrappings::VoiceRecord>("rapp_voice_record");
 		rapp_ros_naoqi_wrappings::VoiceRecord srv;
@@ -131,7 +131,7 @@
 		{
 			// for buffer usage
 			ROS_INFO("Nao recorded sound to the buffer");
-			std::cout<<"buffer size :"<<srv.response.buffer_.size()<<std::endl;
+			cout<<"buffer size :"<<srv.response.buffer_.size()<<endl;
 			fflush(stdout);
 			
 			for (int i=0; i<srv.response.buffer_.size();i++)
@@ -145,7 +145,7 @@
 		return;
 	}
 
-	int NaoCommunication::microphoneEnergy(std::string name){
+	int NaoCommunication::microphoneEnergy(string name){
 		client_microphoneEnergy = n->serviceClient<rapp_ros_naoqi_wrappings::MicrophoneEnergy>("rapp_get_microphone_energy");
 		rapp_ros_naoqi_wrappings::MicrophoneEnergy srv;
 		srv.request.microphone = name;

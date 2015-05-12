@@ -8,6 +8,9 @@
 // Copyright 2014 RAPP
 
 #include "ros/ros.h"
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "std_msgs/String.h"
 #include "rapp_ros_naoqi_wrappings/RecognizeWord.h"
 #include "rapp_ros_naoqi_wrappings/Say.h"
@@ -17,7 +20,8 @@
 
 #include "sensor_msgs/Image.h"
 
-#include "rapp_core_agent/Status.h"
+//#include "rapp_core_agent/Status.h"
+#include "rapp_core_agent/DynamicAgentStatus.h"
 
 #include <stdio.h>
 #include <ostream>
@@ -33,7 +37,7 @@
 // Name of the ROS topic for publishing requests.
 #define RESPONSE_TOPIC "/rapp_core_agent/store_interaction/response"
 // Name of the ROS topic for receiving status of dynamic agent
-#define RESPONSE_STATUS_TOPIC "/rapp_core_agent/dynamic_agent/status"
+//#define RESPONSE_STATUS_TOPIC "/rapp_core_agent/dynamic_agent/status"
 
 
 
@@ -67,30 +71,38 @@ public:
 		void responseReceived(const std_msgs::String& msg);
 		
 		// A callback function. Executes each time a dynamic agent status arrives
-		void dynamicAgentStatusReceived(const rapp_core_agent::Status &msg);
+		bool dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::Request &req, rapp_core_agent::DynamicAgentStatus::Response &res);
 
 protected:
 		ros::NodeHandle nh_;
+
+
 		ros::ServiceClient client_;
-		ros::ServiceClient serverSetStatus_;
+		// The server service that receives as a request a status and process id of a dynamic agent. As a response it returns an information of a currently executing dynamic agent.
+		ros::ServiceServer serverSetStatus_;
+
 		ros::Subscriber subHopCommunication_;
-		ros::Subscriber subDynamicAgentStatus_;
+		//ros::Subscriber subDynamicAgentStatus_;
 		ros::Publisher pub_;
 		// PID number of dynamic agent. This value is set at the state of activation of dynamic agent.
 		// After task is finished or error occurs core agent destroys dynamic agent. 
 		int dynamicAgentPid_;
 };
 
+
 	//Constructor of class CoreAgent
 	CoreAgent::CoreAgent(){
 		// Create a client for the rapp_get_recognizes_word serivce
 		client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognizes_word");
+
+		// Create a client for the rapp_get_recognizes_word serivce
+		serverSetStatus_ = nh_.advertiseService("dynamic_agent_status", &CoreAgent::dynamicAgentStatusReceived, this);
 			
 		// Create a subscriber object.
 		subHopCommunication_ = nh_.subscribe(RESPONSE_TOPIC, 100, &CoreAgent::responseReceived, this);
 		
 		// Create a subscriber object to a topic RESPONSE_STATUS_TOPIC
-		subDynamicAgentStatus_ = nh_.subscribe(RESPONSE_STATUS_TOPIC, 100, &CoreAgent::dynamicAgentStatusReceived, this);
+		//subDynamicAgentStatus_ = nh_.subscribe(RESPONSE_STATUS_TOPIC, 100, &CoreAgent::dynamicAgentStatusReceived, this);
 			
 		// Create a publisher object.
 		pub_ = nh_.advertise<std_msgs::String>(REQUEST_TOPIC, 100);
@@ -239,34 +251,41 @@ protected:
 	}
 	
 	// A callback function. Executes each time a dynamic agent status arrives
-	void CoreAgent::dynamicAgentStatusReceived(const rapp_core_agent::Status &msg)
+	bool CoreAgent::dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::Request &req, rapp_core_agent::DynamicAgentStatus::Response &res )
 	{
 		std::cout << "[Core agent] - Dynamic agent status received\n";
-		std::cout << "[Core agent] - Status = "<<msg.status<<"\n";
-		if(msg.status == "Init")
+		std::cout << "[Core agent] - Status = "<<req.da_status<<"\n";
+		dynamicAgentPid_ = req.pid;
+		std::cout << "[Core agent] - Pid = "<<dynamicAgentPid_<<"\n";
+		if(req.da_status == "Init")
 		{
-			dynamicAgentPid_ = msg.pid;
+			// Setting status of core and dynamic agent's connection to Initialized
+			res.ca_status="Initialized";
 		}
-		else if(msg.status == "Finished")
+		else if(req.da_status == "Finished")
 		{
 			// Kill process of dynamic agent
 			// todo - is it necessary?
 			// Ask for the next application's name.
+			res.ca_status="Finished";
 			sendRequest();
 		}
-		else if(msg.status == "Working")
+		else if(req.da_status == "Working")
 		{
-			
+			// Setting status of core and dynamic agent's connection to Working
+			res.ca_status="Working";
 		}
-		else if(msg.status == "Error")
+		else if(req.da_status == "Error")
 		{
 			// Handle error of dynamic agent. Kill the process dynamicAgentPid_
-			// todo
+			res.ca_status="Error";
 		}
-		
-		
+		else
+		{
+			res.ca_status="Status was not recognized";
+		}
+		return true;
 	}
-
 
 
 int main(int argc, char **argv)

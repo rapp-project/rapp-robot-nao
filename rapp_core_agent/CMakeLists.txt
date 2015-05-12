@@ -6,6 +6,11 @@ project(rapp_core_agent)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs rapp_ros_naoqi_wrappings message_generation)
 
+add_service_files(
+	FILES
+	DynamicAgentStatus.srv	
+)
+
 
 add_message_files(
   FILES
