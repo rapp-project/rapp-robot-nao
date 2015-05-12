@@ -58,6 +58,9 @@ public:
 	double camera_top_matrix_3[3][3];
 	double camera_top_matrix_2[3][3];
 	double camera_top_matrix_1[3][3];
+	// For QRcode detection:
+	float landmarkTheoreticalSize; //# QRcode real size in meters
+	std::string currentQRcodeCamera;
 
 	void init(int argc, char **argv);
 	sensor_msgs::Image captureImage(std::string cameraId, int cameraResolution);	 // For frame capture from selected camera; with the desired camera resolution: 3->4VGA,2->VGA,1->QVGA
