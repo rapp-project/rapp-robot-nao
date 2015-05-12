@@ -14,6 +14,7 @@
 		client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
 		rapp_ros_naoqi_wrappings::Say srv;
 		srv.request.request = str;
+		srv.request.language="English";
 		if (client_say.call(srv))
 		{
 			ROS_INFO("Nao said");
