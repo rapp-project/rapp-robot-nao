@@ -100,7 +100,7 @@
 
 	std::string NaoCommunication::captureAudio (std::string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
 		client_recordWithSoundDetection = n->serviceClient<rapp_ros_naoqi_wrappings::RecordWithSoundDetection>("rapp_record_with_sound_detection");
-		rrapp_ros_naoqi_wrappings::RecordWithSoundDetection srv;
+		rapp_ros_naoqi_wrappings::RecordWithSoundDetection srv;
 		srv.request.file_dest = file_path;
 		srv.request.waiting_time = waiting_time;
 		srv.request.microphone_energy = microphone_energy;
