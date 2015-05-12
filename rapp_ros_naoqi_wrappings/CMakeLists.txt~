@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rapp_robot_agent)
+project(rapp_ros_naoqi_wrappings)
 
 find_package(catkin REQUIRED COMPONENTS
 	roscpp
@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
 ### COMMUNICATION SERVICES
    Say.srv
+	MicrophoneEnergy.srv
    RecognizeWord.srv
    GetEmailAddress.srv
    Record.srv
@@ -23,8 +24,9 @@ find_package(catkin REQUIRED COMPONENTS
 ###  VISION SERVICES 
    #DetectQRcodes.srv
    #DetectHazardByQRcodes.srv
-   #GetImage.srv
-   #GetTransform.srv
+   GetImage.srv
+	SetCameraParam.srv
+   GetTransform.srv
    #PhotoCapture.srv
    #LearnFace.srv
    #RecognizeFaces.srv
@@ -43,7 +45,7 @@ find_package(catkin REQUIRED COMPONENTS
 
  add_message_files(
 	FILES
-	#Matrix4x4.msg
+	Matrix4x4.msg
 	#MatrixRot.msg 
 )
 

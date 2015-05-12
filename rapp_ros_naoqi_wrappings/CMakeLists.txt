@@ -6,15 +6,16 @@ find_package(catkin REQUIRED COMPONENTS
 	rospy
 	std_msgs
 	message_generation
-	#cv_bridge
+	cv_bridge
 	sensor_msgs
-	#image_transport
+	image_transport
 )
 
  add_service_files(
    FILES
 ### COMMUNICATION SERVICES
    Say.srv
+	MicrophoneEnergy.srv
    RecognizeWord.srv
    GetEmailAddress.srv
    Record.srv
@@ -23,8 +24,9 @@ find_package(catkin REQUIRED COMPONENTS
 ###  VISION SERVICES 
    #DetectQRcodes.srv
    #DetectHazardByQRcodes.srv
-   #GetImage.srv
-   #GetTransform.srv
+   GetImage.srv
+	SetCameraParam.srv
+   GetTransform.srv
    #PhotoCapture.srv
    #LearnFace.srv
    #RecognizeFaces.srv
@@ -43,7 +45,7 @@ find_package(catkin REQUIRED COMPONENTS
 
  add_message_files(
 	FILES
-	#Matrix4x4.msg
+	Matrix4x4.msg
 	#MatrixRot.msg 
 )
 

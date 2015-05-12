@@ -26,6 +26,39 @@
 		return false;
 	}
 
+	//#############
+	bool NaoCommunication::textToSpeech( std::string str, std::string language)
+	{
+		client_textToSpeech = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
+		rapp_ros_naoqi_wrappings::Say srv;
+		bool successful=false;
+		//## slower and lower voice
+		std::string sentence;
+		sentence = "\\RSPD=" + std::string("80") + "\\ ";
+		sentence += "\\VCT="+ std::string("43") + "\\ ";
+		sentence += std::string(str);
+		sentence += "\\RST\\ ";
+		std::cout<<sentence<<std::endl;
+	
+		srv.request.request=sentence;//a message, that will be said
+		srv.request.language=language;//language selection
+
+		if (client_textToSpeech.call(srv))
+		{
+			std::cout<<"[Text to Speech] - received:\t"<< srv.response.response <<"\n"<< std::flush;
+			successful = true;
+			return successful;
+		}
+		else
+		{
+			//Failed to call service rapp_say
+			std::cout<<"[Text to Speech] - Error calling service rapp_say\n";
+			successful = false;
+			return successful;
+		}
+		return successful;
+	}
+
 	// Function from Rapp API that calls word recognition service from core agent on NAO robot. Robot recognizes word.
 	// dictionary - table of words to be recognized
 	// size - size of dictionary
@@ -63,6 +96,72 @@
 			ROS_ERROR("Failed to call service Record"); 
 		}
 		return "";
+	}
+
+	std::string NaoCommunication::captureAudio (std::string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
+		client_recordWithSoundDetection = n->serviceClient<rapp_ros_naoqi_wrappings::RecordWithSoundDetection>("rapp_record_with_sound_detection");
+		rrapp_ros_naoqi_wrappings::RecordWithSoundDetection srv;
+		srv.request.file_dest = file_path;
+		srv.request.waiting_time = waiting_time;
+		srv.request.microphone_energy = microphone_energy;
+		if (client_recordWithSoundDetection.call(srv))
+		{
+			ROS_INFO("Nao recorded audio message");
+			//cout<<"File path to the recorded sound:" << srv.response.output_file_path <<endl;
+			return srv.response.output_file_path;
+		}
+		else
+		{
+			ROS_ERROR("Failed to call service Record with sound detection"); 
+		}
+		return "";
+	}
+
+		
+	//#############
+	// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
+	void NaoCommunication::voiceRecord(bool startRecording, std::vector<unsigned char> &audio_buffer_vector )
+	{
+		client_voiceRecord = n->serviceClient<rapp_ros_naoqi_wrappings::VoiceRecord>("rapp_voice_record");
+		rapp_ros_naoqi_wrappings::VoiceRecord srv;
+		srv.request.startRecording = startRecording; //if true, the recording will start if false, the recording will be stoped
+		
+		if (client_voiceRecord.call(srv))
+		{
+			// for buffer usage
+			ROS_INFO("Nao recorded sound to the buffer");
+			std::cout<<"buffer size :"<<srv.response.buffer_.size()<<std::endl;
+			fflush(stdout);
+			
+			for (int i=0; i<srv.response.buffer_.size();i++)
+				audio_buffer_vector.push_back(srv.response.buffer_[i]); // is this correctly working?
+			return;
+		}
+		else
+		{
+			ROS_ERROR("Failed to call service Voice Record"); 
+		}
+		return;
+	}
+
+	int NaoCommunication::microphoneEnergy(std::string name){
+		client_microphoneEnergy = n->serviceClient<rapp_ros_naoqi_wrappings::MicrophoneEnergy>("rapp_get_microphone_energy");
+		rapp_ros_naoqi_wrappings::MicrophoneEnergy srv;
+		srv.request.microphone = name;
+		//srv.request.start = start_recording;
+		int energy;
+		if (client_microphoneEnergy.call(srv))
+		{
+			//ROS_INFO("Nao microphone energy - check");
+			cout<<"Energy detected:" << srv.response.energy<<endl;
+			energy = srv.response.energy;
+		}
+		else
+		{
+			ROS_ERROR("Failed to call service MicrophoneEnergy"); 
+			energy = 0;
+		}
+		return energy;
 	}
 
 

@@ -6,13 +6,13 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   sensor_msgs
-  #cv_bridge
-  #image_transport
+  cv_bridge
+  image_transport
   rapp_ros_naoqi_wrappings
 )
 
 find_package(vmime)
-#find_package(OpenCV REQUIRED)
+find_package(OpenCV REQUIRED)
 
 add_message_files(FILES Matrix4x4.msg)
 
@@ -24,24 +24,24 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES NaoCommunication #NaoNavigation NaoVision 
+  LIBRARIES NaoCommunication NaoVision #NaoNavigation  
   CATKIN_DEPENDS roscpp rapp_ros_naoqi_wrappings
 )
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  #${OpenCV_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
   include
 )
 
 #add_library(NaoNavigation SHARED src/NaoNavigation.cpp)
-#add_library(NaoVision SHARED src/NaoVision.cpp)
+add_library(NaoVision SHARED src/NaoVision.cpp)
 add_library(NaoCommunication SHARED src/NaoCommunication.cpp src/NaoSendEmail.cpp)
 
-#target_link_libraries(NaoVision
-#  ${catkin_LIBRARIES}
-#  ${OpenCV_LIBRARIES}
-#)
+target_link_libraries(NaoVision
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+)
 
 #target_link_libraries(NaoNavigation 
 #  ${catkin_LIBRARIES}
@@ -54,15 +54,15 @@ target_link_libraries(NaoCommunication
 
 add_dependencies(NaoCommunication ${catkin_EXPORTED_TARGETS})
 #add_dependencies(NaoNavigation ${catkin_EXPORTED_TARGETS})
-#add_dependencies(NaoVision ${catkin_EXPORTED_TARGETS}) 
+add_dependencies(NaoVision ${catkin_EXPORTED_TARGETS}) 
 
-#target_link_libraries(NaoVision /usr/lib/libzbar.so)
+target_link_libraries(NaoVision /usr/lib/libzbar.so)
 
 #############
 ## Install ##
 #############
 
-install(TARGETS NaoCommunication #NaoNavigation NaoVision
+install(TARGETS NaoCommunication NaoVision #NaoNavigation
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 

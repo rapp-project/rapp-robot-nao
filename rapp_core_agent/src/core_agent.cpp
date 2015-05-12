@@ -11,6 +11,11 @@
 #include "std_msgs/String.h"
 #include "rapp_ros_naoqi_wrappings/RecognizeWord.h"
 #include "rapp_ros_naoqi_wrappings/Say.h"
+#include "rapp_ros_naoqi_wrappings/GetImage.h"
+#include "rapp_ros_naoqi_wrappings/SetCameraParam.h"
+#include "rapp_ros_naoqi_wrappings/GetTransform.h"
+
+#include "sensor_msgs/Image.h"
 
 #include "rapp_core_agent/Status.h"
 
@@ -20,6 +25,8 @@
 #include <unistd.h>
 #include <vector>
 #include <string>
+
+
 
 // Name of the ROS topic for receiving requests.
 #define REQUEST_TOPIC "/rapp_core_agent/store_interaction/request"
