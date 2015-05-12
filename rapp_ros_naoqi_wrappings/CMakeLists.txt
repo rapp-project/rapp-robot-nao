@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
    Record.srv
    SendEmail.srv
 	VoiceRecord.srv
+	RecordWithSoundDetection.srv
 
 ###  VISION SERVICES 
    #DetectQRcodes.srv
