@@ -9,14 +9,14 @@
 using namespace std;
 
 // Class NaoDAStatus sends status of dynamic agent to core agent. Core agent sends back as a response a desired status of core agent.
-class NaoDAStatus {
+class DAInit {
 
 private: 
 	// Core agent sends as a response a status of dynamic agent
 	string ca_status;
 public:
-	~NaoDAStatus();
-	NaoDAStatus (int argc, char **argv);
+	~DAInit();
+	DAInit (int argc, char **argv);
 
 	ros::ServiceClient client_status;
 

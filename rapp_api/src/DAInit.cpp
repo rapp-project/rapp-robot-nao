@@ -1,20 +1,20 @@
-	#include <rapp_api/NaoDAStatus.h>
+	#include <rapp_api/DAInit.h>
 
 
 	// Class constructor that sends status of dynamic agent to core agent.
-	NaoDAStatus::NaoDAStatus(int argc,char **argv){
+	DAInit::DAInit(int argc,char **argv){
 		ros::init(argc, argv,"NaoDynamicAgentStatus");
 		n = new ros::NodeHandle();
 		sendDAStatus("Init");
 	}
 
-	NaoDAStatus::~NaoDAStatus()
+	DAInit::~DAInit()
 	{
 		sendDAStatus("Finished");
 	}
 
 	// Function from Rapp API that calls say service from core agent on Nao robot. Robot says a given sentence.
-	void NaoDAStatus::sendDAStatus(string str){	
+	void DAInit::sendDAStatus(string str){	
 
 		client_status = n->serviceClient<rapp_core_agent::DynamicAgentStatus>("dynamic_agent_status");
 		rapp_core_agent::DynamicAgentStatus srv;
@@ -39,7 +39,7 @@
 		return;
 	}
 
-	string NaoDAStatus::getCAStatus()
+	string DAInit::getCAStatus()
 	{
 		return ca_status;
 	}
