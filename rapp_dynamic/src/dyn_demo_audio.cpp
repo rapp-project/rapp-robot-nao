@@ -17,7 +17,7 @@ using namespace std;
 main(int argc, char **argv)
 {
 	//AL_SOUND_FORMAT * buffer;
-	std::vector<std::string> audioBuffer;
+	std::vector< vector<unsigned char> > audioBuffer;
     
 	//NaoVision NaoVision_(argc,argv);
 	NaoVision NAO_Vision(argc,argv);
@@ -79,7 +79,8 @@ main(int argc, char **argv)
 						if (iterations< waiting_time/0.085)
 						{
 							//Nao_Communication.audio_buffer_vector -- vector of chars
-							Nao_Communication.voiceRecord(true, Nao_Communication.audio_buffer_vector);
+							// starts the recording
+							Nao_Communication.voiceRecord(true, Nao_Communication.audio_buffer_vector); //8192 -- microphone buffer size
 							if (Nao_Communication.microphoneEnergy("front")> 2700)
 							{
 								iterations=0; //reseting the waiting time
@@ -92,15 +93,18 @@ main(int argc, char **argv)
 						}	
 						else
 						{
-							//energy = Nao_Communication.microphoneEnergy("front"); //ends the recording
+							//energy = Nao_Communication.microphoneEnergy("front"); 
+							// ends the recording
 							Nao_Communication.voiceRecord(false, Nao_Communication.audio_buffer_vector);
 							std::cout<<"iterations = "<<iterations<<std::endl;
 							iterations++;
 							end = true;
 						}
-
-						
-
+						// streamming //pop_front element from the vector
+						//pop_front()
+						assert(!Nao_Communication.audio_buffer_vector.empty());
+						Nao_Communication.audio_buffer_vector.erase(Nao_Communication.audio_buffer_vector.begin());
+						//~pop_front()
 					}
 					once=false;
 				}
@@ -112,14 +116,15 @@ main(int argc, char **argv)
 			fstream myfile;
   			myfile.open ("file_path1.raw", ios::in | ios::out | ios::app );//| ios::binary
   			for(int i=0;i<Nao_Communication.audio_buffer_vector.size();i++)
-  			{
-  				//for(int j=0;j<BUFSIZE;j++)
+			{
+  				for(int j=0;j<Nao_Communication.audio_buffer_vector[i].size();j++) //for(int j=0;j<BUFSIZE;j++)
   				{
-  					myfile << Nao_Communication.audio_buffer_vector[i];//.ch;//[j];
+  					myfile << Nao_Communication.audio_buffer_vector[i][j];//.ch;//[j];
   					//std::cout<<i<<std::endl;
   					//std::cout<<audioBuffer[i]<<std::endl;
   				}
   			}
+  			
   			myfile.close();
 			
 
