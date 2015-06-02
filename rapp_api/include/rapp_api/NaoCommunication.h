@@ -36,7 +36,7 @@ public:
 	string captureAudio(int time);
 	std::string captureAudio(std::string file_path, float waiting_time, int microphone_energy);// Recording stops after a specified time (waiting_time in [s]), if sound with a sufficient energy level (microphone_energy) was not detected during this time // microphone_energy should be > 1700 (noise); // records in ogg format
 	int microphoneEnergy(std::string name);
-	void voiceRecord(bool startRecording, std::vector<unsigned char> &audio_buffer_vector);// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
+	void voiceRecord(bool startRecording, std::vector< std::vector<unsigned char> > &audio_buffer_vector); // Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
 	static void sendEmail(string login, string password, string sendTo);
 
 	template<typename T>
