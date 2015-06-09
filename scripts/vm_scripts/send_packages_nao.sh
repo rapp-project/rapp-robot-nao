@@ -10,10 +10,18 @@ fi
 echo "Packing rapp packages /home/nao/ws_rapp/install_isolated/"
 bash /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/vm_scripts/vm_archive_workspaces.sh
 
-echo "Sending packages to nao $1:/home/nao/download/"
-scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/
+echo "Packing scripts for Nao robot"
+tar czvf /home/nao/nao_scripts.tar.gz /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/nao_scripts/
 
-echo "Removing echo /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz"
+echo "Sending packages to nao $1:/home/nao/download/"
+scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/download/
+
+echo "Sending scripts to nao $1:/home/nao/download/"
+scp /home/nao/nao_scripts.tar.gz nao@$1:/home/nao/download/
+
+echo "Removing /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz"
 rm /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz
 
+echo "Removing /home/nao/nao_scripts.tar.gz"
+rm /home/nao/nao_scripts.tar.gz
   
