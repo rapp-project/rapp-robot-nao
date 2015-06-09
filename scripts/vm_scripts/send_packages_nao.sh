@@ -11,7 +11,8 @@ echo "Packing rapp packages /home/nao/ws_rapp/install_isolated/"
 bash /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/vm_scripts/vm_archive_workspaces.sh
 
 echo "Packing scripts for Nao robot"
-tar czvf /home/nao/nao_scripts.tar.gz /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/nao_scripts/
+cd /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/
+tar czvf /home/nao/nao_scripts.tar.gz nao_scripts/
 
 echo "Sending packages to nao $1:/home/nao/"
 scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/
