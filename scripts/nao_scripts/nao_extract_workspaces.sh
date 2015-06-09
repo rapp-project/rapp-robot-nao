@@ -31,4 +31,5 @@ tar zxvf /home/nao/ws_rapp_nao.tar.gz
 echo "Removes archived files"
 rm /home/nao/ws_ros.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_rapp_nao.tar.gz
 
-
+echo "Removes nao_scripts.tar.gz"
+rm /home/nao/nao_scripts.tar.gz
