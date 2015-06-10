@@ -173,7 +173,7 @@ protected:
     std::string CoreAgent::GetCommand()
 	{
 		std::cout << "Get command\n";
-		std::string dictionary_ [3] ={"rapp", "email", "exit"};
+		std::string dictionary_ [3] ={"hello", "email", "exit"};
 		rapp_ros_naoqi_wrappings::RecognizeWord srv;
 		
 		srv.request.wordsList=getVector(dictionary_,3);

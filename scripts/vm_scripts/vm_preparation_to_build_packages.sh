@@ -78,7 +78,7 @@ else
 	mkdir -p $ROS_ADDITIONAL_PACKAGES_SRC_DIR
 fi
 
-echo "Updates virtual machine scripts"
+echo "Updates virtual machine scripts in $VM_SCRIPTS folder"
 cd $VM_SCRIPTS
 rm vm*
 cp $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts/vm* .

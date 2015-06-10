@@ -10,7 +10,7 @@ fi
 NAO_SCRIPTS="/home/scripts"
 
 echo "Packing rapp packages /home/nao/ws_rapp/install_isolated/"
-bash /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/vm_scripts/vm_archive_workspaces.sh
+bash /home/nao/scripts/vm_scripts/vm_archive_workspaces.sh
 
 echo "Packing scripts for Nao robot"
 cd /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/
@@ -21,6 +21,9 @@ scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /ho
 
 echo "Sending scripts to nao $1:/home/nao/"
 scp /home/nao/nao_scripts.tar.gz nao@$1:/home/nao/
+
+echo "Sending nao data to nao $1:/home/nao/"
+scp /home/nap/nao_data.tar.gz nao@$1:/home/nao/
 
 echo "Removing /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz"
 rm /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz
@@ -41,5 +44,6 @@ tar xf ../nao_scripts.tar.gz
 bash $NAO_SCRIPTS/nao_scripts/nao_extract_workspaces.sh
 EOF
 
+echo "Disconnecting with NAO robot $1" 
 exit
   
