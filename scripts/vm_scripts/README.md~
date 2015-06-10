@@ -4,13 +4,9 @@ TODO - what is virtual machine and why does it need scripts
 
 List of scripts
 ------------
-* catkin_make_isolated.sh
-* install_packages.sh
-* pack_rapp_dynamic.sh
-* pack_rapp_packages.sh
-* rapp_create_hz.sh
-* rapp_create_install_clean.sh
-* remove_rapp_packages.sh
-* send_packages_nao.sh
-* unzip_rapp_packages.sh
-* vm_preparation_to_build_dynamic_and_core_agent_from_github.sh
+* vm_send_packages_nao.sh - sends to NAO with a given ip address archived workspaces (ws_ros - built ROS, ws_ros_additional_packages - built additional external packages/libraries that are needed to be downloaded by NAO, ws_rapp_nao - built core agent) ready to use on NAO robot.
+* vm_archive_workspaces.sh - archives workspaces
+* vm_compile_additional_packages.sh - builds packages from ws_ros workspace (if not compiled). Downloads external libraries (gsasl, vmime), needed ROS packages (bond_core, cmake_modules, image_common, nodelet_core, vision_opencv, rosbridge_suite) and installs/builds it into /home/nao/ws_ros_additional_packages/install_isolated/
+* vm_compile_rapp_workspaces.sh - compiles ROS packages in ws_rapp_nao and 
+* vm_preparation_to_build_packages.sh
+* vm_ros_tutorial.sh
