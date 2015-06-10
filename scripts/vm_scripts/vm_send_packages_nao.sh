@@ -28,7 +28,7 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Sending scripts to nao $1:/home/nao/ - enter
 scp /home/nao/nao_scripts.tar.gz nao@$1:/home/nao/
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Sending nao data to nao $1:/home/nao/ - enter password for NAO (nao)"
-scp /home/nap/nao_data.tar.gz nao@$1:/home/nao/
+scp /home/nao/nao_data.tar.gz nao@$1:/home/nao/
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz"
 rm /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz
@@ -36,7 +36,7 @@ rm /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /hom
 echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/nao_scripts.tar.gz"
 rm /home/nao/nao_scripts.tar.gz
 
-echo "$COL_GREEN[OK]$COL_RESET - Connecting with $1 by ssh. Write password for your NAO (nao)"
+echo -e "$COL_GREEN[OK]$COL_RESET - Connecting with $1 by ssh. Write password for your NAO (nao)"
 ssh nao@$1<< EOF
 if [ ! -d $NAO_SCRIPTS ]; then #If NAO_SCRIPTS doesnt exist
    echo -e "$COL_GREEN[OK]$COL_RESET - Creating $NAO_SCRIPTS folder"  
