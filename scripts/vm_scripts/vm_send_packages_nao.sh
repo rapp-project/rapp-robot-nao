@@ -29,9 +29,7 @@ echo "Removing /home/nao/nao_scripts.tar.gz"
 rm /home/nao/nao_scripts.tar.gz
 
 echo "Connecting with $1 by ssh. Write password for your NAO (nao)"
-ssh nao@$1
-
-
+ssh nao@$1<< EOF
 if [ ! -d $NAO_SCRIPTS ]; then #If NAO_SCRIPTS doesnt exist
    echo "Creating $NAO_SCRIPTS folder"  
    mkdir $NAO_SCRIPTS
@@ -41,5 +39,7 @@ echo "Unpacking scripts for nao into /home/scripts/"
 tar xf ../nao_scripts.tar.gz
 
 bash $NAO_SCRIPTS/nao_scripts/nao_extract_workspaces.sh
+EOF
 
+exit
   
