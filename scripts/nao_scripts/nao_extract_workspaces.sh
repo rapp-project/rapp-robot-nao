@@ -34,7 +34,7 @@ cd $WS_RAPP_NAO
 tar zxf /home/nao/ws_rapp_nao.tar.gz
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Extracts nao data"
-cd $WS_RAPP_APPLICATIONS_NAO
+cd $WS_RAPP_APPLICATIONS_NAO_DATA
 tar zxf /home/nao/nao_data.tar.gz
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Removes archived files"
