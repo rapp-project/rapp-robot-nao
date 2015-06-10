@@ -19,6 +19,7 @@ mkdir -p $WS_ROS
 mkdir -p $WS_ROS_ADDITIONAL_PACKAGES
 mkdir -p $WS_RAPP_NAO
 mkdir -p $WS_RAPP_APPLICATIONS_NAO_INSTALL_ISOLATED
+mkdir -p $WS_RAPP_APPLICATIONS_NAO_DATA
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Extracts archived files into correct workspaces"
 echo -e "$COL_GREEN[OK]$COL_RESET - $WS_ROS"
