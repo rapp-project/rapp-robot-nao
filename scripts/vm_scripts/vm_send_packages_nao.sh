@@ -10,7 +10,7 @@ fi
 NAO_SCRIPTS="/home/scripts"
 
 echo "Packing rapp packages /home/nao/ws_rapp/install_isolated/"
-bash /home/nao/scripts/vm_scripts/vm_archive_workspaces.sh
+bash /home/nao/scripts/vm_archive_workspaces.sh
 
 echo "Packing scripts for Nao robot"
 cd /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/
