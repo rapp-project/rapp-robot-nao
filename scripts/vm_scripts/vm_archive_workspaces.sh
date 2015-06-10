@@ -2,21 +2,22 @@
 
 # written by Maksym Figat
 
+ESC_SEQ="\x1b["
 COL_GREEN=$ESC_SEQ"32;01m"
 COL_RESET=$ESC_SEQ"39;49;00m"
 
-echo "$COL_GREEN[OK]$COL_RESET - Archives ws_ros workspace"
+echo -e "$COL_GREEN[OK]$COL_RESET - Archives ws_ros workspace"
 cd /home/nao/ws_ros
 tar czf /home/nao/ws_ros.tar.gz install_isolated
 
-echo "$COL_GREEN[OK]$COL_RESET - Archives ws_ros_additional_packages workspace"
+echo -e "$COL_GREEN[OK]$COL_RESET - Archives ws_ros_additional_packages workspace"
 cd /home/nao/ws_ros_additional_packages
 tar czf /home/nao/ws_ros_additional_packages.tar.gz install_isolated
 
-echo "$COL_GREEN[OK]$COL_RESET - Archives ws_rapp_nao workspace"
+echo -e "$COL_GREEN[OK]$COL_RESET - Archives ws_rapp_nao workspace"
 cd /home/nao/ws_rapp_nao
 tar czf /home/nao/ws_rapp_nao.tar.gz install_isolated
 
-echo "$COL_GREEN[OK]$COL_RESET - Archives nao data - sound and pictures needed for voicemail"
+echo -e "$COL_GREEN[OK]$COL_RESET - Archives nao data - sound and pictures needed for voicemail"
 cd /home/nao/ws_rapp_applications/rapp-applications
 tar czf /home/nao/nao_data.tar.gz nao
