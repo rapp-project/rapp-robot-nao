@@ -12,14 +12,14 @@ WS_ROS="/home/nao/ws_ros"
 WS_ROS_ADDITIONAL_PACKAGES="/home/nao/ws_ros_additional_packages"
 WS_RAPP_NAO="/home/nao/ws_rapp_nao"
 WS_RAPP_APPLICATIONS_NAO_INSTALL_ISOLATED="/home/nao/ws_rapp_applications_nao/install_isolated"
-WS_RAPP_APPLICATIONS_NAO_DATA="/home/nao/ws_rapp_applications_nao/data"
+WS_RAPP_APPLICATIONS_NAO="/home/nao/ws_rapp_applications_nao"
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Creates workspaces"
 mkdir -p $WS_ROS
 mkdir -p $WS_ROS_ADDITIONAL_PACKAGES
 mkdir -p $WS_RAPP_NAO
 mkdir -p $WS_RAPP_APPLICATIONS_NAO_INSTALL_ISOLATED
-mkdir -p $WS_RAPP_APPLICATIONS_NAO_DATA
+mkdir -p $WS_RAPP_APPLICATIONS_NAO/nao
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Extracts archived files into correct workspaces"
 echo -e "$COL_GREEN[OK]$COL_RESET - $WS_ROS"
@@ -35,7 +35,7 @@ cd $WS_RAPP_NAO
 tar zxf /home/nao/ws_rapp_nao.tar.gz
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Extracts nao data"
-cd $WS_RAPP_APPLICATIONS_NAO_DATA
+cd $WS_RAPP_APPLICATIONS_NAO/nao
 tar zxf /home/nao/nao_data.tar.gz
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Removes archived files"
