@@ -30,9 +30,9 @@ make clean
 # Hop
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Hop"
-wget ftp://ftp-sop.inria.fr/indes/fp/Hop/hop-3.0.0-pre14.tar.gz
-tar zxvf hop-3.0.0-pre14.tar.gz
-cd hop-3.0.0-pre14
+wget ftp://ftp-sop.inria.fr/indes/fp/Hop/hop-3.0.0-pre15.tar.gz
+tar zxvf hop-3.0.0-pre15.tar.gz
+cd hop-3.0.0-pre15
 ./configure #--prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
 make
 sudo make install
