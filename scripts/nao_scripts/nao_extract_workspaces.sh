@@ -7,13 +7,14 @@ echo "Extracting workspaces"
 WS_ROS="/home/nao/ws_ros"
 WS_ROS_ADDITIONAL_PACKAGES="/home/nao/ws_ros_additional_packages"
 WS_RAPP_NAO="/home/nao/ws_rapp_nao"
-WS_RAPP_APPLICATIONS_NAO="/home/nao/ws_rapp_applications_nao/install_isolated"
+WS_RAPP_APPLICATIONS_NAO_INSTALL_ISOLATED="/home/nao/ws_rapp_applications_nao/install_isolated"
+WS_RAPP_APPLICATIONS_NAO="/home/nao/ws_rapp_applications_nao"
 
 echo "Creates workspaces"
 mkdir -p $WS_ROS
 mkdir -p $WS_ROS_ADDITIONAL_PACKAGES
 mkdir -p $WS_RAPP_NAO
-mkdir -p $WS_RAPP_APPLICATIONS_NAO
+mkdir -p $WS_RAPP_APPLICATIONS_NAO_INSTALL_ISOLATED
 
 echo "Extracts archived files into correct workspaces"
 echo "$WS_ROS"
@@ -30,7 +31,6 @@ tar zxf /home/nao/ws_rapp_nao.tar.gz
 
 echo "Extracts nao data"
 cd $WS_RAPP_APPLICATIONS_NAO
-cd ..
 tar zxf /home/nao/nao_data.tar.gz
 
 echo "Removes archived files"
