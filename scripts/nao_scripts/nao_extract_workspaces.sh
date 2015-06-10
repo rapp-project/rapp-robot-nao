@@ -2,8 +2,6 @@
 
 # written by Maksym Figat
 
-
-
 echo "Extracting workspaces..."
 
 COL_GREEN=$ESC_SEQ"32;01m"
@@ -46,3 +44,5 @@ rm /home/nao/nao_scripts.tar.gz
 
 echo "$COL_GREEN[OK]$COL_RESET - Removes nao_data.tar.gz"
 rm /home/nao/nao_data.tar.gz
+
+exit
