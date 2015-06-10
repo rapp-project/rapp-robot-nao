@@ -6,8 +6,8 @@ While writing a program for NAO user is utilising a cross compilation method. So
 
 List of scripts
 ------------
-* vm_send_packages_nao.sh - sends to NAO with a given ip address archived workspaces (ws_ros - built ROS, ws_ros_additional_packages - built additional external packages/libraries that are needed to be downloaded by NAO, ws_rapp_nao - built core agent) ready to use on NAO robot.
-* vm_archive_workspaces.sh - archives workspaces
+* vm_send_packages_nao.sh - sends to NAO with a given ip address archived workspaces (ws_ros - built ROS, ws_ros_additional_packages - built additional external packages/libraries that are needed to be downloaded by NAO, ws_rapp_nao - built core agent) ready to use on NAO robot. It also sends data structure to launch voicemail. Moreover it connects to NAO robot and extracts archived files, preparing NAO file structure.
+* vm_archive_workspaces.sh - archives workspaces.
 * vm_compile_additional_packages.sh - builds packages from ws_ros workspace (if not compiled). Downloads external libraries (gsasl, vmime), needed ROS packages (bond_core, cmake_modules, image_common, nodelet_core, vision_opencv, rosbridge_suite) and installs/builds them into /home/nao/ws_ros_additional_packages/install_isolated/
 * vm_compile_rapp_workspaces.sh - builds ROS packages from ws_rapp_nao and ws_rapp_applications_nao
 * vm_preparation_to_build_packages.sh - clones github repositories (https://github.com/rapp-project/rapp-robot-nao.git and https://github.com/rapp-project/rapp-applications.git from master branch), creates correct file structure on virtual machine.

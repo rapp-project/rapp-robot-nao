@@ -12,7 +12,7 @@ WS_ROS="/home/nao/ws_ros"
 WS_ROS_ADDITIONAL_PACKAGES="/home/nao/ws_ros_additional_packages"
 WS_RAPP_NAO="/home/nao/ws_rapp_nao"
 WS_RAPP_APPLICATIONS_NAO_INSTALL_ISOLATED="/home/nao/ws_rapp_applications_nao/install_isolated"
-WS_RAPP_APPLICATIONS_NAO="/home/nao/ws_rapp_applications_nao"
+WS_RAPP_APPLICATIONS_NAO_DATA="/home/nao/ws_rapp_applications_nao/data"
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Creates workspaces"
 mkdir -p $WS_ROS
