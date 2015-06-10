@@ -12,6 +12,8 @@ HZ_DIRECTORY="/home/nao/ws_rapp_applications/rapp-applications/nao/hz_packages"
 ROS_ADDITIONAL_PACKAGES_DIR="/home/nao/ws_ros_additional_packages"
 ROS_ADDITIONAL_PACKAGES_SRC_DIR=$ROS_ADDITIONAL_PACKAGES_DIR"/src"
 
+VM_SCRIPTS="/home/nao/scripts"
+
 if [ "$#" -ne 1 ]; then
 	echo "Usage: $0 <flag>"
 	echo "flag = 0 - create structure of folders and copy files from downloaded repositories"
@@ -75,3 +77,8 @@ else
 	echo "Creates $ROS_ADDITIONAL_PACKAGES_SRC_DIR"
 	mkdir -p $ROS_ADDITIONAL_PACKAGES_SRC_DIR
 fi
+
+echo "Updates virtual machine scripts"
+cd $VM_SCRIPTS
+rm vm*
+cp $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts/vm* .
