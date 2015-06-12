@@ -96,6 +96,8 @@ echo "Downloading source code from vision_opencv repository"
 git clone -b indigo https://github.com/ros-perception/vision_opencv.git
 echo "Downloading source code from rosbridge_suite repository"
 git clone https://github.com/RobotWebTools/rosbridge_suite.git
+echo "Downloading source code from rosauth repository"
+git clone https://github.com/WPI-RAIL/rosauth.git
 cd ..
 
 echo "Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
