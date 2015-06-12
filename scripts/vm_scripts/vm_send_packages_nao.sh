@@ -37,6 +37,9 @@ rm /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /hom
 echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/nao_scripts.tar.gz"
 rm /home/nao/nao_scripts.tar.gz
 
+echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/nao_data.tar.gz"
+rm /home/nao/nao_data.tar.gz
+
 echo -e "$COL_GREEN[OK]$COL_RESET - Connecting with $1 by ssh. Write password for your NAO (nao)"
 ssh nao@$1<< EOF
 if [ ! -d $NAO_SCRIPTS ]; then #If NAO_SCRIPTS doesnt exist
