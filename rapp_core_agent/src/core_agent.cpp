@@ -132,7 +132,7 @@ protected:
 		name=GetCommand();
 		
 
-		if(name == "q")
+		if(name == "q" || name == "exit")
 		{
 			// Shut down the node.
 			ros::shutdown();
