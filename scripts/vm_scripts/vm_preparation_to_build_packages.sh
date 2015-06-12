@@ -21,7 +21,7 @@ ROS_ADDITIONAL_PACKAGES_SRC_DIR=$ROS_ADDITIONAL_PACKAGES_DIR"/src"
 VM_SCRIPTS="/home/nao/scripts"
 
 if [ "$#" -ne 1 ]; then
-	echo -e "$COL_RED[Error]$COL_RESET - Usage: $0 <flag>"
+	echo -e "$COL_RED[Error]$COL_RESET - Usage: $COL_GREEN$0 <flag>$COL_RESET"
 	echo "flag = 0 - create structure of folders and copy files from downloaded repositories"
 	echo "flag = 1 - download <rapp-robot-nao> and <rapp_application> repositories, create structure of folders and copy files from downloaded repositories"
 	exit 1
@@ -29,7 +29,7 @@ fi
 
 if [ -d $GIT_WS_RAPP_NAO_DIR ]; then #If directory exists
 	if [ $1 -eq 1 ]; then #clone from github
-		echo "$COL_GREEN[OK]$COL_RESET - Removing $GIT_WS_RAPP_NAO_DIR - a directory. Cleaning git folder."
+		echo -e "$COL_GREEN[OK]$COL_RESET - Removing $GIT_WS_RAPP_NAO_DIR - a directory. Cleaning git folder."
 		rm $GIT_WS_RAPP_NAO_DIR -rf
 		mkdir -p $GIT_WS_RAPP_NAO_DIR
 	fi
@@ -62,12 +62,12 @@ fi
 if [ $1 -eq 1 ]; then #clone from github
 	cd $GIT_WS_RAPP_NAO_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
-	echo "Enter your github login and password"
+	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
 	git clone -b master https://github.com/rapp-project/rapp-robot-nao.git
 	
 	cd $GIT_WS_RAPP_APPLICATIONS_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
-	echo "Enter your github login and password"
+	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
 	git clone -b master https://github.com/rapp-project/rapp-applications.git
 fi
 

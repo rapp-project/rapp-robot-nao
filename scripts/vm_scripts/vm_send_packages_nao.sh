@@ -11,7 +11,7 @@ COL_RED=$ESC_SEQ"31;01m"
 NAO_SCRIPTS="/home/nao/scripts"
 
 if [ "$#" -ne 1 ]; then
-	echo -e "$COL_RED[Error]$COL_RESET - Usage: $0 <NAO_IP_ADDRESS>"
+	echo -e "$COL_RED[Error]$COL_RESET - Usage: Usage: $COL_GREEN$0 <NAO_IP_ADDRESS>$COL_RESET"
 	exit 1
 fi
 
