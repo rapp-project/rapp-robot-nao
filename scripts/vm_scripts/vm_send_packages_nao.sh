@@ -22,13 +22,16 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Packing scripts for Nao robot"
 cd /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/
 tar czf /home/nao/nao_scripts.tar.gz nao_scripts/
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Sending packages to nao $1:/home/nao/ - enter password for NAO (nao)"
+echo -e "$COL_GREEN[OK]$COL_RESET - Sending packages to nao $1:/home/nao/"
+echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
 scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Sending scripts to nao $1:/home/nao/ - enter password for NAO (nao)"
+echo -e "$COL_GREEN[OK]$COL_RESET - Sending scripts to nao $1:/home/nao/"
+echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
 scp /home/nao/nao_scripts.tar.gz nao@$1:/home/nao/
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Sending nao data to nao $1:/home/nao/ - enter password for NAO (nao)"
+echo -e "$COL_GREEN[OK]$COL_RESET - Sending nao data to nao $1:/home/nao/"
+echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
 scp /home/nao/nao_data.tar.gz nao@$1:/home/nao/
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz"
@@ -40,7 +43,8 @@ rm /home/nao/nao_scripts.tar.gz
 echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/nao_data.tar.gz"
 rm /home/nao/nao_data.tar.gz
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Connecting with $1 by ssh. Write password for your NAO (nao)"
+echo -e "$COL_GREEN[OK]$COL_RESET - Connecting with $1 by ssh."
+echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
 ssh nao@$1<< EOF
 if [ ! -d $NAO_SCRIPTS ]; then #If NAO_SCRIPTS doesnt exist
    echo -e "$COL_GREEN[OK]$COL_BLUE - $1 $COL_RESET - Creating $NAO_SCRIPTS folder"  
