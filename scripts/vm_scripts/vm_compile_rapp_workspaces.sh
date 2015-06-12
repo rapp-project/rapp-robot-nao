@@ -2,6 +2,11 @@
 
 # written by Maksym Figat
 
+ESC_SEQ="\x1b["
+COL_GREEN=$ESC_SEQ"32;01m"
+COL_RESET=$ESC_SEQ"39;49;00m"
+COL_RED=$ESC_SEQ"31;01m"
+
 PROGRAMS_DIRECTORY="/home/nao/programs"
 
 # ROS - core ROS packages
@@ -26,9 +31,9 @@ cd $WS_RAPP_NAO_DIR/src
 $WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
 cd $WS_RAPP_NAO_DIR
 
-echo "Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
+echo -e "$COL_GREEN[OK]$COL_RESET Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
 source $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash
-echo "Compiles workspace: $WS_RAPP_NAO_DIR"
+echo -e "$COL_GREEN[OK]$COL_RESET Compiles workspace: $WS_RAPP_NAO_DIR"
 catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
 
 
@@ -36,7 +41,7 @@ cd $WS_RAPP_APPLICATIONS_NAO_DIR/src
 $WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
 cd $WS_RAPP_APPLICATIONS_NAO_DIR
 
-echo "Sources with $WS_RAPP_NAO_ISOLATED"
+echo -e "$COL_GREEN[OK]$COL_RESET Sources with $WS_RAPP_NAO_ISOLATED"
 source $WS_RAPP_NAO_ISOLATED/setup.bash
-echo "Compiles workspace: $WS_RAPP_APPLICATIONS_NAO_DIR"
+echo -e "$COL_GREEN[OK]$COL_RESET Compiles workspace: $WS_RAPP_APPLICATIONS_NAO_DIR"
 catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
