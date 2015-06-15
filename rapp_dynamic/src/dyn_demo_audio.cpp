@@ -47,25 +47,30 @@ main(int argc, char **argv)
 	bool once = true;
 	bool end = false;
 	std::string file_path;
+	
 
 	// Vision -- QR code detection
 	int count=0;
 	bool check = false;
 	
+	bool check_record = false; //for tests
 	
 	if ( communication == true)
 	{
 		printf("voice message recording program\n");
 		fflush(stdout);
-		file_path ="/home/nao/recordings/microphones/rapp_audio_message.ogg";
-		file_path = Nao_Communication.captureAudio(file_path, waiting_time, 2700);
-		std::cout<<"Audio message recorded to the file "<<file_path<<std::endl;
-		sleep(1);
+		if (check_record==true){
+			file_path ="/home/nao/recordings/microphones/rapp_audio_message.ogg";
+			file_path = Nao_Communication.captureAudio(file_path, waiting_time, 2700);
+			std::cout<<"Audio message recorded to the file "<<file_path<<std::endl;
+			sleep(1);
+		}
 
-		//recognizedWord = Nao_Communication.wordSpotting(dictionary, 2);
+		recognizedWord = Nao_Communication.wordSpotting(dictionary, 2);
 		if (recognizedWord == "Voice")
 		{
-			Nao_Communication.textToSpeech( "Recording the message", "English" );
+			Nao_Communication.textToSpeech( "Recording the voice message", "English" );
+			//once = false; //test
 			while (once==true)
 			{
 				audioBuffer.clear();
@@ -74,13 +79,13 @@ main(int argc, char **argv)
 				{	
 					iterations ++;
 					
-					while (iterations<= waiting_time/0.085 || end==false)
+					while (iterations<= waiting_time/0.170 || end==false)//0.085 || end==false)
 					{
-						if (iterations< waiting_time/0.085)
+						if (iterations< waiting_time/0.170)//0.085)
 						{
 							//Nao_Communication.audio_buffer_vector -- vector of chars
 							// starts the recording
-							Nao_Communication.voiceRecord(true, Nao_Communication.audio_buffer_vector); //8192 -- microphone buffer size
+							Nao_Communication.voiceRecord(true, Nao_Communication.audio_buffer_vector); //8192 -- microphone buffer size for 48000Hz; 2730 -- microphone buffer size for 16000Hz
 							if (Nao_Communication.microphoneEnergy("front")> 2700)
 							{
 								iterations=0; //reseting the waiting time
@@ -88,7 +93,7 @@ main(int argc, char **argv)
 							else
 							{
 								iterations++;
-								sleep(0.085); //waiting //# microphone buffer = 170ms
+								sleep(0.170);//0.085); //waiting //# microphone buffer = 170ms
 							}
 						}	
 						else
@@ -101,10 +106,14 @@ main(int argc, char **argv)
 							end = true;
 						}
 						// streamming //pop_front element from the vector
-						//pop_front()
+						//// Streamming
+						// Put in here the streamming function
+						
+						//// pop_front()
 						assert(!Nao_Communication.audio_buffer_vector.empty());
+						//std::cout<<"buffer size = "<<Nao_Communication.audio_buffer_vector.at(Nao_Communication.audio_buffer_vector.size()-1).size()<<std::endl; //for tests -- shows the length of vector --> 8192 -- microphone buffer size for 48000Hz; 2730 -- microphone buffer size for 16000Hz
 						Nao_Communication.audio_buffer_vector.erase(Nao_Communication.audio_buffer_vector.begin());
-						//~pop_front()
+						//// ~pop_front()
 					}
 					once=false;
 				}
@@ -113,6 +122,7 @@ main(int argc, char **argv)
 			std::cout<<"buffer size = "<<Nao_Communication.audio_buffer_vector.size()<<std::endl;
 			
 			
+			/*
 			fstream myfile;
   			myfile.open ("file_path1.raw", ios::in | ios::out | ios::app );//| ios::binary
   			for(int i=0;i<Nao_Communication.audio_buffer_vector.size();i++)
@@ -124,8 +134,8 @@ main(int argc, char **argv)
   					//std::cout<<audioBuffer[i]<<std::endl;
   				}
   			}
-  			
   			myfile.close();
+  			*/
 			
 
 			//Nao_Communication.voiceRecord("voice_record", 2700, waitingTime, audioBuffer); // recording the message until the silence will last for waitingTime[s] // will return raw files
