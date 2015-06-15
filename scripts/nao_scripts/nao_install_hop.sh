@@ -34,7 +34,7 @@ export LIBRARY_PATH=/usr/local/lib
 # Bigloo
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
-wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2a-alpha22Apr15.tar.gz
+wget ftp://ftp-sop.inria.fr/indes/rapp/hop/2015-05-07/bigloo4.2a.tar.gz
 tar zxvf bigloo4.2a-alpha22Apr15.tar.gz
 cd bigloo4.2a
 ./configure #--prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
@@ -45,7 +45,7 @@ make clean
 # Hop
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Hop"
-wget ftp://ftp-sop.inria.fr/indes/fp/Hop/hop-3.0.0-pre15.tar.gz
+wget ftp://ftp-sop.inria.fr/indes/rapp/hop/2015-05-07/hop-3.0.0-pre14.tar.gz
 tar zxvf hop-3.0.0-pre15.tar.gz
 cd hop-3.0.0-pre15
 ./configure #--prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
