@@ -16,6 +16,21 @@ else
 	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $PROGRAMS_DIRECTORY folder"
 fi
 
+# Openssl
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Openssl"
+wget https://www.openssl.org/source/openssl-1.0.2c.tar.gz
+tar zxvf openssl-1.0.2c.tar.gz
+cd openssl-1.0.2c
+./config --prefix=/usr/local --openssldir=/usr/local/openssl
+make
+sudo make install
+make clean
+
+# Exporting LIBRARY PATH
+echo -e "$COL_GREEN[OK]$COL_RESET - Exporting LIBRARY PATH"
+export LIBRARY_PATH=/usr/local/lib
+
 # Bigloo
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
