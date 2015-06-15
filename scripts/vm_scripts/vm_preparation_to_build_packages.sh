@@ -20,6 +20,8 @@ ROS_ADDITIONAL_PACKAGES_SRC_DIR=$ROS_ADDITIONAL_PACKAGES_DIR"/src"
 
 VM_SCRIPTS="/home/nao/scripts"
 
+VM_FLAG="/home/nao/ws_rapp_nao/src/rapp-robot-nao"
+
 if [ "$#" -ne 1 ]; then
 	echo -e "$COL_RED[Error]$COL_RESET - Usage: $COL_GREEN$0 <flag>$COL_RESET"
 	echo "flag = 0 - create structure of folders and copy files from downloaded repositories"
@@ -84,7 +86,9 @@ else
 	mkdir -p $ROS_ADDITIONAL_PACKAGES_SRC_DIR
 fi
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Updates virtual machine scripts in $VM_SCRIPTS folder"
-cd $VM_SCRIPTS
-rm vm*
-cp $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts/vm* .
+if [ -d $VM_FLAG ]; then # If directory exists
+	echo -e "$COL_GREEN[OK]$COL_RESET - Updates virtual machine scripts in $VM_SCRIPTS folder"
+	cd $VM_SCRIPTS
+	rm vm*
+	cp $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts/vm* .
+fi
