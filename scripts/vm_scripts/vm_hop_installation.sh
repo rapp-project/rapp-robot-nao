@@ -9,6 +9,11 @@ COL_RED=$ESC_SEQ"31;01m"
 
 PROGRAMS_DIRECTORY="/home/nao/programs"
 
+# ROS - additional ROS packages and libraries
+ROS_ADDITIONAL_PACKAGES_DIR="/home/nao/ws_ros_additional_packages"
+ROS_ADDITIONAL_PACKAGES_SRC_DIR=$ROS_ADDITIONAL_PACKAGES_DIR"/src"
+ROS_ADDITIONAL_PACKAGES_ISOLATED=$ROS_ADDITIONAL_PACKAGES_DIR"/install_isolated"
+
 if [ -d $PROGRAMS_DIRECTORY ]; then #If directory exists
 	echo -e "Folder $PROGRAMS_DIRECTORY exists"
 else
