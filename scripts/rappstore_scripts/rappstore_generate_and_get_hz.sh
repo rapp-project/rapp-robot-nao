@@ -19,7 +19,7 @@ ssh nao@$1 << EOF
 echo "Invokes preparation script: vm_preparation_to_build_packages.sh"
 bash ~/scripts/vm_preparation_to_build_packages.sh $3
 echo "Generating hz package: $2"
-bash ~/scripts/rapp_create_hz.sh $2 $4 
+bash /home/nao/ws_rapp_applications/rapp-applications/nao/scripts/rapp_create_hz.sh $2 $4 
 EOF
 
 echo "Downloading hz package $2 from virtual machine $1"
