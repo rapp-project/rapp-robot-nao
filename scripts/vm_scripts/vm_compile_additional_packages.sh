@@ -129,3 +129,47 @@ cd libvmime-0.9.1
 make
 make install
 make clean
+
+echo -e "$COL_GREEN[OK]$COL_BLUE - $1 $COL_RESET - Installing hop and bigloo"
+bash /home/nao/scripts/nao_scripts/nao_install_hop.sh
+
+# Sourcing ws_ros_additional_packages workspace
+source $ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash
+echo -e "$COL_GREEN[OK]$COL_RESET - Sourcing ws_ros_additional_packages workspace"
+
+# Openssl
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Openssl"
+wget https://www.openssl.org/source/openssl-1.0.2c.tar.gz
+tar zxvf openssl-1.0.2c.tar.gz
+cd openssl-1.0.2c
+./config --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --openssldir=$ROS_ADDITIONAL_PACKAGES_ISOLATED/openssl
+make
+sudo make install
+make clean
+
+# Exporting LIBRARY PATH
+echo -e "$COL_GREEN[OK]$COL_RESET - Exporting LIBRARY PATH"
+export LIBRARY_PATH=$ROS_ADDITIONAL_PACKAGES_ISOLATED/lib
+
+# Bigloo
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
+wget ftp://ftp-sop.inria.fr/indes/rapp/hop/2015-05-07/bigloo4.2a.tar.gz
+tar zxvf bigloo4.2a.tar.gz
+cd bigloo4.2a
+./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+make
+sudo make install
+make clean
+
+# Hop
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Hop"
+wget ftp://ftp-sop.inria.fr/indes/rapp/hop/2015-05-07/hop-3.0.0-pre14.tar.gz
+tar zxvf hop-3.0.0-pre14.tar.gz
+cd hop-3.0.0-pre14
+./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+make
+sudo make install
+make clean

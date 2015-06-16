@@ -55,9 +55,6 @@ echo -e "$COL_GREEN[OK]$COL_BLUE - $1 $COL_RESET - Unpacking scripts for nao int
 tar xf ../nao_scripts.tar.gz
 
 bash $NAO_SCRIPTS/nao_scripts/nao_extract_workspaces.sh
-
-echo -e "$COL_GREEN[OK]$COL_BLUE - $1 $COL_RESET - Installing hop and bigloo"
-bash /home/nao/scripts/nao_scripts/nao_install_hop.sh
 EOF
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Disconnecting with NAO robot $1" 
