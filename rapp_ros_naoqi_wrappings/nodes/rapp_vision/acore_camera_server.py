@@ -181,7 +181,7 @@ class CameraModule(ALModule):
 	def handle_rapp_set_camera_parameter(self,req):
 		print "[Camera server - SetCameraParam receives]: Camera ID -%d;\tParameter ID - %d;\tParameter value - %d;" % (req.cameraId, req.cameraParameterId, req.newValue)
 		isSet = False
-		try
+		try:
 			### Subscribe to the camera
 			#self.nameId = prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
 
