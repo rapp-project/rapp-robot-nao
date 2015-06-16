@@ -93,7 +93,7 @@ protected:
 	//Constructor of class CoreAgent
 	CoreAgent::CoreAgent(){
 		// Create a client for the rapp_get_recognizes_word serivce
-		client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognizes_word");
+		client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognized_word");
 
 		// Create a client for the rapp_get_recognizes_word serivce
 		serverSetStatus_ = nh_.advertiseService("dynamic_agent_status", &CoreAgent::dynamicAgentStatusReceived, this);
