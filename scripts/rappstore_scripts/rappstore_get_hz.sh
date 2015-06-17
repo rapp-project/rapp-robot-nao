@@ -4,6 +4,7 @@
 
 RAPP_USER="/home/max"
 HZ_DIRECTORY=$RAPP_USER"/rapp/hz_packages/hz"
+HZ_PACKAGES_FOLDER="/home/nao/hz_packages"
 
 if [ "$#" -ne 2 ]; then
 	echo "Script that downloads a given RApp as a hz from virtual machine."
@@ -21,7 +22,7 @@ else
 fi
 
 echo "Downloading hz package from virtaul machine. Enter --  nao -- as a password"
-scp nao@$1:/home/nao/ws_rapp_applications/rapp-applications/nao/hz_packages/hz/$2-1.0.0.hz $HZ_DIRECTORY
+scp nao@$1:$HZ_PACKAGES_FOLDER/$2-1.0.0.hz $HZ_DIRECTORY
 
 echo "List of hz packages:"
 cd $HZ_DIRECTORY
