@@ -92,4 +92,5 @@ if [ -d $VM_FLAG ]; then # If directory exists
 	rm vm*
 	cp $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts/vm* .
 	cp $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts/rapp_create_hz.sh .
+	cp $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts/rapp_generate_hop_files.sh .
 fi
