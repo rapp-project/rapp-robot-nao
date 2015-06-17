@@ -24,7 +24,7 @@ tar czf /home/nao/nao_scripts.tar.gz nao_scripts/
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Sending packages to nao $1:/home/nao/"
 echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
-scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/
+scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_rapp_applications_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Sending scripts to nao $1:/home/nao/"
 echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"

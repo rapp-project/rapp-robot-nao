@@ -18,6 +18,10 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Archives ws_rapp_nao workspace"
 cd /home/nao/ws_rapp_nao
 tar czf /home/nao/ws_rapp_nao.tar.gz install_isolated
 
+echo -e "$COL_GREEN[OK]$COL_RESET - Archives ws_rapp_applications_nao workspace"
+cd /home/nao/ws_rapp_applications_nao
+tar czf /home/nao/ws_rapp_applications_nao.tar.gz install_isolated
+
 echo -e "$COL_GREEN[OK]$COL_RESET - Archives nao data - sound and pictures needed for voicemail"
 cd /home/nao/ws_rapp_applications/rapp-applications/nao
 tar czf /home/nao/nao_data.tar.gz data hz_packages/store_interaction.js

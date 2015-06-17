@@ -34,6 +34,11 @@ echo -e "$COL_GREEN[OK]$COL_RESET - $WS_RAPP_NAO"
 cd $WS_RAPP_NAO
 tar zxf /home/nao/ws_rapp_nao.tar.gz
 
+echo -e "$COL_GREEN[OK]$COL_RESET - $WS_RAPP_APPLICATIONS_NAO"
+cd $WS_RAPP_APPLICATIONS_NAO
+tar zxf /home/nao/ws_rapp_applications_nao.tar.gz
+
+
 echo -e "$COL_GREEN[OK]$COL_RESET - Extracts nao data"
 cd $WS_RAPP_APPLICATIONS_NAO/nao
 tar zxf /home/nao/nao_data.tar.gz
