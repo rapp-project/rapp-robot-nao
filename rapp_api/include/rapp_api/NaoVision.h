@@ -40,9 +40,9 @@
 
 #include <zbar.h> // for QRcode detection
 
-using namespace std;
-using namespace cv;
-using namespace zbar;
+//using namespace std;
+//using namespace cv;
+//using namespace zbar;
 
 class NaoVision {
 
@@ -145,5 +145,3 @@ public:
 	std::vector<double> compute_euler_y(std::vector<double> &m20); //For the computation of the 2-nd euler angle
 	std::vector<double> compute_euler_z(std::vector<double> &m10, std::vector<double> &m00, std::vector<double> &euler_y); //For the computation of the 3-rd euler angle
 };
-
-
