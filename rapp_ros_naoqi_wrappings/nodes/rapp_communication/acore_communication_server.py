@@ -229,7 +229,8 @@ class CommunicationModule(ALModule):
 	def unsubscribeWordDetection(self):
 		print "[Communication server] - Unsubscribing SoundDetected event"
 		try:
-			prox_memory.unsubscribeToEvent('WordRecognized', self.moduleName)
+			if (self.stopListening == False):
+				prox_memory.unsubscribeToEvent('WordRecognized', self.moduleName)
 		except TypeError, e:
 			print "[Communication server] - Error TypeError in unsubscribe(): %s", str(e)
 		except Exception, e:
@@ -259,9 +260,9 @@ class CommunicationModule(ALModule):
 				val[1]=0
 				prox_memory.insertData(self.memValue,val)
 				return
-			else :
-				# Subscribe again to the event
-				prox_memory.subscribeToEvent("WordRecognized", self.moduleName, self.functionName )
+			
+			# Subscribe again to the event
+			prox_memory.subscribeToEvent("WordRecognized", self.moduleName, self.functionName )
 				
 		except Exception, e:
 			print "[Communication server] - onSoundDetected - Exception %s" %e
@@ -303,40 +304,7 @@ class CommunicationModule(ALModule):
 			print "[Communication server] - onSoundDetected - Exception %s" %e
 	
 		#######################################
-	
-	'''# Method that is called when sound is detected, handles word detection from a database
-	def onWordRecognized(self, *_args):
-		"""This method will be called each time NAO recognised a sound.
-		It will try to find out correct email address.
-		"""
-		try:
-			# Unsubscribing to the event of Sound detection to avoid calling a method while executing interior of the method.
-			prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
-			val = prox_memory.getData(self.memValue)
-			
-			print "[Email server] - \t" + val[0]
-			print "[Email server] - onWordRecognized - Sleeps"
-			time.sleep(1)
-			print "[Email server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
-			
-		
-			if len(val[0])!=0 and val[1]>0.45:	
-				self.stopListening = True
-				self.wordRecognized = val[0]
-				print "[Email server] - [onSoundDetected] - Word recognized: %s" % self.wordRecognized
-				val[1]=0
-				prox_memory.insertData(self.memValue,val)
-				return
-			else :
-				# Subscribe again to the event
-				prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, self.functionName ) # testing
-				
-			# Subscribe again to the event
-			#prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, self.functionName )
-			
-		except Exception, e:
-			print "[Email server] - onSoundDetected - Exception %s" %e
-	'''
+
 	#######################################
 	# Record an audio message
 	def recordAudio(self, file_dest, waiting_time, microphone_energy):
@@ -710,12 +678,11 @@ class CommunicationModule(ALModule):
 		try:
 			print "[Communication server] - Subscribing events"
 			self.subscribeWordDetection()
-			while self.stopListening == False:
-				print "[Communication server] - Word was not recognized!"
-				#print "[Communication server] - Say a special word from database!"
-				time.sleep(4)
-			#print "[Communication Email] - Unsubscribing events"
-			#self.unsubscribeWordDetection()
+			print "[Communication server] - Word was not recognized!"
+			#print "[Communication server] - Say a special word from database!"
+			time.sleep(4)
+			print "[Communication server] - Unsubscribing events"
+			self.unsubscribeWordDetection()
 			#self.prox_tts.say("Word recognized %s" % self.wordRecognized)
 			
 		except AttributeError, ex:
