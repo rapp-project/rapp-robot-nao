@@ -210,6 +210,7 @@ class CommunicationModule(ALModule):
 	def subscribeWordDetection(self):
 		print "[Communication server] - Subscribing SoundDetected event"
 		try:
+			#self.prox_sprec.subscribe("Test_SpeechDetected",self.period, 0.0)
 			prox_memory.subscribeToEvent("WordRecognized", self.moduleName, "onWordRecognized" )
 			print "Subscibed to ALSpeechRecognition with the identify name - WordRecognized"
 		except Exception, e:
@@ -234,7 +235,9 @@ class CommunicationModule(ALModule):
 		print "[Communication server] - Unsubscribing WordRecognized event"
 		try:
 			#print prox_memory.getEventList()
-			prox_memory.unsubscribeToEvent('WordRecognized', self.moduleName)
+			#self.prox_sprec.unsubscribe("Test_SpeechDetected")
+			if (self.stopListening == False):
+				prox_memory.unsubscribeToEvent('WordRecognized', self.moduleName)
 		except TypeError, e:
 			print "[Communication server] - Error TypeError in unsubscribe(): %s", str(e)
 		except Exception, e:
@@ -674,12 +677,12 @@ class CommunicationModule(ALModule):
 		try:
 			print "[Communication server] - Subscribing events"
 			self.subscribeWordDetection()
-			while self.stopListening == False:
-				print "[Communication server] - Word was not recognized!"
-				#print "[Communication server] - Say a special word from database!"
-				time.sleep(4)
-			#print "[Communication server] - Unsubscribing events"
-			#self.unsubscribeWordDetection()
+			#while self.stopListening == False:
+			print "[Communication server] - Word was not recognized!"
+			#print "[Communication server] - Say a special word from database!"
+			time.sleep(4)
+			print "[Communication server] - Unsubscribing events"
+			self.unsubscribeWordDetection()
 			#self.prox_tts.say("Word recognized %s" % self.wordRecognized)
 			
 		except AttributeError, ex:

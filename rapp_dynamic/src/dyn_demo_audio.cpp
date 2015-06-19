@@ -66,7 +66,14 @@ main(int argc, char **argv)
 			sleep(1);
 		}
 
-		recognizedWord = Nao_Communication.wordSpotting(dictionary, 2);
+		// Try to recognize the word from dictionary
+		do {
+			recognizedWord = Nao_Communication.wordSpotting(dictionary, 2);
+		}
+		while (
+			recognizedWord != "Empty" // Word was not recognized
+		);
+		
 		if (recognizedWord == "Voice")
 		{
 			Nao_Communication.textToSpeech( "Recording the voice message", "English" );
