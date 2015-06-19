@@ -63,7 +63,7 @@
 	// Function from Rapp API that calls word recognition service from core agent on NAO robot. Robot recognizes word.
 	// dictionary - table of words to be recognized
 	// size - size of dictionary
-	string NaoCommunication::wordSpotting(string dictionary[], int size){	
+	std::string NaoCommunication::wordSpotting(std::string dictionary[], int size){	
 		client_recognizeWord = n->serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognized_word");
 		rapp_ros_naoqi_wrappings::RecognizeWord srv;
 		srv.request.wordsList = copyTable(dictionary,size);
@@ -82,7 +82,7 @@
 
 	// Function from Rapp API that calls record service from core agent on NAO robot. Robot records the sound.
 	// time - a given time period for recording the sound
-	string NaoCommunication::captureAudio(int time){
+	std::string NaoCommunication::captureAudio(int time){
 		client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Record>("rapp_record");
 		rapp_ros_naoqi_wrappings::Record srv;
 		srv.request.recordingTime = time;
@@ -99,7 +99,7 @@
 		return "";
 	}
 
-	string NaoCommunication::captureAudio (string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
+	std::string NaoCommunication::captureAudio (std::string file_path, float waiting_time/*in sec*/, int microphone_energy/*2700*/){
 		client_recordWithSoundDetection = n->serviceClient<rapp_ros_naoqi_wrappings::RecordWithSoundDetection>("rapp_record_with_sound_detection");
 		rapp_ros_naoqi_wrappings::RecordWithSoundDetection srv;
 		srv.request.file_dest = file_path;
@@ -146,7 +146,7 @@
 		return;
 	}
 
-	int NaoCommunication::microphoneEnergy(string name){
+	int NaoCommunication::microphoneEnergy(std::string name){
 		client_microphoneEnergy = n->serviceClient<rapp_ros_naoqi_wrappings::MicrophoneEnergy>("rapp_get_microphone_energy");
 		rapp_ros_naoqi_wrappings::MicrophoneEnergy srv;
 		srv.request.microphone = name;
@@ -168,7 +168,7 @@
 
 
 	// Function from RAPP API that calls send email service using VMIME library and SMTP protocol (smtp://smtp.gmail.com)
-	void NaoCommunication::sendEmail(string login, string password, string sendTo)
+	void NaoCommunication::sendEmail(std::string login, std::string password, std::string sendTo)
 	{
 		SendEmailClass::sendMessage(login, password, sendTo);
 		return;

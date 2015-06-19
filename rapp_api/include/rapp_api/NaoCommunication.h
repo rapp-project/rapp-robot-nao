@@ -30,9 +30,9 @@ public:
 	ros::NodeHandle *n;
 
 	void init(int argc, char **argv);
-	bool textToSpeech(string str);
+	bool textToSpeech(std::string str);
 	bool textToSpeech(std::string str, std::string language);// Method which calls ros service rapp_say. It causes nao robot says provided string message.
-	std::string wordSpotting(string dictionary[], int size);
+	std::string wordSpotting(std::string dictionary[], int size);
 	std::string captureAudio(int time);
 	std::string captureAudio(std::string file_path, float waiting_time, int microphone_energy);// Recording stops after a specified time (waiting_time in [s]), if sound with a sufficient energy level (microphone_energy) was not detected during this time // microphone_energy should be > 1700 (noise); // records in ogg format
 	int microphoneEnergy(std::string name);
