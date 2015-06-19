@@ -71,7 +71,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		if (client_recognizeWord.call(srv))
 		{
 			ROS_INFO("Nao recognized word");
-			cout<<"Recognized word:" << srv.response.recognizedWord<<endl;
+			std::cout<<"Recognized word:" << srv.response.recognizedWord<<std::endl;
 			return srv.response.recognizedWord;
 		}
 		else
@@ -91,7 +91,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		if (client_record.call(srv))
 		{
 			ROS_INFO("Nao recorded sound");
-			cout<<"Recorded sound:" << srv.response.recordedFileDest<<endl;
+			std::cout<<"Recorded sound:" << srv.response.recordedFileDest<<std::endl;
 			return srv.response.recordedFileDest;
 		}
 		else
@@ -110,7 +110,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		if (client_recordWithSoundDetection.call(srv))
 		{
 			ROS_INFO("Nao recorded audio message");
-			//cout<<"File path to the recorded sound:" << srv.response.output_file_path <<endl;
+			//std::cout<<"File path to the recorded sound:" << srv.response.output_file_path <<std::endl;
 			return srv.response.output_file_path;
 		}
 		else
@@ -134,7 +134,6 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		
 		if (client_voiceRecord.call(srv))
 		{
-			
 			// for buffer usage
 			ROS_INFO("Nao recorded sound to the buffer");
 			//std::cout<<srv.response.buffer_[0]<<std::endl;
@@ -143,8 +142,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 			
 			//for (int i=0; i<srv.response.buffer_.size();i++)
 			//	audio_buffer_vector.push_back(srv.response.buffer_[i]); // is this correctly working?
-			audio_buffer_vector.push_back( srv.response.buffer_ ); //adds buffer to the vector of vectors
-
+			audio_buffer_vector.push_back( srv.response.buffer_ ); //adds buffer to the vector of vector
 			
 			return;
 		}
@@ -164,7 +162,7 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		if (client_microphoneEnergy.call(srv))
 		{
 			//ROS_INFO("Nao microphone energy - check");
-			cout<<"Energy detected:" << srv.response.energy<<endl;
+			std::cout<<"Energy detected:" << srv.response.energy<<std::endl;
 			energy = srv.response.energy;
 		}
 		else
@@ -179,12 +177,12 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 	//#############
 	// Method that copies table of given type to vector
 	template<typename T>
-	inline vector<basic_string<char> > NaoCommunication::copyTable(T table[], int size){
-		vector<basic_string<char> > tmp;
+	inline std::vector<std::basic_string<char> > NaoCommunication::copyTable(T table[], int size){
+		std::vector<std::basic_string<char> > tmp;
 		for(int i=0; i<size; i++)
 		{
 			tmp.push_back(table[i].c_str());
-			cout<<tmp[i];
+			std::cout<<tmp[i];
 		}
 		return tmp;
 	}

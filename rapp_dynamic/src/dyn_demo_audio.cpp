@@ -71,7 +71,7 @@ main(int argc, char **argv)
 			recognizedWord = Nao_Communication.wordSpotting(dictionary, 2);
 		}
 		while (
-			recognizedWord != "Empty" // Word was not recognized
+			recognizedWord == "Empty" // Word was not recognized
 		);
 		
 		if (recognizedWord == "Voice")

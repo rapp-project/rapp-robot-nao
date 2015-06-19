@@ -28,12 +28,12 @@
 
 
 
-#define BUFSIZE 8192//48000  // Size of one element
-#define BUFNUMBER 16 // Number of elements
+//#define BUFSIZE 8192//48000  // Size of one element
+//#define BUFNUMBER 16 // Number of elements
 #define AUDIO_BUFFER_FORMAT char
 
 
-using namespace std;
+//using namespace std;
 
 class NaoCommunication {
 
@@ -72,6 +72,6 @@ public:
 	void voiceRecord(bool startRecording, std::vector< std::vector<unsigned char> >  &audio_buffer_vector);// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
 	
 	template<typename T>
-	inline vector<basic_string<char> > copyTable(T table[], int size);
+	inline std::vector<std::basic_string<char> > copyTable(T table[], int size);
 
 };

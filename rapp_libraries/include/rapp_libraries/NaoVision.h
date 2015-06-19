@@ -32,9 +32,9 @@
 #include <zbar.h> // for QRcode detection
 
 
-using namespace std;
-using namespace cv;
-using namespace zbar;
+//using namespace std;
+//using namespace cv;
+//using namespace zbar;
 
 class NaoVision {
 

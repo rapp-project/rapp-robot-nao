@@ -61,23 +61,23 @@
 		cv_frame = cv_bridge::toCvShare(frame_, tracked_object, frame_.encoding)->image; //conversion from sensor_msgs::Image to cv::Mat
 
 		// Convert to grayscale
-		cvtColor(cv_frame, frame_grayscale, CV_BGR2GRAY);
+		cv::cvtColor(cv_frame, frame_grayscale, CV_BGR2GRAY);
 		// Obtain image data
 		int width = frame_grayscale.cols;
 		int height = frame_grayscale.rows;
 		uchar *raw = (uchar *)(frame_grayscale.data);
 
 		// // ZBar
-		set_zbar.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
+		set_zbar.set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ENABLE, 1);
 		// Wrap image data
-		Image image(width, height, "Y800", raw, width * height);
+		zbar::Image image(width, height, "Y800", raw, width * height);
 		// Scan the image for barcodes
 		set_zbar.scan(image);
 
 		// Extract results
 		int counter = 0;
 
-		for (Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
+		for (zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
 			//vector<vector<Point3f> > object_points;
 			//vector<vector<Point2f> > image_points;
 			//vector<Point3f> world_coords;
@@ -85,10 +85,10 @@
 			std::vector<cv::Point2f> pixel_coords;           
 		
 			pixel_coords.clear();
-			pixel_coords.push_back(Point2f (symbol->get_location_x(0),symbol->get_location_y(0)));
-			pixel_coords.push_back(Point2f (symbol->get_location_x(1),symbol->get_location_y(1)));
-			pixel_coords.push_back(Point2f (symbol->get_location_x(2),symbol->get_location_y(2)));
-			pixel_coords.push_back(Point2f (symbol->get_location_x(3),symbol->get_location_y(3)));
+			pixel_coords.push_back(cv::Point2f (symbol->get_location_x(0),symbol->get_location_y(0)));
+			pixel_coords.push_back(cv::Point2f (symbol->get_location_x(1),symbol->get_location_y(1)));
+			pixel_coords.push_back(cv::Point2f (symbol->get_location_x(2),symbol->get_location_y(2)));
+			pixel_coords.push_back(cv::Point2f (symbol->get_location_x(3),symbol->get_location_y(3)));
 			//cout<<pixel_coords<<endl;
 
 			cv::Mat rvec;//(3,1,cv::DataType<float>::type);
@@ -110,7 +110,7 @@
 			cv::Mat Mat_I = cv::Mat::zeros(4,4,cv::DataType<double>::type);
 
 			//$$$$$$$$$$$$$$$$$$
-			vector<double> m00,m01,m02,m10,m12,m20,m21,m22,euler1, euler2, euler3;
+			std::vector<double> m00,m01,m02,m10,m12,m20,m21,m22,euler1, euler2, euler3;
 			const double PI = 3.14159265359f;
 		
 			// Model for SolvePnP // x-> y^
@@ -122,10 +122,10 @@
 			*/
 			
 			//z^y<-
-			object_points.push_back(Point3f (0,NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2));
-			object_points.push_back(Point3f (0,NaoVision::landmarkTheoreticalSize/2,-NaoVision::landmarkTheoreticalSize/2));
-			object_points.push_back(Point3f (0,-NaoVision::landmarkTheoreticalSize/2,-NaoVision::landmarkTheoreticalSize/2));
-			object_points.push_back(Point3f (0,-NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2));
+			object_points.push_back(cv::Point3f (0,NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2));
+			object_points.push_back(cv::Point3f (0,NaoVision::landmarkTheoreticalSize/2,-NaoVision::landmarkTheoreticalSize/2));
+			object_points.push_back(cv::Point3f (0,-NaoVision::landmarkTheoreticalSize/2,-NaoVision::landmarkTheoreticalSize/2));
+			object_points.push_back(cv::Point3f (0,-NaoVision::landmarkTheoreticalSize/2,NaoVision::landmarkTheoreticalSize/2));
 			
 			// Camera Intrinsic Matrix -- from Camera calibration
 			if (width==1280 && height==960)
@@ -143,7 +143,7 @@
 
 			cv::solvePnP(cv::Mat(object_points), cv::Mat(pixel_coords), cameraIntrinsicMatrix, distCoeffs, rvec, tvec, false);//, CV_ITERATIVE );
 						
-			Rodrigues(rvec,rotationMatrix);
+			cv::Rodrigues(rvec,rotationMatrix);
 			
 			//cout<<cameraIntrinsicMatrix<<endl<<endl;
 			//cout<<tvec<<endl;
@@ -267,15 +267,15 @@
 		NaoVision::QRcodeHazardDetection QRcodeHazardStruct;
 		QRcodeHazardStruct.clear();
 		
-		vector<double> euler1;
-		vector<double> euler2;
-		vector<double> euler3;
-		vector<double> m00, m01, m02, m10, m12, m20, m21, m22;
+		std::vector<double> euler1;
+		std::vector<double> euler2;
+		std::vector<double> euler3;
+		std::vector<double> m00, m01, m02, m10, m12, m20, m21, m22;
 
 		const double PI = 3.14159265359f;
 
 		double precision = 6*PI/180.f; //established precision of QRcodes detection -- in degrees
-		vector<int> wall_number;
+		std::vector<int> wall_number;
 
 		//computation of the 3-rd euler angle
 		euler3.clear();
