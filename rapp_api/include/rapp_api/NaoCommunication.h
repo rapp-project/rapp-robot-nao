@@ -40,5 +40,13 @@ public:
 	static void sendEmail(std::string login, std::string password, std::string sendTo);
 
 	template<typename T>
+	T getParameter(std::string name)
+	{
+		T val;
+		n->getParam(name, val);
+		return val;
+	}
+
+	template<typename T>
 	inline std::vector<std::basic_string<char> > copyTable(T table[], int size);
 };
