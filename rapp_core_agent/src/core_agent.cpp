@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <vector>
 #include <string>
+#include <signal.h>
 
 
 
@@ -129,10 +130,13 @@ protected:
 		//std::cin >> name;
 			
 		// Enter the name of package using voice command
-		name=GetCommand();
-		
+		do
+		{
+			name=GetCommand();
+		}
+		while(name=="Empty");
 
-		if(name == "q" || name == "exit")
+		if(name == "exit")
 		{
 			// Shut down the node.
 			ros::shutdown();
@@ -287,9 +291,17 @@ protected:
 		return true;
 	}
 
+void sigint_signal (int param)
+{
+	ros::shutdown();
+}
 
 int main(int argc, char **argv)
 {
+	// SIGINT - signal handler
+	void (*prev_handler)(int);
+ 	prev_handler = signal (SIGINT, sigint_signal);
+    
     // Initialize the ROS system and become a node.
     ros::init(argc, argv, "core_agent");
     ros::NodeHandle nh;
