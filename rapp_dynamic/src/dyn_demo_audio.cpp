@@ -13,11 +13,11 @@
 
 #include "math.h"
 
-using namespace std;
+//using namespace std;
 main(int argc, char **argv)
 {
 	//AL_SOUND_FORMAT * buffer;
-	std::vector< vector<unsigned char> > audioBuffer;
+	std::vector< std::vector<unsigned char> > audioBuffer;
     
 	//NaoVision NaoVision_(argc,argv);
 	NaoVision NAO_Vision(argc,argv);
