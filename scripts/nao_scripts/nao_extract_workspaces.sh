@@ -44,7 +44,7 @@ cd $WS_RAPP_APPLICATIONS_NAO/nao
 tar zxf /home/nao/nao_data.tar.gz
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Removes archived files"
-rm /home/nao/ws_ros.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_rapp_nao.tar.gz
+rm /home/nao/ws_ros.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_rapp_applications_nao.tar.gz
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Removes nao_scripts.tar.gz"
 rm /home/nao/nao_scripts.tar.gz
