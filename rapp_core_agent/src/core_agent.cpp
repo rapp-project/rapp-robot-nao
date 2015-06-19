@@ -8,6 +8,7 @@
 // Copyright 2014 RAPP
 
 #include "ros/ros.h"
+#include "ros/service.h"
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -93,6 +94,7 @@ protected:
 
 	//Constructor of class CoreAgent
 	CoreAgent::CoreAgent(){
+		ros::service::waitForService("rapp_get_recognized_word");
 		// Create a client for the rapp_get_recognizes_word serivce
 		client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognized_word");
 
@@ -107,7 +109,7 @@ protected:
 			
 		// Create a publisher object.
 		pub_ = nh_.advertise<std_msgs::String>(REQUEST_TOPIC, 100);
-			
+		
 		// Send the initial request.
 		sendRequest(&pub_);
 	}
@@ -237,6 +239,9 @@ protected:
 			std::cout << "\e[1m\e[31m" // bold and red font
 				<< "Failed"
 				<< "\e[0m\n"; // normal print mode
+
+			// Word spotting if package was not downloaded		
+			//sendRequest();
 		}
 		else
 		{

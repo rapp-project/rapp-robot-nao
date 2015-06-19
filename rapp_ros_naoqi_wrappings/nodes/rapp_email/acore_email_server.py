@@ -185,9 +185,11 @@ class EmailRecognitionModule(ALModule):
 		
 		print "[Core agent server] - Unsubscribing SoundDetected event"
 		try:
-			
-			prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
+
 			self.prox_sprec.unsubscribe("Test_SpeechDetected")
+			if (self.stopListening == False):
+				prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
+			
 		except TypeError, e:
 			print "[Core agent server] - Error TypeError in unsubscribe(): %s", str(e)
 			#self.prox_sprec.unsubscribe("Test_SpeechDetected")
@@ -383,11 +385,10 @@ class EmailRecognitionModule(ALModule):
 		try:
 			print "[Core agent server] - Subscribing events"
 			self.subscribe()
-			while self.stopListening == False:
-				print "[Core agent server] - Word was not recognized!"
-				print "[Core agent server] - Say a special word from database!"
-				time.sleep(4)
-				self.stopListening = True
+			print "[Core agent server] - Word was not recognized!"
+			print "[Core agent server] - Say a special word from database!"
+			time.sleep(4)
+			
 			print "[Core agent server] - Unsubscribing events"
 			self.unsubscribe()
 			#self.prox_tts.say("Word recognized %s" % self.wordRecognized)
