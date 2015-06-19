@@ -9,7 +9,7 @@
 	}
 
 	// Function from Rapp API that calls say service from core agent on Nao robot. Robot says a given sentence.
-	bool NaoCommunication::textToSpeech(string str){	
+	bool NaoCommunication::textToSpeech(std::string str){	
 
 		client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
 		rapp_ros_naoqi_wrappings::Say srv;
@@ -28,32 +28,32 @@
 	}
 
 	//#############
-	bool NaoCommunication::textToSpeech( string str, string language)
+	bool NaoCommunication::textToSpeech( std::string str, std::string language)
 	{
 		client_textToSpeech = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
 		rapp_ros_naoqi_wrappings::Say srv;
 		bool successful=false;
 		//## slower and lower voice
-		string sentence;
+		std::string sentence;
 		sentence = "\\RSPD=" + std::string("80") + "\\ ";
 		sentence += "\\VCT="+ std::string("43") + "\\ ";
 		sentence += std::string(str);
 		sentence += "\\RST\\ ";
-		cout<<sentence<<endl;
+		std::cout<<sentence<<std::endl;
 	
 		srv.request.request=sentence;//a message, that will be said
 		srv.request.language=language;//language selection
 
 		if (client_textToSpeech.call(srv))
 		{
-			cout<<"[Text to Speech] - received:\t"<< srv.response.response <<"\n"<< flush;
+			std::cout<<"[Text to Speech] - received:\t"<< srv.response.response <<"\n"<< std::flush;
 			successful = true;
 			return successful;
 		}
 		else
 		{
 			//Failed to call service rapp_say
-			cout<<"[Text to Speech] - Error calling service rapp_say\n";
+			std::cout<<"[Text to Speech] - Error calling service rapp_say\n";
 			successful = false;
 			return successful;
 		}
@@ -70,7 +70,7 @@
 		if (client_recognizeWord.call(srv))
 		{
 			ROS_INFO("Nao recognized word");
-			cout<<"Recognized word:" << srv.response.recognizedWord<<endl;
+			std::cout<<"Recognized word:" << srv.response.recognizedWord<<std::endl;
 			return srv.response.recognizedWord;
 		}
 		else
@@ -89,7 +89,7 @@
 		if (client_say.call(srv))
 		{
 			ROS_INFO("Nao recorded sound");
-			cout<<"Recorded sound:" << srv.response.recordedFileDest<<endl;
+			std::cout<<"Recorded sound:" << srv.response.recordedFileDest<<std::endl;
 			return srv.response.recordedFileDest;
 		}
 		else
@@ -108,7 +108,7 @@
 		if (client_recordWithSoundDetection.call(srv))
 		{
 			ROS_INFO("Nao recorded audio message");
-			//cout<<"File path to the recorded sound:" << srv.response.output_file_path <<endl;
+			//std::cout<<"File path to the recorded sound:" << srv.response.output_file_path <<std::endl;
 			return srv.response.output_file_path;
 		}
 		else
@@ -121,7 +121,7 @@
 		
 	//#############
 	// Function from Rapp API that calls voice record service from core agent on NAO robot. Robot records the sound. The recording stops when sound is not detected during the time equal to silenceTime [s]
-	void NaoCommunication::voiceRecord(bool startRecording, std::vector< vector<unsigned char> > &audio_buffer_vector )
+	void NaoCommunication::voiceRecord(bool startRecording, std::vector< std::vector<unsigned char> > &audio_buffer_vector )
 	{
 		client_voiceRecord = n->serviceClient<rapp_ros_naoqi_wrappings::VoiceRecord>("rapp_voice_record");
 		rapp_ros_naoqi_wrappings::VoiceRecord srv;
@@ -131,7 +131,7 @@
 		{
 			// for buffer usage
 			ROS_INFO("Nao recorded sound to the buffer");
-			cout<<"buffer size :"<<srv.response.buffer_.size()<<endl; //should be 8192 (microphone buffer size)
+			std::cout<<"buffer size :"<<srv.response.buffer_.size()<<std::endl; //should be 8192 (microphone buffer size)
 			fflush(stdout);
 			
 			//for (int i=0; i<srv.response.buffer_.size();i++)
@@ -155,7 +155,7 @@
 		if (client_microphoneEnergy.call(srv))
 		{
 			//ROS_INFO("Nao microphone energy - check");
-			cout<<"Energy detected:" << srv.response.energy<<endl;
+			std::cout<<"Energy detected:" << srv.response.energy<<std::endl;
 			energy = srv.response.energy;
 		}
 		else
@@ -177,12 +177,12 @@
 
 	// Method that copies table of given type to vector
 	template<typename T>
-	inline vector<basic_string<char> > NaoCommunication::copyTable(T table[], int size){
-		vector<basic_string<char> > tmp;
+	inline std::vector<std::basic_string<char> > NaoCommunication::copyTable(T table[], int size){
+		std::vector<std::basic_string<char> > tmp;
 		for(int i=0; i<size; i++)
 		{
 			tmp.push_back(table[i].c_str());
-			cout<<tmp[i];
+			std::cout<<tmp[i];
 		}
 		return tmp;
 	}
