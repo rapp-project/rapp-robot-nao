@@ -55,7 +55,7 @@ class EmailRecognitionModule(ALModule):
 	def __init__(self,name):
 		ALModule.__init__(self,name)
 		
-		print "[Email server] - Acore email Server initialization"
+		print "[Core agent server] - Server initialization"
 		
 		# Initialization of ROS node
 		rospy.init_node('acore_email_server')
@@ -67,49 +67,49 @@ class EmailRecognitionModule(ALModule):
 		self.setVariables()
 		self.openServices()
 		
-		print "[Email server] - Waits for clients ..."
+		print "[Core agent server] - Waits for clients ..."
 		
 		
 	
 	# Initialization of Naoqi modules
 	def initALModule(self):
-		print "[Email server] - Initialization of Naoqi modules"
+		print "[Core agent server] - Initialization of Naoqi modules"
 		
-		print "[Email server] - ALMemory proxy initialization"		
+		print "[Core agent server] - ALMemory proxy initialization"		
 		global prox_memory
 		prox_memory = ALProxy("ALMemory")
 		if prox_memory is None:
-			rospy.logerr("[Email server] - Could not get a proxy to ALMemory")
+			rospy.logerr("[Core agent server] - Could not get a proxy to ALMemory")
 			exit(1)
 			
-		print "[Email server] - ALTextToSpeech proxy initialization"
+		print "[Core agent server] - ALTextToSpeech proxy initialization"
 		self.prox_tts = ALProxy("ALTextToSpeech")
 		if self.prox_tts is None:
-			rospy.logerr("[Email server] - Could not get a proxy to ALTextToSpeech")
+			rospy.logerr("[Core agent server] - Could not get a proxy to ALTextToSpeech")
 			exit(1)
 			
-		print "[Email server] - ALSoundDetection proxy initialization"
+		print "[Core agent server] - ALSoundDetection proxy initialization"
 		self.prox_sd = ALProxy("ALSoundDetection")
 		if self.prox_sd is None:
-			rospy.logerr("[Email server] - Could not get a proxy to ALSoundDetection")
+			rospy.logerr("[Core agent server] - Could not get a proxy to ALSoundDetection")
 			exit(1)
 			
-		print "[Email server] - ALSpeechRecognition proxy initialization"
+		print "[Core agent server] - ALSpeechRecognition proxy initialization"
 		self.prox_sprec = ALProxy("ALSpeechRecognition")
 		if self.prox_sprec is None:
-			rospy.logerr("[Email server] - Could not get a proxy to ALSpeechRecognition")
+			rospy.logerr("[Core agent server] - Could not get a proxy to ALSpeechRecognition")
 			exit(1)
 		
-		print "[Email server] - ALAudioRecorder proxy initialization"
+		print "[Core agent server] - ALAudioRecorder proxy initialization"
 		self.prox_ar = ALProxy("ALAudioRecorder")
 		if self.prox_ar is None:
-			rospy.logerr("[Send Email]- Could not get a proxy to ALAudioRecorder")
+			rospy.logerr("[Core agent server]- Could not get a proxy to ALAudioRecorder")
 			exit(1)
 	
 	
 	# Setting variables
 	def setVariables(self):
-		print "[Email server] - Setting variables"
+		print "[Core agent server] - Setting variables"
 		self.isEmailFound = False
 		self.stopListening = False
 		self.email_address = "rapp.nao@gmail.com"
@@ -139,7 +139,7 @@ class EmailRecognitionModule(ALModule):
 		
 	
 	def setWordDatabase(self, database):
-		print "[Email server] - Setting word database to recognize a spoken word"
+		print "[Core agent server] - Setting word database to recognize a spoken word"
 		self.prox_sprec.pause(True)
 		self.prox_sprec.setVocabulary(database, False)
 		self.prox_sprec.pause(False)
@@ -147,19 +147,19 @@ class EmailRecognitionModule(ALModule):
 	# Initialization of ROS services
 	def openServices(self):
 		try:
-			print "[Email server] - setting services"
-			print "[Email server] - service - [rapp_say]"
+			print "[Core agent server] - setting services"
+			print "[Core agent server] - service - [rapp_say]"
 			self.service_rs = rospy.Service('rapp_say', Say, self.handle_rapp_say)
-			print "[Email server] - service - [rapp_get_email_address]"
+			print "[Core agent server] - service - [rapp_get_email_address]"
 			self.service_rgea = rospy.Service('rapp_get_email_address', GetEmailAddress, self.handle_rapp_get_email_address)
-			print "[Email server] - service - [rapp_record]"
+			print "[Core agent server] - service - [rapp_record]"
 			self.service_rr = rospy.Service('rapp_record', Record, self.handle_rapp_record)
-			print "[Email server] - service - [rapp_get_recognized_word]"
+			print "[Core agent server] - service - [rapp_get_recognized_word]"
 			self.service_rrw = rospy.Service('rapp_get_recognized_word', RecognizeWord, self.handle_rapp_get_recognized_word)
-			'''print "[Email server] - service - [rapp_send_email]"
+			'''print "[Core agent server] - service - [rapp_send_email]"
 			self.service_rse = rospy.Service('rapp_send_email', SendEmail, self.handle_rapp_send_email)'''
 		except Exception, ex:
-			print "[Email server] - Exception %s" % str(ex)
+			print "[Core agent server] - Exception %s" % str(ex)
 		
 		
 	#######################################
@@ -170,29 +170,29 @@ class EmailRecognitionModule(ALModule):
 	
 	# Subscribes Nao events
 	def subscribe(self):
-		print "[Email server] - Subscribing SoundDetected event"
+		print "[Core agent server] - Subscribing SoundDetected event"
 		
 		try:
 			self.prox_sprec.subscribe("Test_SpeechDetected",self.period, 0.0)
 			prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, self.functionName)
 		except Exception, e:
-			print "[Email server] - Error in subscribe(): %s", str(e)
+			print "[Core agent server] - Error in subscribe(): %s", str(e)
 			
 		
 		
 	# Unsubscribes Nao events
 	def unsubscribe(self):
 		
-		print "[Email server] - Unsubscribing SoundDetected event"
+		print "[Core agent server] - Unsubscribing SoundDetected event"
 		try:
 			
-			#prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
+			prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
 			self.prox_sprec.unsubscribe("Test_SpeechDetected")
 		except TypeError, e:
-			print "[Email server] - Error TypeError in unsubscribe(): %s", str(e)
+			print "[Core agent server] - Error TypeError in unsubscribe(): %s", str(e)
 			#self.prox_sprec.unsubscribe("Test_SpeechDetected")
 		except Exception, e:
-			print "[Email server] - Error in unsubscribe(): %s", str(e)
+			print "[Core agent server] - Error in unsubscribe(): %s", str(e)
 			#self.prox_sprec.unsubscribe("Test_SpeechDetected")
 			
 			
@@ -206,29 +206,29 @@ class EmailRecognitionModule(ALModule):
 			prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
 			val = prox_memory.getData(self.memValue)
 			
-			print "[Email server] -       " + val[0]
-			print "[Email server] - Sleeps"
+			print "[Core agent server] -       " + val[0]
+			print "[Core agent server] - Sleeps"
 			time.sleep(1)
-			print "[Email server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
+			print "[Core agent server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
 			
 		
 			if len(val[0])!=0 and val[1]>0.5:	
 				#if(val[0] == "Exit"):
-				#	print "[Email server] - Exits"
+				#	print "[Core agent server] - Exits"
 				#	self.stopListening=True
 				#	return
 				#else:
 				#	self.findOutEmail(val[0])
 				self.findOutEmail(val[0])
 				
-				print "[Email server] - [onSoundDetected] - Email FOUND: %s" % self.email_address
+				print "[Core agent server] - [onSoundDetected] - Email FOUND: %s" % self.email_address
 				return
 				
 			# Subscribe again to the event
 			prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, self.functionName )
 			
 		except Exception, e:
-			print "[Email server] - onSoundDetected - Exception %s" %e
+			print "[Core agent server] - onSoundDetected - Exception %s" %e
 	
 	# Method that is called when sound is detected, handles word detection from a database
 	def onWordRecognized(self, *_args):
@@ -240,16 +240,16 @@ class EmailRecognitionModule(ALModule):
 			prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
 			val = prox_memory.getData(self.memValue)
 			
-			print "[Email server] -       " + val[0]
-			print "[Email server] - Sleeps"
+			print "[Core agent server] -       " + val[0]
+			print "[Core agent server] - Sleeps"
 			time.sleep(1)
-			print "[Email server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
+			print "[Core agent server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
 			
 		
 			if len(val[0])!=0 and val[1]>0.5:	
 				self.stopListening = True
 				self.wordRecognized = val[0]
-				print "[Email server] - [onSoundDetected] - Word recognized: %s" % self.wordRecognized
+				print "[Core agent server] - [onSoundDetected] - Word recognized: %s" % self.wordRecognized
 				val[1]=0
 				prox_memory.insertData(self.memValue,val)
 				return
@@ -258,13 +258,13 @@ class EmailRecognitionModule(ALModule):
 			prox_memory.subscribeToEvent(Constants.EVENT_SOUND, self.moduleName, self.functionName )
 			
 		except Exception, e:
-			print "[Email server] - onSoundDetected - Exception %s" %e
+			print "[Core agent server] - onSoundDetected - Exception %s" %e
 	
 	# Method used to find out an email address just using local file with email addesses located 
 	# (maybe in the future in "../data/email_address.txt" (it can be done using database in a RAPP cloud)
 	def findOutEmail(self,name):
 		info = "Find out an email address to %s" % name
-		print "[Send Email] - Find out an email address to %s" % name
+		print "[Core agent server] - Find out an email address to %s" % name
 		self.prox_tts.say(info)
 
 		try:
@@ -277,48 +277,48 @@ class EmailRecognitionModule(ALModule):
 			rapp_s.seek(rapp_d+len(name) +1)
 			rapp_g = len(rapp_e)-(len(name) +1)
 			rapp_email = rapp_s.read(rapp_g)
-			print "[Send Email] - An email address is: %s " % rapp_email
+			print "[Core agent server] - An email address is: %s " % rapp_email
 			rapp_s.close()
 			self.prox_tts.say(rapp_email)
-			print "[Send Email] - Setting an email address"
+			print "[Core agent server] - Setting an email address"
 			self.email_address = rapp_email
 			self.isEmailFound  = True
 		except ValueError:
-			print "[Send Email] - findOutEmail - Value Error - Probably there is the difference in name - capital letter"
+			print "[Core agent server] - findOutEmail - Value Error - Probably there is the difference in name - capital letter"
 	
 	def countDown(self, message):
-		print "[Send Email] - %s in 3 seconds" % message
+		print "[Core agent server] - %s in 3 seconds" % message
 		self.prox_tts.say(message + " in 3 seconds")
-		print "[Send Email] - %s in 2 seconds" % message
+		print "[Core agent server] - %s in 2 seconds" % message
 		self.prox_tts.say(message + " in 2 seconds")
-		print "[Send Email] - %s in 1 seconds" % message
+		print "[Core agent server] - %s in 1 seconds" % message
 		self.prox_tts.say(message + " in 1 second")
 		# Sleeps a while (1 second)
 		time.sleep(1)
-		print "[Send Email] - GO"
+		print "[Core agent server] - GO"
 		self.prox_tts.say("GO")
 	
 	# Record an email message
 	def recordSound(self):
 		try:
-			print "[Send Email] - Recording an email"
+			print "[Core agent server] - Recording an email"
 			#self.countDown("Recording an email")
 						
 			#self.prox_ar.stopMicrophonesRecording()
 			
 			self.prox_ar.startMicrophonesRecording(Constants.recorded_file_dest, self.recordedExtention, self.sampleRate, self.channels )
-			print  "[Send Email] - Start Microphones Recording"
-			print  "[Send Email] - Sleeps"
+			print  "[Core agent server] - Start Microphones Recording"
+			print  "[Core agent server] - Sleeps"
 			# Waiting recordingTime - it means that the message is being recorded recordingTime (seconds)
 			time.sleep(self.recordingTime)
 			# Recording stops and the file is being closed after recordingTime
 			self.prox_ar.stopMicrophonesRecording()
-			print "[Send Email] - Recording stops"
+			print "[Core agent server] - Recording stops"
 			#self.prox_tts.say("Recording stops")
 
 		except Exception, e:
-			print "[Send Email] - Error during recording an message"
-			print "[Send Email] - Error: %s" % str(e)
+			print "[Core agent server] - Error during recording an message"
+			print "[Core agent server] - Error: %s" % str(e)
 			self.prox_ar.stopMicrophonesRecording()
 			
 	#########################
@@ -328,13 +328,13 @@ class EmailRecognitionModule(ALModule):
 	#########################
 		
 	def handle_rapp_say(self,req):
-		print "[Email server receives]: \t%s\n[Email server returns]: \t%s" % (req.request, "Said: %s"% req.request)
+		print "[Core agent server receives]: \t%s\n[Core agent server returns]: \t%s" % (req.request, "Said: %s"% req.request)
 		#self.prox_tts.say("Nao says : %s"% req.request)
 		self.prox_tts.say(req.request)
 		return SayResponse(1)
 		
 	def handle_rapp_get_email_address(self, req):
-		print "[Email server] - receives path to dictionary \t%s" % req.pathToDictionary
+		print "[Core agent server] - receives path to dictionary \t%s" % req.pathToDictionary
 		
 		self.pathToDictionary = req.pathToDictionary
 		self.isEmailFound  = False
@@ -343,29 +343,29 @@ class EmailRecognitionModule(ALModule):
 		self.functionName = "onSoundDetected"
 		
 		try:
-			print "[Email server] - Subscribing events"
+			print "[Core agent server] - Subscribing events"
 			self.subscribe()
 			while self.isEmailFound == False and self.stopListening == False:
-				print "[Email server] - An email address was not found!"
-				print "[Email server] - Say a special word from database!"
+				print "[Core agent server] - An email address was not found!"
+				print "[Core agent server] - Say a special word from database!"
 				time.sleep(4)
-						
-			print "[Email Email] - Unsubscribing events"
+				self.stopListening=True
+			print "[Core agent server] - Unsubscribing events"
 			self.unsubscribe()
 			
 		except AttributeError, ex:
-			print "[Email server] - Exception AtrributeError = %s" % str(ex)
+			print "[Core agent server] - Exception AtrributeError = %s" % str(ex)
 		except Exception, ex:
-			print "[Email server] - Unnamed exception = %s" % str(ex)
+			print "[Core agent server] - Unnamed exception = %s" % str(ex)
 		
-		print "[Email server] - returns email address: \t %s" % self.email_address
+		print "[Core agent server] - returns email address: \t %s" % self.email_address
 		
 		if self.isEmailFound == True:
 			isFound =1
 		return GetEmailAddressResponse(self.email_address, isFound)
 	
 	def handle_rapp_record(self,req):
-		print "[Email server]: - Nao records %d [s]" %req.recordingTime
+		print "[Core agent server]: - Nao records %d [s]" %req.recordingTime
 		self.recordingTime = req.recordingTime
 		#self.prox_tts.say("Nao records : ")
 		self.recordSound()
@@ -373,36 +373,37 @@ class EmailRecognitionModule(ALModule):
 		return RecordResponse(reponse)
 		
 	def handle_rapp_get_recognized_word(self,req):
-		print "[Email server]: - Nao recognizes a word from a list:"
+		print "[Core agent server]: - Nao recognizes a word from a list:"
 		for i in req.wordsList:
-			print "[Email server module] - Database = %s" % i
+			print "[Core agent server module] - Database = %s" % i
 		self.stopListening = False
 		self.setWordDatabase(req.wordsList)
 		self.functionName = "onWordRecognized"
 		self.wordRecognized ="Empty"
 		try:
-			print "[Email server] - Subscribing events"
+			print "[Core agent server] - Subscribing events"
 			self.subscribe()
 			while self.stopListening == False:
-				print "[Email server] - Word was not recognized!"
-				print "[Email server] - Say a special word from database!"
+				print "[Core agent server] - Word was not recognized!"
+				print "[Core agent server] - Say a special word from database!"
 				time.sleep(4)
-			print "[Email Email] - Unsubscribing events"
+				self.stopListening = True
+			print "[Core agent server] - Unsubscribing events"
 			self.unsubscribe()
 			#self.prox_tts.say("Word recognized %s" % self.wordRecognized)
 			
 		except AttributeError, ex:
-			print "[Email server] - Exception AtrributeError = %s" % str(ex)
+			print "[Core agent server] - Exception AtrributeError = %s" % str(ex)
 		except Exception, ex:
-			print "[Email server] - Unnamed exception = %s" % str(ex)
+			print "[Core agent server] - Unnamed exception = %s" % str(ex)
 		
 		return RecognizeWordResponse(self.wordRecognized)
 
 
 # Testng SIGINT signal handler
 def signal_handler(signal, frame):
-	print "[Email server] - signal SIGINT caught"
-	print "[Email server] - system exits"
+	print "[Core agent server] - signal SIGINT caught"
+	print "[Core agent server] - system exits"
 	sys.exit(0)
 
 def main():
@@ -414,7 +415,7 @@ def main():
 	# alive until  the program exists
 	try:
 		signal.signal(signal.SIGINT, signal_handler)
-		print "[Email server] - Press Ctrl + C to exit system correctly"
+		print "[Core agent server] - Press Ctrl + C to exit system correctly"
 		
 		myBroker = ALBroker("myBroker", "0.0.0.0", 0, Constants.NAO_IP,Constants.PORT)
 		global EmailRecognition
@@ -422,19 +423,19 @@ def main():
 		rospy.spin()
 	
 	except AttributeError:
-		print "[Email server] - EmailRecognition - AttributeError"
+		print "[Core agent server] - AttributeError"
 		EmailRecognition.unsubscribe()
 		myBroker.shutdown()
 		sys.exit(0)
 		
 	except (KeyboardInterrupt, SystemExit):
-		print "[Email server] - SystemExit Exception caught"
+		print "[Core agent server] - SystemExit Exception caught"
 		EmailRecognition.unsubscribe()
 		myBroker.shutdown()
 		sys.exit(0)
 		
 	except Exception, ex:
-		print "[Email server] - Exception caught %s" % str(ex)
+		print "[Core agent server] - Exception caught %s" % str(ex)
 		EmailRecognition.unsubscribe()
 		myBroker.shutdown()
 		sys.exit(0)
