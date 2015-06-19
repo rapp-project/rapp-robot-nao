@@ -1,5 +1,5 @@
 <launch>
-
+	<rosparam command="load" file="$(find rapp_core_agent)/cfg/applications.yaml"/>
 <!-- Launching rosbridge -->
 	<include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"/>
 

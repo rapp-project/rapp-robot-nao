@@ -1,0 +1,5 @@
+applications: {
+	hello: helloworld-1.0.0.hz, 
+	email: voicemail-1.0.0.hz, 
+	exit: exit
+}

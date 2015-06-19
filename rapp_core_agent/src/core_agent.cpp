@@ -31,6 +31,7 @@
 #include <vector>
 #include <string>
 #include <signal.h>
+#include <map>
 
 
 
@@ -39,9 +40,9 @@
 // Name of the ROS topic for publishing requests.
 #define RESPONSE_TOPIC "/rapp_core_agent/store_interaction/response"
 // Name of the ROS topic for receiving status of dynamic agent
-//#define RESPONSE_STATUS_TOPIC "/rapp_core_agent/dynamic_agent/status"
-
-
+#define RESPONSE_STATUS_TOPIC "dynamic_agent_status"
+// Name of servive used to recognized word
+#define RECOGNIZEDWORD "rapp_get_recognized_word"
 
 
 class CoreAgent{
@@ -78,7 +79,6 @@ public:
 protected:
 		ros::NodeHandle nh_;
 
-
 		ros::ServiceClient client_;
 		// The server service that receives as a request a status and process id of a dynamic agent. As a response it returns an information of a currently executing dynamic agent.
 		ros::ServiceServer serverSetStatus_;
@@ -89,33 +89,40 @@ protected:
 		// PID number of dynamic agent. This value is set at the state of activation of dynamic agent.
 		// After task is finished or error occurs core agent destroys dynamic agent. 
 		int dynamicAgentPid_;
-};
 
+		// Dictionary:
+		// - key is word to be recognized e.g hello
+		// - value is a hz name for a corresponding key e.g helloword-1.0.0.hz
+		std::map<std::string, std::string> applications_;
+
+};
 
 	//Constructor of class CoreAgent
 	CoreAgent::CoreAgent(){
-		ros::service::waitForService("rapp_get_recognized_word");
-		// Create a client for the rapp_get_recognizes_word serivce
-		client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognized_word");
+
+		// Wait for service rapp_get_recognized_word
+		ros::service::waitForService(RECOGNIZEDWORD);
+
+		// Getting dictionary from rosparam server
+		nh_.getParam("applications", applications_);
 
 		// Create a client for the rapp_get_recognizes_word serivce
-		serverSetStatus_ = nh_.advertiseService("dynamic_agent_status", &CoreAgent::dynamicAgentStatusReceived, this);
+		client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>(RECOGNIZEDWORD);
+
+		// Create a client for the rapp_get_recognizes_word serivce
+		serverSetStatus_ = nh_.advertiseService(RESPONSE_STATUS_TOPIC, &CoreAgent::dynamicAgentStatusReceived, this);
 			
 		// Create a subscriber object.
 		subHopCommunication_ = nh_.subscribe(RESPONSE_TOPIC, 100, &CoreAgent::responseReceived, this);
-		
-		// Create a subscriber object to a topic RESPONSE_STATUS_TOPIC
-		//subDynamicAgentStatus_ = nh_.subscribe(RESPONSE_STATUS_TOPIC, 100, &CoreAgent::dynamicAgentStatusReceived, this);
 			
 		// Create a publisher object.
 		pub_ = nh_.advertise<std_msgs::String>(REQUEST_TOPIC, 100);
 		
 		// Send the initial request.
 		sendRequest(&pub_);
+		
 	}
 	
-	
-		
 	// Ask for the name of an application to download and publish the
 	// request to HOP, where:
 	//
@@ -127,10 +134,8 @@ protected:
 		static ros::Publisher& pub = *p;
 
 		std::string name;
-		// Entering name of package from code
-		//std::cout << "Enter the name of a RAPP application (or \'q' to quit): ";
-		//std::cin >> name;
-			
+		bool recognized=false;
+		
 		// Enter the name of package using voice command
 		do
 		{
@@ -146,12 +151,21 @@ protected:
 		else
 		{
 			std_msgs::String msg;
-			if(name == "hello")
-				name = "helloworld-1.0.0.hz";
-			else if(name == "email")
-				name = "voicemail-1.0.0.hz";
-			else
-				name = "error";
+
+			for (std::map<std::string,std::string>::iterator it=applications_.begin(); it!=applications_.end(); ++it)
+			{
+				if(name==it->first)
+				{
+					recognized=true;
+					name =it->second;
+				}
+			}
+			
+			if (!recognized){
+				std::cout<<"Word was not recognized"<<std::endl;
+				ros::shutdown();
+			}
+				
 			
 			// Publishes a message with the application name. A dynamic agent task of a given name is going tobe downloaded from Rapp Store.
 			
@@ -161,8 +175,6 @@ protected:
 		}
 	}
 
-
-	
 	const std::vector<std::basic_string <char> > getVector(std::string dictionary [], int size)
 	{
 		int i=0;
@@ -179,16 +191,25 @@ protected:
     std::string CoreAgent::GetCommand()
 	{
 		std::cout << "Get command\n";
-		std::string dictionary_ [3] ={"hello", "email", "exit"};
+		int i=0;
+		int size=applications_.size();
+
+		std::string dictionary_t [size];
+		
+		for (std::map<std::string,std::string>::iterator it=applications_.begin(); it!=applications_.end(); ++it)
+		{
+			dictionary_t[i++]=it->first;
+		}
+
 		rapp_ros_naoqi_wrappings::RecognizeWord srv;
 		
-		srv.request.wordsList=getVector(dictionary_,3);
+		srv.request.wordsList=getVector(dictionary_t,size);
 		
 		
 		if (client_.call(srv))
 		{
 			//ROS_INFO("Word recognized: %s", srv.response.recognizedWord);
-			std::cout<<srv.response.recognizedWord;
+			std::cout<<srv.response.recognizedWord<<std::endl;
 			return srv.response.recognizedWord;
 		}
 		else

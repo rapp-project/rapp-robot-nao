@@ -1,8 +1,0 @@
-<launch>
-
-  <!-- Rapp core agent nodes -->
-  
-  <node pkg="rapp_robot_agent" name="acore_email_server" type="acore_email_server.py" output="screen"/>
-
-  
-</launch>
