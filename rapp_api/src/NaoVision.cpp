@@ -48,7 +48,7 @@
 //#########################################################################
 //#########################################################################
 	// CAMERA
-	sensor_msgs::Image NaoVision::captureImage(std::string cameraId, int cameraResolution)
+	cv::Mat NaoVision::captureImage(std::string cameraId, int cameraResolution)
 	{
 		client_captureImage = n_->serviceClient<rapp_ros_naoqi_wrappings::GetImage>("rapp_capture_image");
 		rapp_ros_naoqi_wrappings::GetImage srv;
@@ -60,13 +60,23 @@
 		{
 			img = srv.response.frame;
 			std::cout << "[Rapp QR code test] - Image captured\n";
+			std::cout << "width: " << img.width << ", height: " << img.height << "\n";
 		}
 		else
 		{
 			//Failed to call service rapp_get_image
 			std::cout << "[Rapp QR code test] - Error calling service rapp_get_image\n";
 		}
-		return img;
+
+		cv_bridge::CvImagePtr cv_ptr;
+		try {
+			cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::RGB8);
+		} catch (cv_bridge::Exception e) {
+			ROS_ERROR("cv_bridge exception: %s", e.what());
+			return cv::Mat();
+		}
+
+		return cv_ptr->image.clone();
 	}
 
 	//#########################################################################

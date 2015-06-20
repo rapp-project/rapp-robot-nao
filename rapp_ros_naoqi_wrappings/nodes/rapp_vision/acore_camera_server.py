@@ -40,7 +40,6 @@ from cv_bridge import CvBridge, CvBridgeError
 
 # Global variables to store the Camera module instance and proxy to ALMemory Module
 CameraServer = None
-prox_memory = None
 
 
 # Constants
@@ -83,9 +82,9 @@ class CameraModule(ALModule):
 		print "[Camera server] - Initialization of Naoqi modules"
 		
 		print "[Camera server] - ALMemory proxy initialization"		
-		global prox_memory, prox_camera
-		prox_memory = ALProxy("ALMemory")
-		if prox_memory is None:
+		
+		self.prox_memory = ALProxy("ALMemory")
+		if self.prox_memory is None:
 			rospy.logerr("[Camera server] - Could not get a proxy to ALMemory")
 			exit(1)
 		print "[Camera server] - ALVideoDevice proxy initialization"
@@ -152,16 +151,16 @@ class CameraModule(ALModule):
 
 
 			## Subscribe to the camera
-			self.nameId = prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
+			self.nameId = self.prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
 			##
 			#----
 			
 			# Capture image from selected camera
-			self.naoImage = prox_camera.getImageRemote(self.nameId)
+			self.naoImage = self.prox_camera.getImageRemote(self.nameId)
 			
 			while self.naoImage[6]==None:
 				print "-EMPTY-"
-				self.naoImage = prox_camera.getImageRemote(self.nameId) # for avoidance of the black image (empty frame)
+				self.naoImage = self.prox_camera.getImageRemote(self.nameId) # for avoidance of the black image (empty frame)
 
 			if self.naoImage[6]!=None:
 				self.frame_img=Image.fromstring("RGB", (self.naoImage[0], self.naoImage[1]), self.naoImage[6]) ## tuple
@@ -169,7 +168,7 @@ class CameraModule(ALModule):
 				#self.frame_img= cv2.cv.fromarray(self.frame_img[:,:])##from numpy array to CvMat
 				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"rgb8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
 				#self.cv_image = self.bridge.imgmsg_to_cv2(self.image_message,"rgb8")
-				prox_camera.unsubscribe(self.nameId);
+				self.prox_camera.unsubscribe(self.nameId);
 		except AttributeError, ex:
 			print "[Camera server] - Exception AtrributeError = %s" % str(ex)
 		except Exception, ex:
@@ -187,7 +186,7 @@ class CameraModule(ALModule):
 			#self.nameId = prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
 
 			#isSet = prox_camera.setParam(req.cameraParameterId, req.newValue)
-			isSet = prox_camera.setParameter(req.cameraId, req.cameraParameterId, req.newValue) #Modifies camera internal parameter.
+			isSet = self.prox_camera.setParameter(req.cameraId, req.cameraParameterId, req.newValue) #Modifies camera internal parameter.
 
 			#isSet = prox_camera.setCameraParameter(const std::string& Handle, const int& Id, const int& NewValue) #Sets the value of a specific parameter for the module current active camera. 	Parameters:	Handle – Handle to identify the subscriber. Id – Id of the camera parameter (see Camera parameters). NewValue – New value to set.
 
