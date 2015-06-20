@@ -48,6 +48,7 @@ class NaoVision {
 
 public:
 	NaoVision (int argc, char **argv);
+	~NaoVision();
 	ros::ServiceClient client_captureImage;
 	ros::ServiceClient client_setCameraParam;
 	ros::ServiceClient client_getTransform;

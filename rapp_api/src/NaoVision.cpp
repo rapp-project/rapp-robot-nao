@@ -45,34 +45,41 @@
 
 	}
 
-//#########################################################################
-//#########################################################################
-	// CAMERA
-	cv::Mat NaoVision::captureImage(std::string cameraId, int cameraResolution)
-	{
-		client_captureImage = n_->serviceClient<rapp_ros_naoqi_wrappings::GetImage>("rapp_capture_image");
+	NaoVision::~NaoVision() {
+		delete n_;
+	}
+
+	//#########################################################################
+	//#########################################################################
+	cv::Mat NaoVision::captureImage(std::string cameraId, int cameraResolution) {
+		if (!client_captureImage) {
+			ROS_DEBUG("Invalid service client, creating new one...");
+			double secs = ros::Time::now().toSec();
+			client_captureImage = n_->serviceClient<rapp_ros_naoqi_wrappings::GetImage>("rapp_capture_image", true);
+			double sec2 = ros::Time::now().toSec();
+			ROS_DEBUG("Creating service client took %lf seconds", sec2-secs);
+		} else {
+			ROS_DEBUG("Service client valid.");
+		}
+
 		rapp_ros_naoqi_wrappings::GetImage srv;
 		srv.request.request = cameraId;
 		srv.request.resolution = cameraResolution;
 		sensor_msgs::Image img;
 				
-		if (client_captureImage.call(srv))
-		{
+		if (client_captureImage.call(srv)) {
 			img = srv.response.frame;
-			std::cout << "[Rapp QR code test] - Image captured\n";
-			std::cout << "width: " << img.width << ", height: " << img.height << "\n";
-		}
-		else
-		{
+			ROS_INFO("[NaoVision] - Image captured");
+		} else {
 			//Failed to call service rapp_get_image
-			std::cout << "[Rapp QR code test] - Error calling service rapp_get_image\n";
+			ROS_ERROR("[NaoVision] - Error calling service rapp_get_image");
 		}
 
 		cv_bridge::CvImagePtr cv_ptr;
 		try {
 			cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
 		} catch (cv_bridge::Exception e) {
-			ROS_ERROR("cv_bridge exception: %s", e.what());
+			ROS_ERROR("[NaoVision] cv_bridge exception: %s", e.what());
 			return cv::Mat();
 		}
 
