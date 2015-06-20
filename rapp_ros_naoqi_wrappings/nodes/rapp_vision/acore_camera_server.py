@@ -59,7 +59,7 @@ class CameraModule(ALModule):
 	def __init__(self,name):
 		ALModule.__init__(self,name)
 		
-		print "[Camera server] - Acore Camera Server initialization"
+		rospy.loginfo("[Camera server] - Acore Camera Server initialization")
 		
 		# Initialization of ROS node
 		rospy.init_node('acore_camera_server')
@@ -73,21 +73,21 @@ class CameraModule(ALModule):
 		#self.setVariables()
 		self.openServices()
 		
-		print "[Camera server] - Waits for clients ..."
+		rospy.loginfo("[Camera server] - Waiting for clients ...")
 		
 		
 	
 	# Initialization of Naoqi modules
 	def initALModule(self):
-		print "[Camera server] - Initialization of Naoqi modules"
-		
-		print "[Camera server] - ALMemory proxy initialization"		
+		rospy.loginfo("[Camera server] - Initialization of Naoqi modules")
+		rospy.loginfo("[Camera server] - ALMemory proxy initialization")
 		
 		self.prox_memory = ALProxy("ALMemory")
 		if self.prox_memory is None:
 			rospy.logerr("[Camera server] - Could not get a proxy to ALMemory")
 			exit(1)
-		print "[Camera server] - ALVideoDevice proxy initialization"
+
+		rospy.loginfo("[Camera server] - ALVideoDevice proxy initialization")
 		self.prox_camera = ALProxy("ALVideoDevice")
 		if self.prox_camera is None:
 			rospy.logerr("[Camera server] - Could not get a proxy to ALVideoDevice")
@@ -103,31 +103,27 @@ class CameraModule(ALModule):
 	# Initialization of ROS services
 	def openServices(self):
 		try:
-			print "[Camera server] - setting services"
-			print "[Camera server] - service - [rapp_capture_image]"
+			rospy.loginfo("[Camera server] - setting services")
+			rospy.loginfo("[Camera server] - service - [rapp_capture_image]")
 			self.service_rdqr = rospy.Service('rapp_capture_image', GetImage, self.handle_rapp_capture_image)
 			self.service_rscp = rospy.Service('rapp_set_camera_parameter', SetCameraParam, self.handle_rapp_set_camera_parameter)
 		except Exception, ex:
-			print "[Camera server] - Exception (services) %s" % str(ex)
+			rospy.logerr("[Camera server] - Exception (services) %s", str(ex))
 
 		
 	#######################################
-	
 	# Core functionality methods 
-	
 	#######################################
 	
 	
 	#########################
-	
 	# Handling methods - methods that used handling services
-	
 	#########################
 		
 	def handle_rapp_capture_image(self,req):
-		print "[Camera server receives]: \t%s\t ;resolution:%d" % (req.request,req.resolution)
-		# Get Frame from Camera
+		rospy.loginfo("[Camera server receives]: camera: %s resolution: %d", req.request, req.resolution)
 		
+		# Get Frame from Camera
 		try:
 			#Modifying camera parameters
 			#kCameraSelectID = 18
@@ -135,7 +131,7 @@ class CameraModule(ALModule):
 			#kCameraResolutionID = 14
 			
 			## Changes camera parameters
-			if (req.resolution in [0,1,2,3]):#req.resolution==2 or req.resolution==1 or req.resolution==0 or req.resolution==3):#req.resolution in [0,1,2,3]:
+			if (req.resolution in [0,1,2,3]):
 				self.resolution = req.resolution;
 				self.colorSpace = 13;	## kBGRColorSpace
 				self.fps = 29;# maximum value for the highest camera resolution
@@ -166,7 +162,7 @@ class CameraModule(ALModule):
 				self.frame_img=Image.fromstring("RGB", (self.naoImage[0], self.naoImage[1]), self.naoImage[6]) ## tuple
 				self.frame_img= np.array(self.frame_img)##For NAO #conversion from tuple to numpy array
 				#self.frame_img= cv2.cv.fromarray(self.frame_img[:,:])##from numpy array to CvMat
-				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"rgb8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
+				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"bgr8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
 				#self.cv_image = self.bridge.imgmsg_to_cv2(self.image_message,"rgb8")
 				self.prox_camera.unsubscribe(self.nameId);
 		except AttributeError, ex:
