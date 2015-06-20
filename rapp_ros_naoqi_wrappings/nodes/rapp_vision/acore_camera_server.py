@@ -165,12 +165,14 @@ class CameraModule(ALModule):
 				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"bgr8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
 				#self.cv_image = self.bridge.imgmsg_to_cv2(self.image_message,"rgb8")
 				self.prox_camera.unsubscribe(self.nameId);
+				return self.image_message
+
 		except AttributeError, ex:
 			print "[Camera server] - Exception AtrributeError = %s" % str(ex)
 		except Exception, ex:
 			print "[Camera server] - Unnamed exception = %s" % str(ex)
 
-		return self.image_message
+		return None
 	
 	#########################
 
