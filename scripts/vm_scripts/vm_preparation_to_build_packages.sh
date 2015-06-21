@@ -22,6 +22,7 @@ VM_SCRIPTS="/home/nao/scripts"
 
 VM_FLAG="/home/nao/ws_rapp_nao/src/rapp-robot-nao"
 
+
 if [ "$#" -ne 1 ]; then
 	echo -e "$COL_RED[Error]$COL_RESET - Usage: $COL_GREEN$0 <flag>$COL_RESET"
 	echo "flag = 0 - create structure of folders and copy files from downloaded repositories"
@@ -72,6 +73,13 @@ if [ $1 -eq 1 ]; then #clone from github
 	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
 	git clone -b master https://github.com/rapp-project/rapp-applications.git
 fi
+
+cd $GIT_WS_RAPP_NAO_DIR
+GIT_STATUS_1=`git status`
+cd $GIT_WS_RAPP_APPLICATIONS_DIR
+GIT_STATUS_2=`git status`
+echo "Status of git repository https://github.com/rapp-project/rapp-robot-nao.git is $GIT_STATUS_1"
+echo "Status of git repository https://github.com/rapp-project/rapp-applications.git is $GIT_STATUS_2"
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Copying dynamic agent packages to $WS_RAPP_APPLICATIONS_NAO_DIR directory"
 cp -r $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src $WS_RAPP_APPLICATIONS_NAO_DIR
