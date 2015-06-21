@@ -12,7 +12,7 @@ using namespace std;
 class DAInit {
 
 private: 
-	// Core agent sends as a response a status of dynamic agent
+	// Core agent sends as a response a status of core agent
 	string ca_status;
 public:
 	~DAInit();
