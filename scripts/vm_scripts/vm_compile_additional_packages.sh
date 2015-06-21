@@ -85,7 +85,7 @@ tar zxvf yaml-cpp_0.5.1.orig.tar.gz
 cd yaml-cpp-0.5.1
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED 
 make install
 
 cd $ROS_ADDITIONAL_PACKAGES_SRC_DIR
@@ -115,7 +115,7 @@ wget ftp://ftp.gnu.org/gnu/gsasl/libgsasl-1.8.0.tar.gz
 tar zxvf libgsasl-1.8.0.tar.gz
 cd libgsasl-1.8.0
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
-make
+make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - gsasl make failed with $?"; exit 1; }
 make install
 make clean
 
@@ -126,12 +126,9 @@ wget http://sourceforge.net/projects/vmime/files/vmime/0.9/libvmime-0.9.1.tar.bz
 tar -xjf libvmime-0.9.1.tar.bz2
 cd libvmime-0.9.1
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED CPPFLAGS='-I/home/nao/ws_ros_additional_packages/install_isolated/include' LDFLAGS='-L/home/nao/ws_ros_additional_packages/install_isolated/lib'
-make
+make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - vmime make failed with $?"; exit 1; }
 make install
 make clean
-
-echo -e "$COL_GREEN[OK]$COL_BLUE - $1 $COL_RESET - Installing hop and bigloo"
-bash /home/nao/scripts/nao_scripts/nao_install_hop.sh
 
 # Sourcing ws_ros_additional_packages workspace
 source $ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash
@@ -144,7 +141,7 @@ wget https://www.openssl.org/source/openssl-1.0.2c.tar.gz
 tar zxvf openssl-1.0.2c.tar.gz
 cd openssl-1.0.2c
 ./config --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --openssldir=$ROS_ADDITIONAL_PACKAGES_ISOLATED/openssl
-make
+make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - openssl make failed with $?"; exit 1; }
 sudo make install
 make clean
 
@@ -159,7 +156,7 @@ wget ftp://ftp-sop.inria.fr/indes/rapp/hop/2015-05-07/bigloo4.2a.tar.gz
 tar zxvf bigloo4.2a.tar.gz
 cd bigloo4.2a
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
-make
+make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - bigloo make failed with $?"; exit 1; }
 sudo make install
 make clean
 
@@ -170,6 +167,6 @@ wget ftp://ftp-sop.inria.fr/indes/rapp/hop/2015-05-07/hop-3.0.0-pre14.tar.gz
 tar zxvf hop-3.0.0-pre14.tar.gz
 cd hop-3.0.0-pre14
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
-make
+make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
 sudo make install
 make clean
