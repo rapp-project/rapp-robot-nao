@@ -48,6 +48,7 @@ class NaoVision {
 
 public:
 	NaoVision (int argc, char **argv);
+	~NaoVision();
 	ros::ServiceClient client_captureImage;
 	ros::ServiceClient client_setCameraParam;
 	ros::ServiceClient client_getTransform;
@@ -71,7 +72,8 @@ public:
 	std::string currentQRcodeCamera;
 
 	void init(int argc, char **argv);
-	sensor_msgs::Image captureImage(std::string cameraId, int cameraResolution);	 // For frame capture from selected camera; with the desired camera resolution: 3->4VGA,2->VGA,1->QVGA
+
+	cv::Mat captureImage(std::string cameraId, int cameraResolution);	 // For frame capture from selected camera; with the desired camera resolution: 3->4VGA,2->VGA,1->QVGA
     /*
     ##############################################################################
     PUBLISHING image to topic - add this function to the target library NaoVision

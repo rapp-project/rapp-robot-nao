@@ -30,9 +30,9 @@ catkin_package(
 )
 
 include_directories(
+  include 
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
-  include
 )
 
 #add_library(NaoNavigation SHARED src/NaoNavigation.cpp)

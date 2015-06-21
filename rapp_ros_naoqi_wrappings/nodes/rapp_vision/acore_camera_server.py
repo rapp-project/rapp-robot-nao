@@ -40,7 +40,6 @@ from cv_bridge import CvBridge, CvBridgeError
 
 # Global variables to store the Camera module instance and proxy to ALMemory Module
 CameraServer = None
-prox_memory = None
 
 
 # Constants
@@ -60,7 +59,7 @@ class CameraModule(ALModule):
 	def __init__(self,name):
 		ALModule.__init__(self,name)
 		
-		print "[Camera server] - Acore Camera Server initialization"
+		rospy.loginfo("[Camera server] - Acore Camera Server initialization")
 		
 		# Initialization of ROS node
 		rospy.init_node('acore_camera_server')
@@ -74,21 +73,21 @@ class CameraModule(ALModule):
 		#self.setVariables()
 		self.openServices()
 		
-		print "[Camera server] - Waits for clients ..."
+		rospy.loginfo("[Camera server] - Waiting for clients ...")
 		
 		
 	
 	# Initialization of Naoqi modules
 	def initALModule(self):
-		print "[Camera server] - Initialization of Naoqi modules"
+		rospy.loginfo("[Camera server] - Initialization of Naoqi modules")
+		rospy.loginfo("[Camera server] - ALMemory proxy initialization")
 		
-		print "[Camera server] - ALMemory proxy initialization"		
-		global prox_memory, prox_camera
-		prox_memory = ALProxy("ALMemory")
-		if prox_memory is None:
+		self.prox_memory = ALProxy("ALMemory")
+		if self.prox_memory is None:
 			rospy.logerr("[Camera server] - Could not get a proxy to ALMemory")
 			exit(1)
-		print "[Camera server] - ALVideoDevice proxy initialization"
+
+		rospy.loginfo("[Camera server] - ALVideoDevice proxy initialization")
 		self.prox_camera = ALProxy("ALVideoDevice")
 		if self.prox_camera is None:
 			rospy.logerr("[Camera server] - Could not get a proxy to ALVideoDevice")
@@ -104,31 +103,27 @@ class CameraModule(ALModule):
 	# Initialization of ROS services
 	def openServices(self):
 		try:
-			print "[Camera server] - setting services"
-			print "[Camera server] - service - [rapp_capture_image]"
+			rospy.loginfo("[Camera server] - setting services")
+			rospy.loginfo("[Camera server] - service - [rapp_capture_image]")
 			self.service_rdqr = rospy.Service('rapp_capture_image', GetImage, self.handle_rapp_capture_image)
 			self.service_rscp = rospy.Service('rapp_set_camera_parameter', SetCameraParam, self.handle_rapp_set_camera_parameter)
 		except Exception, ex:
-			print "[Camera server] - Exception (services) %s" % str(ex)
+			rospy.logerr("[Camera server] - Exception (services) %s", str(ex))
 
 		
 	#######################################
-	
 	# Core functionality methods 
-	
 	#######################################
 	
 	
 	#########################
-	
 	# Handling methods - methods that used handling services
-	
 	#########################
 		
 	def handle_rapp_capture_image(self,req):
-		print "[Camera server receives]: \t%s\t ;resolution:%d" % (req.request,req.resolution)
-		# Get Frame from Camera
+		rospy.loginfo("[Camera server receives]: camera: %s resolution: %d", req.request, req.resolution)
 		
+		# Get Frame from Camera
 		try:
 			#Modifying camera parameters
 			#kCameraSelectID = 18
@@ -136,7 +131,7 @@ class CameraModule(ALModule):
 			#kCameraResolutionID = 14
 			
 			## Changes camera parameters
-			if (req.resolution in [0,1,2,3]):#req.resolution==2 or req.resolution==1 or req.resolution==0 or req.resolution==3):#req.resolution in [0,1,2,3]:
+			if (req.resolution in [0,1,2,3]):
 				self.resolution = req.resolution;
 				self.colorSpace = 13;	## kBGRColorSpace
 				self.fps = 29;# maximum value for the highest camera resolution
@@ -152,30 +147,32 @@ class CameraModule(ALModule):
 
 
 			## Subscribe to the camera
-			self.nameId = prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
+			self.nameId = self.prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
 			##
 			#----
 			
 			# Capture image from selected camera
-			self.naoImage = prox_camera.getImageRemote(self.nameId)
+			self.naoImage = self.prox_camera.getImageRemote(self.nameId)
 			
 			while self.naoImage[6]==None:
 				print "-EMPTY-"
-				self.naoImage = prox_camera.getImageRemote(self.nameId) # for avoidance of the black image (empty frame)
+				self.naoImage = self.prox_camera.getImageRemote(self.nameId) # for avoidance of the black image (empty frame)
 
 			if self.naoImage[6]!=None:
 				self.frame_img=Image.fromstring("RGB", (self.naoImage[0], self.naoImage[1]), self.naoImage[6]) ## tuple
 				self.frame_img= np.array(self.frame_img)##For NAO #conversion from tuple to numpy array
 				#self.frame_img= cv2.cv.fromarray(self.frame_img[:,:])##from numpy array to CvMat
-				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"rgb8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
+				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"bgr8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
 				#self.cv_image = self.bridge.imgmsg_to_cv2(self.image_message,"rgb8")
-				prox_camera.unsubscribe(self.nameId);
+				self.prox_camera.unsubscribe(self.nameId);
+				return self.image_message
+
 		except AttributeError, ex:
 			print "[Camera server] - Exception AtrributeError = %s" % str(ex)
 		except Exception, ex:
 			print "[Camera server] - Unnamed exception = %s" % str(ex)
 
-		return self.image_message
+		return None
 	
 	#########################
 
@@ -187,7 +184,7 @@ class CameraModule(ALModule):
 			#self.nameId = prox_camera.subscribeCamera("pythonCameraID",self.selectedCamera, self.resolution, self.colorSpace, self.fps);
 
 			#isSet = prox_camera.setParam(req.cameraParameterId, req.newValue)
-			isSet = prox_camera.setParameter(req.cameraId, req.cameraParameterId, req.newValue) #Modifies camera internal parameter.
+			isSet = self.prox_camera.setParameter(req.cameraId, req.cameraParameterId, req.newValue) #Modifies camera internal parameter.
 
 			#isSet = prox_camera.setCameraParameter(const std::string& Handle, const int& Id, const int& NewValue) #Sets the value of a specific parameter for the module current active camera. 	Parameters:	Handle – Handle to identify the subscriber. Id – Id of the camera parameter (see Camera parameters). NewValue – New value to set.
 
