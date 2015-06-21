@@ -28,7 +28,10 @@ WS_RAPP_APPLICATIONS_NAO_DIR="/home/nao/ws_rapp_applications_nao"
 
 
 cd $WS_RAPP_NAO_DIR/src
-$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+if [ ! -f $WS_RAPP_NAO_DIR/src/CMakeLists.txt ] then
+	$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+fi
+
 cd $WS_RAPP_NAO_DIR
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
@@ -38,7 +41,9 @@ catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
 
 
 cd $WS_RAPP_APPLICATIONS_NAO_DIR/src
-$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+if [ ! -f $WS_RAPP_APPLICATIONS_NAO_DIR/src/CMakeLists.txt ] then
+	$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+fi
 cd $WS_RAPP_APPLICATIONS_NAO_DIR
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_RAPP_NAO_ISOLATED"
