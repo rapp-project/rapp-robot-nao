@@ -28,7 +28,7 @@ WS_RAPP_APPLICATIONS_NAO_DIR="/home/nao/ws_rapp_applications_nao"
 
 
 cd $WS_RAPP_NAO_DIR/src
-if [ ! -f $WS_RAPP_NAO_DIR/src/CMakeLists.txt ] then
+if [ ! -f $WS_RAPP_NAO_DIR/src/CMakeLists.txt ]; then
 	$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
 fi
 
@@ -41,7 +41,7 @@ catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release || { echo -e >&2 "$COL
 
 
 cd $WS_RAPP_APPLICATIONS_NAO_DIR/src
-if [ ! -f $WS_RAPP_APPLICATIONS_NAO_DIR/src/CMakeLists.txt ] then
+if [ ! -f $WS_RAPP_APPLICATIONS_NAO_DIR/src/CMakeLists.txt ]; then
 	$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
 fi
 cd $WS_RAPP_APPLICATIONS_NAO_DIR
