@@ -66,20 +66,15 @@ if [ $1 -eq 1 ]; then #clone from github
 	cd $GIT_WS_RAPP_NAO_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
 	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-	git clone -b master https://github.com/rapp-project/rapp-robot-nao.git
+	git clone -b master https://github.com/rapp-project/rapp-robot-nao.git || { echo >&2 "failed with $?"; exit 1; }
 	
 	cd $GIT_WS_RAPP_APPLICATIONS_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
 	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-	git clone -b master https://github.com/rapp-project/rapp-applications.git
+	git clone -b master https://github.com/rapp-project/rapp-applications.git || { echo >&2 "failed with $?"; exit 1; }
 fi
 
-cd $GIT_WS_RAPP_NAO_DIR
-GIT_STATUS_1=`git status`
-cd $GIT_WS_RAPP_APPLICATIONS_DIR
-GIT_STATUS_2=`git status`
-echo "Status of git repository https://github.com/rapp-project/rapp-robot-nao.git is $GIT_STATUS_1"
-echo "Status of git repository https://github.com/rapp-project/rapp-applications.git is $GIT_STATUS_2"
+# 
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Copying dynamic agent packages to $WS_RAPP_APPLICATIONS_NAO_DIR directory"
 cp -r $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src $WS_RAPP_APPLICATIONS_NAO_DIR
