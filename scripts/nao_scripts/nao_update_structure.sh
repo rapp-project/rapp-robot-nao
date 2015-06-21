@@ -14,14 +14,20 @@ if [ "$#" -ne 1 ]; then
 	exit 1
 fi
 
-#cd /home/nao/ws_ros
+echo -e "$COL_GREEN[Ok]$COL_RESET - Synchronization of ws_ros"
+cd /home/nao/ws_ros
 rsync -avz nao@$1:/home/nao/ws_ros/ .
 
-#cd /home/nao/ws_ros_additional_packages
+echo -e "$COL_GREEN[Ok]$COL_RESET - Synchronization of ws_ros_additional_packages"
+cd /home/nao/ws_ros_additional_packages
 rsync -avz nao@$1:/home/nao/ws_ros_additional_packages/ .
 
-#cd /home/nao/ws_rapp_nao
+echo -e "$COL_GREEN[Ok]$COL_RESET - Synchronization of ws_rapp_nao"
+cd /home/nao/ws_rapp_nao
 rsync -avz nao@$1:/home/nao/ws_rapp_nao/ .
 
-#cd /home/nao/scripts/nao_scripts
+echo -e "$COL_GREEN[Ok]$COL_RESET - Synchronization of nao_scripts"
+cd /home/nao/scripts/nao_scripts
 rsync -avz nao@$1:/home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/nao_scripts/ .
+
+
