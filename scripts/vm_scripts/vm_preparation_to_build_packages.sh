@@ -66,12 +66,12 @@ if [ $1 -eq 1 ]; then #clone from github
 	cd $GIT_WS_RAPP_NAO_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
 	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-	git clone -b master https://github.com/rapp-project/rapp-robot-nao.git || { echo >&2 "failed with $?"; exit 1; }
+	git clone -b master https://github.com/rapp-project/rapp-robot-nao.git || { echo >&2 "git clone failed with $?"; exit 1; }
 	
 	cd $GIT_WS_RAPP_APPLICATIONS_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
 	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-	git clone -b master https://github.com/rapp-project/rapp-applications.git || { echo >&2 "failed with $?"; exit 1; }
+	git clone -b master https://github.com/rapp-project/rapp-applications.git || { echo >&2 "git clone failed with $?"; exit 1; }
 fi
 
 # 
