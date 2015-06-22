@@ -60,7 +60,7 @@ public:
 	// p - a pointer to the ROS publisher object; must be a non-NULL
 	//     on the first call to the function and is ignored on the
 	//     subsequent calls.
-	void sendRequest(ros::Publisher *p );
+	void sendRequest();
 
 	// Gets commands
 	std::string GetCommand();
@@ -95,6 +95,9 @@ protected:
 	// - value is a hz name for a corresponding key e.g helloword-1.0.0.hz
 	std::map<std::string, std::string> applications_;
 
+	// list of words for recognition system
+	std::vector<std::string> words_;
+
 };
 
 //Constructor of class CoreAgent
@@ -105,6 +108,9 @@ CoreAgent::CoreAgent() {
 
 	// Getting dictionary from rosparam server
 	nh_.getParam("applications", applications_);
+	for (std::map<std::string,std::string>::iterator it=applications_.begin(); it!=applications_.end(); ++it) {
+		words_.push_back(it->first);
+	}
 
 	// Create a client for the rapp_get_recognizes_word serivce
 	client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>(RECOGNIZEDWORD);
@@ -119,7 +125,7 @@ CoreAgent::CoreAgent() {
 	pub_ = nh_.advertise<std_msgs::String>(REQUEST_TOPIC, 100);
 
 	// Send the initial request.
-	sendRequest(&pub_);
+	sendRequest();
 
 }
 
@@ -129,9 +135,7 @@ CoreAgent::CoreAgent() {
 // p - a pointer to the ROS publisher object; must be a non-NULL
 //     on the first call to the function and is ignored on the
 //     subsequent calls.
-void CoreAgent::sendRequest(ros::Publisher *p = NULL) {
-	static ros::Publisher& pub = *p;
-
+void CoreAgent::sendRequest() {
 	std::string name;
 	bool recognized=false;
 
@@ -162,20 +166,9 @@ void CoreAgent::sendRequest(ros::Publisher *p = NULL) {
 		// Publishes a message with the application name. A dynamic agent task of a given name is going tobe downloaded from Rapp Store.
 
 		msg.data = name;
-		pub.publish(msg);
+		pub_.publish(msg);
 		std::cout << "Downloading...\n";
 	}
-}
-
-const std::vector<std::basic_string <char> > getVector(std::string dictionary [], int size) {
-	int i=0;
-	std::vector<std::basic_string<char> > tab;
-	for (i=0; i<size; i++) {
-		tab.push_back(dictionary[i].c_str());
-		std::cout<<tab[i]<<std::endl;
-	}
-
-	return tab;
 }
 
 // Gets commands
@@ -184,15 +177,8 @@ std::string CoreAgent::GetCommand() {
 	int i=0;
 	int size=applications_.size();
 
-	std::string dictionary_t [size];
-
-	for (std::map<std::string,std::string>::iterator it=applications_.begin(); it!=applications_.end(); ++it) {
-		dictionary_t[i++]=it->first;
-	}
-
 	rapp_ros_naoqi_wrappings::RecognizeWord srv;
-
-	srv.request.wordsList=getVector(dictionary_t,size);
+	srv.request.wordsList=words_;
 
 
 	if (client_.call(srv)) {
