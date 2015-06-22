@@ -47,6 +47,22 @@
 
 class CoreAgent {
 
+enum State {
+	Init,
+	Register,
+	Listen,
+	Interpret,
+	Inform,
+	Unregister,
+	Finish,
+	LoadDA,
+	WaitForDAPackage,
+	ActivateDA,
+	DestroyDA,
+	WaitForDACommand,
+	ExecuteDACommand
+};
+
 public:
 	//Constructor of class CoreAgent
 	CoreAgent();
@@ -54,17 +70,21 @@ public:
 	//Destructor of CoreAgent class
 	~CoreAgent() {}
 
-	// Ask for the name of an application to download and publish the
-	// request to HOP, where:
-	//
-	// p - a pointer to the ROS publisher object; must be a non-NULL
-	//     on the first call to the function and is ignored on the
-	//     subsequent calls.
-	void sendRequest();
+	bool state_init();
+	bool state_register();
+	bool state_listen();
+	bool state_interpret();
+	bool state_inform();
+	bool state_unregister();
+	bool state_finish();
+	bool state_load_dynamic();
+	bool state_wait_for_dynamic();
+	bool state_activate_dynamic();
+	bool state_destroy_dynamic();
+	bool state_wait_for_dynamic_command();
+	bool state_execute_dynamic_command();
 
-	// Gets commands
-	std::string GetCommand();
-
+	bool run();
 
 	// Runs the script which launches dynamic agent
 	void runScript(std::string path);
@@ -98,11 +118,67 @@ protected:
 	// list of words for recognition system
 	std::vector<std::string> words_;
 
+	State next_state;
+
+	bool finished;
+	std::string recognized_word;
+	std::string app_name;
+	std::string app_path;
 };
 
 //Constructor of class CoreAgent
 CoreAgent::CoreAgent() {
+	next_state = Init;
+	finished = false;
+}
 
+bool CoreAgent::run() {	
+	while (!finished) {
+		switch(next_state) {
+		case Init:
+			state_init();
+			break;
+		case Register:
+			state_register();
+			break;
+		case Listen:
+			state_listen();
+			break;
+		case Interpret:
+			state_interpret();
+			break;
+		case Inform:
+			state_inform();
+			break;
+		case Unregister:
+			state_unregister();
+			break;
+		case Finish:
+			state_finish();
+			break;
+		case LoadDA:
+			state_load_dynamic();
+			break;
+		case WaitForDAPackage:
+			state_wait_for_dynamic();
+			break;
+		case ActivateDA:
+			state_activate_dynamic();
+			break;
+		case DestroyDA:
+			state_destroy_dynamic();
+			break;
+		case WaitForDACommand:
+			state_wait_for_dynamic_command();
+			break;
+		case ExecuteDACommand:
+			state_execute_dynamic_command();
+			break;
+		}
+	}
+}
+
+bool CoreAgent::state_init() {
 	// Wait for service rapp_get_recognized_word
 	ros::service::waitForService(RECOGNIZEDWORD);
 
@@ -124,73 +200,141 @@ CoreAgent::CoreAgent() {
 	// Create a publisher object.
 	pub_ = nh_.advertise<std_msgs::String>(REQUEST_TOPIC, 100);
 
-	// Send the initial request.
-	sendRequest();
+	//
+	next_state = Register;
 
+	return true;
 }
 
-// Ask for the name of an application to download and publish the
-// request to HOP, where:
-//
-// p - a pointer to the ROS publisher object; must be a non-NULL
-//     on the first call to the function and is ignored on the
-//     subsequent calls.
-void CoreAgent::sendRequest() {
-	std::string name;
-	bool recognized=false;
-
-	// Enter the name of package using voice command
-	do {
-		name=GetCommand();
-	} while(name=="Empty");
-
-	if(name == "exit") {
-		// Shut down the node.
-		ros::shutdown();
-	} else {
-		std_msgs::String msg;
-
-		for (std::map<std::string,std::string>::iterator it=applications_.begin(); it!=applications_.end(); ++it) {
-			if(name==it->first) {
-				recognized=true;
-				name =it->second;
-			}
-		}
-
-		if (!recognized) {
-			std::cout<<"Word was not recognized"<<std::endl;
-			ros::shutdown();
-		}
-
-
-		// Publishes a message with the application name. A dynamic agent task of a given name is going tobe downloaded from Rapp Store.
-
-		msg.data = name;
-		pub_.publish(msg);
-		std::cout << "Downloading...\n";
-	}
+bool CoreAgent::state_register() {
+	next_state = Listen;
+	return true;
 }
 
-// Gets commands
-std::string CoreAgent::GetCommand() {
-	std::cout << "Get command\n";
-	int i=0;
-	int size=applications_.size();
+bool CoreAgent::state_listen() {
+	ROS_INFO("State::Listen");
 
 	rapp_ros_naoqi_wrappings::RecognizeWord srv;
 	srv.request.wordsList=words_;
 
-
 	if (client_.call(srv)) {
-		//ROS_INFO("Word recognized: %s", srv.response.recognizedWord);
-		std::cout<<srv.response.recognizedWord<<std::endl;
-		return srv.response.recognizedWord;
+		recognized_word = srv.response.recognizedWord;
+		ROS_INFO("Word recognized: %s", recognized_word.c_str());
 	} else {
-		//ROS_ERROR("Failed to call service rapp_get_recognizes_word");
-		std::cout<<"Error\n";
-		return "Error";
+		ROS_ERROR("Failed to call service rapp_get_recognizes_word");
+		return false;
 	}
-	return "Error";//srv.response.recognizedWord;
+
+	if (recognized_word != "Empty") {
+		next_state = Interpret;
+	} else {
+		next_state = Listen;
+	}
+
+	return true;
+}
+
+bool CoreAgent::state_interpret() {
+	if (recognized_word == "exit") {
+		next_state = Unregister;
+	} else {
+		// check, whether application for given keyword exists
+		// note: in general, NaoQI should not recognize words 
+		if (applications_.count(recognized_word) < 1) {
+			next_state = Inform;
+			return true;
+		}
+
+		// get app name associated to detected word
+		app_name = applications_[recognized_word];
+		ROS_INFO("Requested application: %s", app_name.c_str());
+		next_state = LoadDA;
+	}
+	return true;
+}
+
+bool CoreAgent::state_inform() {
+	ROS_INFO("State::Inform");
+	next_state = Listen;
+	return true;
+}
+
+bool CoreAgent::state_unregister() {
+	ROS_INFO("State::Unregister");
+	next_state = Finish;
+	return true;
+}
+
+bool CoreAgent::state_finish() {
+	ROS_INFO("State::Finish");
+	finished = true;
+	ros::shutdown();
+	return true;
+}
+
+bool CoreAgent::state_load_dynamic() {
+	ROS_INFO("State::LoadDA");
+	
+	app_path = "X";
+	std_msgs::String msg;
+	msg.data = app_name;
+	pub_.publish(msg);
+
+	next_state = WaitForDAPackage;
+
+	return true;
+}
+
+bool CoreAgent::state_wait_for_dynamic() {
+	ROS_INFO("State::WaitForDAPackage");
+	std::string path = app_path;
+	if (path == "X") {
+		// still waiting
+		ros::Duration(0.5).sleep();
+		ROS_INFO("Downloading not implemented.");
+		next_state = Listen;
+	} else if (path == "") {
+		// download failed
+		ROS_ERROR("Download failed");
+		next_state = Inform;
+	} else {
+		// activate DA
+		next_state = ActivateDA;
+	}
+
+	return true;
+}
+
+bool CoreAgent::state_activate_dynamic() {
+	ROS_INFO("State::ActivateDA");
+	
+	// Build the path to the 'run' script of the application.
+	std::string path = app_path;
+	app_path.append("/run");
+
+	ROS_INFO("Running app...");
+	runScript(path);
+
+	next_state = WaitForDACommand;
+	return true;
+}
+
+bool CoreAgent::state_destroy_dynamic() {
+	ROS_INFO("State::DestroyDA");
+	next_state = Listen;
+	return true;
+}
+
+bool CoreAgent::state_wait_for_dynamic_command() {
+	ROS_INFO("State::WaitForDACommand");
+	next_state = DestroyDA;
+	return true;
+}
+
+bool CoreAgent::state_execute_dynamic_command() {
+	ROS_INFO("State::ExecuteDACommand");
+	next_state = WaitForDACommand;
+	return true;
 }
 
 // Runs the script which launches dynamic agent
@@ -218,28 +362,8 @@ void CoreAgent::runScript(std::string path) {
 // message from HOP arrives.
 void CoreAgent::responseReceived(const std_msgs::String& msg) {
 	// Response from HOP.
-	std::string path = msg.data;
-
-	if(path.empty()) {
-		std::cout << "\e[1m\e[31m" // bold and red font
-				  << "Failed"
-				  << "\e[0m\n"; // normal print mode
-
-		// Word spotting if package was not downloaded
-		//sendRequest();
-	} else {
-		std::cout << "\e[1m\e[31m"
-				  << "Installed in "
-				  << path << "\e[0m\n";
-
-		// Build the path to the 'run' script of the application.
-		path.append("/run");
-
-		std::cout << "Starting...\n";
-		// Run the script.
-		runScript(path);
-
-	}
+	app_path = msg.data;
+	ROS_INFO("Got sth! %s", app_path.c_str());
 }
 
 // A callback function. Executes each time a dynamic agent status arrives
@@ -256,7 +380,7 @@ bool CoreAgent::dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::
 		// todo - is it necessary?
 		// Ask for the next application's name.
 		res.ca_status="Finished";
-		sendRequest();
+		//sendRequest();
 	} else if(req.da_status == "Working") {
 		// Setting status of core and dynamic agent's connection to Working
 		res.ca_status="Working";
@@ -283,6 +407,7 @@ int main(int argc, char **argv) {
 	ros::NodeHandle nh;
 
 	CoreAgent coreAgent_;
+	coreAgent_.run();
 
 	// Let ROS take over and execute callbacks.
 	ros::spin();
