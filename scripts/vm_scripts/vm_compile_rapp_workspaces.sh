@@ -28,20 +28,25 @@ WS_RAPP_APPLICATIONS_NAO_DIR="/home/nao/ws_rapp_applications_nao"
 
 
 cd $WS_RAPP_NAO_DIR/src
-$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+if [ ! -f $WS_RAPP_NAO_DIR/src/CMakeLists.txt ]; then
+	$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+fi
+
 cd $WS_RAPP_NAO_DIR
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
-source $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash
+source $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash 
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $WS_RAPP_NAO_DIR"
-catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
+catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release || { echo -e >&2 "$COL_RED[Error]$COL_RESET - catkin_make_isolated failed with $?"; exit 1; }
 
 
 cd $WS_RAPP_APPLICATIONS_NAO_DIR/src
-$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+if [ ! -f $WS_RAPP_APPLICATIONS_NAO_DIR/src/CMakeLists.txt ]; then
+	$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+fi
 cd $WS_RAPP_APPLICATIONS_NAO_DIR
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_RAPP_NAO_ISOLATED"
 source $WS_RAPP_NAO_ISOLATED/setup.bash
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $WS_RAPP_APPLICATIONS_NAO_DIR"
-catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
+catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release || { echo -e >&2 "$COL_RED[Error]$COL_RESET - catkin_make_isolated failed with $?"; exit 1; }

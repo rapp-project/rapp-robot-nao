@@ -41,7 +41,7 @@ class Constants:
 	NAO_IP = "nao.local"
 	PORT = 9559
 	# Testing on NAO
-	recorded_file_dest="/home/nao/recordings/microphones/rapp_email.ogg"
+	recorded_file_dest="/home/nao/ws_rapp_applications_nao/nao/data/mail/sounds/rapp_email.ogg"
 
 	
 	
