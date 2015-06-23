@@ -28,25 +28,25 @@ find_package(catkin REQUIRED COMPONENTS
    #DetectQRcodes.srv
    #DetectHazardByQRcodes.srv
    GetImage.srv
-	SetCameraParam.srv
+  SetCameraParam.srv
    GetTransform.srv
    #PhotoCapture.srv
    #LearnFace.srv
    #RecognizeFaces.srv
 
 ###  MOVE & NAVIGATION SERVICES
-   #FollowMarker.srv
-   #MoveTo.srv
+   FollowMarker.srv
+   MoveTo.srv
    MoveVel.srv
    MoveHead.srv
    MoveStop.srv
-   #GetPlan.srv
-   #GetPose.srv
-   #UpdatePose.srv
-   #MoveGetCollisionStatus.srv	
-RemoveStiffness.srv	
-MoveJoint.srv	
-TakePredefinedPose.srv
+   GetPlan.srv
+   GetPose.srv
+   UpdatePose.srv
+   MoveGetCollisionStatus.srv	
+   RemoveStiffness.srv	
+   MoveJoint.srv	
+   TakePredefinedPose.srv
  )
 
  add_message_files(

@@ -1,7 +1,7 @@
 //#####################
 // written by Wojciech Dudek
 //#####################
-#include "NaoNavigation.h"
+#include "rapp_api/NaoNavigation.h"
 #include "ros/ros.h"
 #include "rapp_ros_naoqi_wrappings/MoveTo.h"
 #include "rapp_ros_naoqi_wrappings/MoveVel.h"
