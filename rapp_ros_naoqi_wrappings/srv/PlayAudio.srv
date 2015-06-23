@@ -1,0 +1,7 @@
+string file_path #Absolute path of the file
+float64 begin_position #Position in second where the playing should begin
+float64 volume #Volume requested [0.0 - 1.0]
+float64 balance_LR
+byte play_in_loop
+---
+byte success
