@@ -124,6 +124,8 @@ protected:
 	std::string recognized_word;
 	std::string app_name;
 	std::string app_path;
+	
+	int package_wait;
 };
 
 //Constructor of class CoreAgent
@@ -133,7 +135,7 @@ CoreAgent::CoreAgent() {
 }
 
 bool CoreAgent::run() {	
-	while (!finished) {
+	while ( (!finished) && (ros::ok()) ) {
 		switch(next_state) {
 		case Init:
 			state_init();
@@ -175,6 +177,8 @@ bool CoreAgent::run() {
 			state_execute_dynamic_command();
 			break;
 		}
+		
+		ros::spinOnce();
 	}
 }
 
@@ -276,6 +280,7 @@ bool CoreAgent::state_load_dynamic() {
 	ROS_INFO("State::LoadDA");
 	
 	app_path = "X";
+	package_wait = 0;
 	std_msgs::String msg;
 	msg.data = app_name;
 	pub_.publish(msg);
@@ -290,9 +295,15 @@ bool CoreAgent::state_wait_for_dynamic() {
 	std::string path = app_path;
 	if (path == "X") {
 		// still waiting
-		ros::Duration(0.5).sleep();
-		ROS_INFO("Downloading not implemented.");
-		next_state = Listen;
+		++package_wait;
+		
+		if (package_wait > 10) {
+			ROS_WARN("Waiting for package - timed out.");
+			next_state = Inform;
+		} else {		
+			ros::Duration(0.5).sleep();
+			next_state = WaitForDAPackage;
+		}
 	} else if (path == "") {
 		// download failed
 		ROS_ERROR("Download failed");
@@ -312,10 +323,11 @@ bool CoreAgent::state_activate_dynamic() {
 	std::string path = app_path;
 	app_path.append("/run");
 
-	ROS_INFO("Running app...");
-	runScript(path);
+	ROS_INFO("Running app from: %s", app_path.c_str());
+	//runScript(path);
+	next_state = Inform;
 
-	next_state = WaitForDACommand;
+	//next_state = WaitForDACommand;
 	return true;
 }
 
@@ -399,8 +411,8 @@ void sigint_signal (int param) {
 
 int main(int argc, char **argv) {
 	// SIGINT - signal handler
-	void (*prev_handler)(int);
-	prev_handler = signal (SIGINT, sigint_signal);
+/*	void (*prev_handler)(int);
+	prev_handler = signal (SIGINT, sigint_signal);*/
 
 	// Initialize the ROS system and become a node.
 	ros::init(argc, argv, "core_agent");
@@ -410,6 +422,5 @@ int main(int argc, char **argv) {
 	coreAgent_.run();
 
 	// Let ROS take over and execute callbacks.
-	ros::spin();
 	return 0;
 }

@@ -1,0 +1,6 @@
+<launch>
+	<node name="fake_store" pkg="rapp_core_agent" type="fake_store.py" output="screen">
+		<remap from="request" to="/rapp_core_agent/store_interaction/request" />
+		<remap from="response" to="/rapp_core_agent/store_interaction/response" />
+	</node>
+</launch>
