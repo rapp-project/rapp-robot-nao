@@ -22,19 +22,19 @@ VM_SCRIPTS="/home/nao/scripts"
 
 # If folder doesnt exist
 if [ ! -d $GIT_WS_RAPP_NAO_DIR ]; then
-	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_NAO_DIR - a directory."
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_NAO_DIR directory."
 	mkdir -p $GIT_WS_RAPP_NAO_DIR
 fi
 
 # If folder doesnt exist
 if [ ! -d $GIT_WS_RAPP_APPLICATIONS_DIR ]; then
-	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_APPLICATIONS_DIR - a directory."
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_APPLICATIONS_DIR directory."
 	mkdir -p $GIT_WS_RAPP_APPLICATIONS_DIR
 fi
 
 # If folder doesnt exist
 if [ ! -d $WS_RAPP_APPLICATIONS_NAO_DIR ]; then
-	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $WS_RAPP_APPLICATIONS_NAO_DIR - directory."
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $WS_RAPP_APPLICATIONS_NAO_DIR directory."
 	mkdir -p $WS_RAPP_APPLICATIONS_NAO_DIR
 fi
 
@@ -57,7 +57,7 @@ ln -s /home/nao/ws_rapp_applications/rapp-applications/nao/src/ src
 
 # If folder doesnt exist
 if [ ! -d $HZ_DIRECTORY/packages ]; then
-	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $HZ_DIRECTORY/packages - a directory."
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $HZ_DIRECTORY/packages directory."
 	mkdir -p $HZ_DIRECTORY/packages
 fi
 
@@ -76,7 +76,7 @@ chmod +x $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts/*
 echo -e "$COL_GREEN[OK]$COL_RESET - Editting ~/.bashrc file"
 echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts to PATH variable"
 export PATH=${PATH}:$GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts
-echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a PATH a path to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts  to PATH variable"
+echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a PATH a path to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts to PATH variable"
 export PATH=${PATH}:$GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts
 cd /etc/profile.d/
 /bin/cat <<EOM >"add_path.sh"
