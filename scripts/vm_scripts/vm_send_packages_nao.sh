@@ -15,48 +15,10 @@ if [ "$#" -ne 1 ]; then
 	exit 1
 fi
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Packing rapp packages /home/nao/ws_rapp/install_isolated/"
-bash /home/nao/scripts/vm_archive_workspaces.sh
+echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_ros on Nao"
+rsync -az --rsync-path="mkdir -p /home/nao/ws_ros && rsync" /home/nao/ws_ros/install_isolated nao@$1:/home/nao/ws_ros/install_isolated
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Packing scripts for Nao robot"
-cd /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/
-tar czf /home/nao/nao_scripts.tar.gz nao_scripts/
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Sending packages to nao $1:/home/nao/"
-echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
-scp /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_rapp_applications_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz nao@$1:/home/nao/
-
-echo -e "$COL_GREEN[OK]$COL_RESET - Sending scripts to nao $1:/home/nao/"
-echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
-scp /home/nao/nao_scripts.tar.gz nao@$1:/home/nao/
-
-echo -e "$COL_GREEN[OK]$COL_RESET - Sending nao data to nao $1:/home/nao/"
-echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
-scp /home/nao/nao_data.tar.gz nao@$1:/home/nao/
-
-echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz"
-rm /home/nao/ws_rapp_nao.tar.gz /home/nao/ws_ros_additional_packages.tar.gz /home/nao/ws_ros.tar.gz
-
-echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/nao_scripts.tar.gz"
-rm /home/nao/nao_scripts.tar.gz
-
-echo -e "$COL_GREEN[OK]$COL_RESET - Removing /home/nao/nao_data.tar.gz"
-rm /home/nao/nao_data.tar.gz
-
-echo -e "$COL_GREEN[OK]$COL_RESET - Connecting with $1 by ssh."
-echo -e "$COL_GREEN[OK] - Enter password for NAO [nao] $COL_RESET"
-ssh nao@$1<< EOF
-if [ ! -d $NAO_SCRIPTS ]; then #If NAO_SCRIPTS doesnt exist
-   echo -e "$COL_GREEN[OK]$COL_BLUE - $1 $COL_RESET - Creating $NAO_SCRIPTS folder"  
-   mkdir $NAO_SCRIPTS
-fi
-cd $NAO_SCRIPTS
-echo -e "$COL_GREEN[OK]$COL_BLUE - $1 $COL_RESET - Unpacking scripts for nao into /home/scripts/"
-tar xf ../nao_scripts.tar.gz
-
-bash $NAO_SCRIPTS/nao_scripts/nao_extract_workspaces.sh
-EOF
-
-echo -e "$COL_GREEN[OK]$COL_RESET - Disconnecting with NAO robot $1" 
-exit
+echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_ros_additional_packages on Nao"
+rsync -az --rsync-path="mkdir -p /home/nao/ws_ros_additional_packages && rsync" /home/nao/ws_ros_additional_packages/install_isolated nao@$1:/home/nao/ws_ros_additional_packages/install_isolated
   
