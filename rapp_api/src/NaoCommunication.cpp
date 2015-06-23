@@ -61,13 +61,13 @@
 	}
 
 	//#############
-	bool NaoCommunication::playAudio(std::string file_path, double begin_position, double volume, double balance, bool play_in_loop)
+	bool NaoCommunication::playAudio(std::string file_path, double position, double volume, double balance, bool play_in_loop)
 	{
 		client_playAudio = n->serviceClient<rapp_ros_naoqi_wrappings::PlayAudio>("rapp_play_audio");
 		rapp_ros_naoqi_wrappings::PlayAudio srv;
 		bool successful = false;
 		srv.request.file_path = file_path;
-		srv.request.begin_position = begin_position;
+		srv.request.begin_position = position;
 		srv.request.volume = volume;
 		srv.request.balance_LR = balance;
 		srv.request.play_in_loop = play_in_loop;
