@@ -1,4 +1,7 @@
-#include "rapp_api/NaoNavigation.h"
+//#####################
+// written by Wojciech Dudek
+//#####################
+#include "NaoNavigation.h"
 #include "ros/ros.h"
 #include "rapp_ros_naoqi_wrappings/MoveTo.h"
 #include "rapp_ros_naoqi_wrappings/MoveVel.h"
@@ -8,6 +11,9 @@
 #include "rapp_ros_naoqi_wrappings/UpdatePose.h"
 #include "rapp_ros_naoqi_wrappings/GetPose.h"
 #include "rapp_ros_naoqi_wrappings/GetPlan.h"
+#include "rapp_ros_naoqi_wrappings/MoveJoint.h"
+#include "rapp_ros_naoqi_wrappings/RemoveStiffness.h"
+#include "rapp_ros_naoqi_wrappings/TakePredefinedPose.h"
 
 NaoNavigation::NaoNavigation(int argc,char **argv){
 		ros::init(argc, argv,"MoveTo_client");
@@ -26,10 +32,10 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  {
 		  	if (srv.response.isDestinationReached == true){
 
-		    ROS_INFO("Nao moved ");
+		    ROS_INFO("I stand at the goal!");
 
 		  	}else{
-		    ROS_INFO("Nao sees obstacle");
+		    ROS_INFO("Sorry, I can't reach the goal. I can see an obstacle in front of me.");
 
 		  	}
 		  }
@@ -92,6 +98,53 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		    ROS_ERROR("Failed to call service MoveHead"); 
 		  }
 	}
+	void NaoNavigation::moveJoint(std::string joint){
+		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
+
+		rapp_ros_naoqi_wrappings::MoveJoint srv;
+		srv.request.joint_name = joint;
+
+		if (client_moveJoint.call(srv))
+		  {
+	  	  	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
+		  }
+		else
+		  {
+		    ROS_ERROR("Failed to call service moveJoint"); 
+		  }
+	}	
+	void NaoNavigation::removeStiffness(std::string joint){
+		client_removeStiffness = n->serviceClient<rapp_ros_naoqi_wrappings::RemoveStiffness>("rapp_removeStiffness");
+		
+
+		  rapp_ros_naoqi_wrappings::RemoveStiffness srv;
+		  srv.request.joint_name = joint;
+
+		  if (client_removeStiffness.call(srv))
+		  {
+	  	  	ROS_INFO_STREAM(srv.request.joint_name<<" stiffness is off");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service removeStiffness"); 
+		  }
+	}	
+	void NaoNavigation::takePredefinedPose(std::string pose){
+		client_takePredefinedPose = n->serviceClient<rapp_ros_naoqi_wrappings::TakePredefinedPose>("rapp_takePredefinedPose");
+		
+
+		  rapp_ros_naoqi_wrappings::TakePredefinedPose srv;
+		  srv.request.pose = pose;
+
+		  if (client_takePredefinedPose.call(srv))
+		  {
+	  	  	//ROS_INFO_STREAM(srv.request.pose<<" stiffness is off");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service takePredefinedPose"); 
+		  }
+	}	
 	void NaoNavigation::moveStop(){
 
 		client_moveStop = n->serviceClient<rapp_ros_naoqi_wrappings::MoveStop>("rapp_moveStop");
