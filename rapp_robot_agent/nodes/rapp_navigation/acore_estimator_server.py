@@ -92,8 +92,8 @@ class NaoEstimator(ALModule):
 		#
 		# find fransformation from odom to Nao_T_odom
 		#
-		if self.tl.canTransform("odom","Nao_footprint",rospy.Time()):
-			transform_Nao_odom = self.tl.lookupTransform("Nao_footprint","odom", rospy.Time())
+		if self.tl.canTransform("odom","base_link",rospy.Time()):
+			transform_Nao_odom = self.tl.lookupTransform("base_link","odom", rospy.Time())
 			euler_transform_Nao_odom =  tf.transformations.euler_from_quaternion(transform_Nao_odom[1])
 			#
 			# calculate new odom position, so Nao_T_odom will be in pointed position
@@ -109,10 +109,10 @@ class NaoEstimator(ALModule):
 			self.odom_transformation.orientation = tf.transformations.quaternion_from_euler(0,0,euler_transform_Nao_odom[2]+self.euler_initial[2])#matrix_Nao_odom[0][1]/matrix_Nao_odom[0][0])#+self.euler_initial[2])
 
 		# #
-		# # find fransformation from odom_combined to Nao_footprint
+		# # find fransformation from odom_combined to base_link
 		# #
-		# if self.tl.canTransform("odom_combined","Nao_footprint",rospy.Time()):
-		# 	transform_Nao_odom_combined = self.tl.lookupTransform("Nao_footprint","odom_combined", rospy.Time())
+		# if self.tl.canTransform("odom_combined","base_link",rospy.Time()):
+		# 	transform_Nao_odom_combined = self.tl.lookupTransform("base_link","odom_combined", rospy.Time())
 		# 	euler_transform_Nao_odom_combined =  tf.transformations.euler_from_quaternion(transform_Nao_odom_combined[1])
 		# 	#
 		# 	# calculate new odom position, so Nao_T_odom will be in pointed position
@@ -135,7 +135,7 @@ class NaoEstimator(ALModule):
 		self.torsoOdomPub = rospy.Publisher("odom", Odometry, queue_size=10)
 
 		self.torsoIMU = Imu()
-		self.torsoIMU.header.frame_id = "Nao_footprint"
+		self.torsoIMU.header.frame_id = "base_link"
 		self.torsoIMUPub = rospy.Publisher("imu_data", Imu, queue_size=10)
 
 		self.tf_br = tf.TransformBroadcaster()
@@ -193,17 +193,17 @@ class NaoEstimator(ALModule):
 		return VisOdomResponse(feedback)
 
 	# def locateMarkers(self):
-	# 	# Find closest marker to "Nao_footprint" frame
+	# 	# Find closest marker to "base_link" frame
 	# 	min_dist = 1000
 	# 	can_locate = False
 	# 	while can_locate == False:
-	# 		if self.tl.canTransform("Nao_footprint","Wall",rospy.Time()):
+	# 		if self.tl.canTransform("base_link","Wall",rospy.Time()):
 	# 			i=0
 	# 			can_locate = True
 	# 			for i in range(len(self.markers)):
 	# 				i+=1
 
-	# 				transform = self.tl.lookupTransform("Nao_footprint", self.markers[i-1], rospy.Time())
+	# 				transform = self.tl.lookupTransform("base_link", self.markers[i-1], rospy.Time())
 	# 				if reachable
 	# 				distance= np.sqrt(transform[0][0]*transform[0][0]+transform[0][1]*transform[0][1])
 	# 				if min_dist > distance:
@@ -320,8 +320,8 @@ class NaoEstimator(ALModule):
 		if self.tl.canTransform("QR_Torso",self.marker_id ,time):
 			transform_QR_map = self.tl.lookupTransform("map","QR_Torso", time)
 			euler_transform_QR_map =  tf.transformations.euler_from_quaternion(transform_QR_map[1])
-			if self.tl.canTransform("odom","Nao_footprint",rospy.Time()):
-				transform_Nao_odom = self.tl.lookupTransform("Nao_footprint","odom", rospy.Time())
+			if self.tl.canTransform("odom","base_link",rospy.Time()):
+				transform_Nao_odom = self.tl.lookupTransform("base_link","odom", rospy.Time())
 				euler_transform_Nao_odom =  tf.transformations.euler_from_quaternion(transform_Nao_odom[1])
 				#
 				# calculate new odom position, so Nao_T_odom will be in pointed position
@@ -336,8 +336,8 @@ class NaoEstimator(ALModule):
 													0]
 				self.odom_transformation.orientation = tf.transformations.quaternion_from_euler(0,0,euler_transform_Nao_odom[2]+euler_transform_QR_map[2])#matrix_Nao_odom[0][1]/matrix_Nao_odom[0][0])#+self.euler_initial[2])
 
-			# if self.tl.canTransform("odom","Nao_footprint",rospy.Time()):
-			# 	transform_Nao_odom_combined = self.tl.lookupTransform("Nao_footprint","odom_combined", rospy.Time())
+			# if self.tl.canTransform("odom","base_link",rospy.Time()):
+			# 	transform_Nao_odom_combined = self.tl.lookupTransform("base_link","odom_combined", rospy.Time())
 			# 	euler_transform_Nao_odom_combined =  tf.transformations.euler_from_quaternion(transform_Nao_odom[1])
 			# 	#
 			# 	# calculate new odom position, so Nao_T_odom will be in pointed position
@@ -395,8 +395,8 @@ class NaoEstimator(ALModule):
 		self.torsoOdom.pose.pose.orientation.z = q_odom[2]
 		self.torsoOdom.pose.pose.orientation.w = q_odom[3]
 
-		ODOM_POSE_COVARIANCE = [1e-4, 0, 0, 0, 0, 0, 
-		                        0, 1e-4, 0, 0, 0, 0,
+		ODOM_POSE_COVARIANCE = [1e-6, 0, 0, 0, 0, 0, 
+		                        0, 1e-6, 0, 0, 0, 0,
 		                        0, 0, 1e-3, 0, 0, 0,
 		                        0, 0, 0, 1e6, 0, 0,
 		                        0, 0, 0, 0, 1e6, 0,
@@ -421,7 +421,7 @@ class NaoEstimator(ALModule):
 												0,0,1e-5]
 		self.torsoIMU.angular_velocity_covariance= [1e3,0,0,
 													0,1e3,0,
-													0,0,1e-3]
+													0,0,1e-4]
 		self.torsoIMU.linear_acceleration_covariance = [1e2,0,0,
 														0,1e2,0,
 														0,0,1e2]
