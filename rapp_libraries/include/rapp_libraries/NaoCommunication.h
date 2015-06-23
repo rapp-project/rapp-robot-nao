@@ -20,6 +20,7 @@
 #include <string>
 
 #include "rapp_robot_agent/Say.h"
+#include "rapp_robot_agent/PlayAudio.h"
 #include "rapp_robot_agent/RecognizeWord.h"
 #include "rapp_robot_agent/Record.h"
 #include "rapp_robot_agent/VoiceRecord.h"
@@ -42,6 +43,7 @@ public:
 
 	ros::ServiceClient client_say;
 	ros::ServiceClient client_textToSpeech;
+	ros::ServiceClient client_playAudio;
  	ros::ServiceClient client_recognizeWord;
  	ros::ServiceClient client_record;
 	ros::ServiceClient client_voiceRecord;
@@ -65,6 +67,14 @@ public:
 	void init(int argc, char **argv);
 	bool textToSpeech(std::string str);
 	bool textToSpeech(std::string str, std::string language);// Method which calls ros service rapp_say. It causes nao robot says provided string message.
+	bool playAudio(std::string file_path, double position, double volume, double balance, bool play_in_loop);//Method which calls ros service rapp_play_audio. It causes nao robot plays desired audio file. 
+		/*
+		std::string file_path - absolute path of the file
+		double position - position in second where the playing should begin
+		double volume - volume requested [0.0 - 1.0]
+		double balance - Stereo panorama requested (-1.0 : left / 1.0 : right / 0.0 : center)
+		bool play_in_loop - true -- play file in loop; false -- play once from given position
+		*/
 	std::string wordSpotting(std::string dictionary[], int size);
 	std::string captureAudio(int time); // Recording stops after a specified time (time in [s]) // records in ogg format
 	std::string captureAudio(std::string file_path, float waiting_time, int microphone_energy);// Recording stops after a specified time (waiting_time in [s]), if sound with a sufficient energy level (microphone_energy) was not detected during this time // microphone_energy should be > 1700 (noise); // records in ogg format

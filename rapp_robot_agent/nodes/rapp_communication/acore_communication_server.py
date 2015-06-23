@@ -93,6 +93,16 @@ class CommunicationModule(ALModule):
 			rospy.logerr("[Communication server] - Could not get a proxy to ALTextToSpeech")
 			exit(1)
 			
+		print "[Communication server] - ALAudioPlayer proxy initialization"
+		self.prox_ap = ALProxy("ALAudioPlayer")
+		#self.prox_apStop = ALProxy('ALAudioPlayer', True) #Create another proxy as wait is blocking if audioout is remote
+		if self.prox_ap is None:
+			rospy.logerr("[Communication server] - Could not get a proxy to ALAudioPlayer")
+			exit(1)
+		#if self.prox_apStop is None:
+		#	rospy.logerr("[Communication server] - Could not get a proxy to ALAudioPlayer")
+		#	exit(1)
+			
 		print "[Communication server] - ALSoundDetection proxy initialization"
 		self.prox_sd = ALProxy("ALSoundDetection")
 		if self.prox_sd is None:
@@ -164,6 +174,9 @@ class CommunicationModule(ALModule):
 
 			print "[Communication server] - service - [rapp_voice_record]"
 			self.service_rvr = rospy.Service('rapp_voice_record', VoiceRecord, self.handle_rapp_voice_record)
+
+			print "[Communication server] - service - [rapp_play_audio]"
+			self.service_rpa = rospy.Service('rapp_play_audio', PlayAudio, self.handle_rapp_play_audio)
 
 			print "[Communication server] - service - [rapp_get_email_address]"
 			self.service_rgea = rospy.Service('rapp_get_email_address', GetEmailAddress, self.handle_rapp_get_email_address)
@@ -309,6 +322,34 @@ class CommunicationModule(ALModule):
 		except Exception, e:
 			print "[Communication server] - onSoundDetected - Exception %s" %e
 	
+	#######################################
+	# Play an audio file
+	def playAudio(self, file_path, begin_position, volume, balance, play_in_loop):
+		self.bIsRunning = False
+		self.ids = []
+		try:
+			bIsRunning = True
+			try:
+				if (play_in_loop==True) :
+					self.id = self.prox_ap.post.playFileInLoop(file_path, volume, balance)
+						#Stereo panorama requested (-1.0 : left / 1.0 : right / 0.0 : center)
+				else :
+					self.id = self.prox_ap.post.playFileFromPosition(file_path, begin_position, volume, balance)
+				self.ids.append(self.id)
+				self.prox_ap.wait(self.id, 0)
+			finally:
+				try:
+					self.ids.remove(self.id)
+				except:
+					pass
+				if( self.ids == [] ):
+					self.bIsRunning = False
+		except Exception, e:
+			print "[Play audio] - Error during playing the audio file"
+			print "[Play audio] - Error: %s" % str(e)
+			#self.playerStop.stop(self.id)
+
+
 	#######################################
 	# Record an audio message
 	def recordAudio(self, file_dest, waiting_time, microphone_energy):
@@ -558,6 +599,32 @@ class CommunicationModule(ALModule):
 		if self.isEmailFound == True:
 			isFound =1
 		return GetEmailAddressResponse(self.email_address, isFound)
+
+	#########################
+	def handle_rapp_play_audio(self,req):
+		print "[Communication server]: - Nao plays the audio file %s [s]" %req.file_path
+		file_path = req.file_path
+		begin_position = req.begin_position
+		volume = req.volume
+		loop = req.play_in_loop
+		balance = req.balance_LR
+		if (volume < 0.0):
+			volume = 0.0
+		elif (volume >1.0):
+			volume = 1.0
+		if (begin_position < 0):
+			begin_position = 0.0
+		#if (balance != -1.0 or balance != 1.0 or balance!= 0.0):
+		if (balance < -1.0 or balance > 1.0): #(-1.0 : left / 1.0 : right / 0.0 : center)
+			balance = 0.0;
+		self.response = False;
+		try:
+			self.playAudio(file_path, begin_position, volume, balance, loop);
+			self.response = True;
+		except:
+			self.response = False;
+		
+		return self.response
 
 	#########################
 	def handle_rapp_record(self,req):

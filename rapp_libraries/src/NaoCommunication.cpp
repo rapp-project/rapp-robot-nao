@@ -59,7 +59,35 @@ NaoCommunication::NaoCommunication(int argc,char **argv){
 		}
 		return successful;
 	}
+	
+	//#############
+	bool NaoCommunication::playAudio(std::string file_path, double position, double volume, double balance, bool play_in_loop)
+	{
+		client_playAudio = n->serviceClient<rapp_robot_agent::PlayAudio>("rapp_play_audio");
+		rapp_robot_agent::PlayAudio srv;
+		bool successful=false;
+		srv.request.file_path = file_path;
+		srv.request.begin_position = position;
+		srv.request.volume = volume;
+		srv.request.balance_LR = balance;
+		srv.request.play_in_loop = play_in_loop;
 
+		if (client_playAudio.call(srv))
+		{
+			if (srv.response.success == true)
+				std::cout<<"[Play audio] - success\t"<<"\n"<< std::flush;
+			successful = true;
+			return successful;
+		}
+		else
+		{
+			//Failed to call service rapp_say
+			std::cout<<"[Play audio] - Error calling service rapp_play_audio\n";
+			successful = false;
+			return successful;
+		}
+		return successful;
+	}
 	//#############
 	// Function from Rapp API that calls word recognition service from core agent on NAO robot. Robot recognizes word.
 	// dictionary - table of words to be recognized

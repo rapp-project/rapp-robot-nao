@@ -41,19 +41,20 @@ main(int argc, char **argv)
 	std::string dictionary[5];
 	dictionary[0]="Voice";
 	dictionary[1]="Code";
+	dictionary[1]="End";
 	int energy;
 	int iterations=-1;
 	const float waiting_time=5.0;
 	bool once = true;
 	bool end = false;
 	std::string file_path;
-	
 
 	// Vision -- QR code detection
 	int count=0;
 	bool check = false;
 	
-	bool check_record = false; //for tests
+	bool check_record = true; //for tests
+	bool playAudioFile = true;//for tests
 	
 	if ( communication == true)
 	{
@@ -65,7 +66,12 @@ main(int argc, char **argv)
 			std::cout<<"Audio message recorded to the file "<<file_path<<std::endl;
 			sleep(1);
 		}
+		
+		file_path ="/home/nao/recordings/microphones/rapp_audio_message.ogg";
+		if (playAudioFile==true)
+			playAudioFile = Nao_Communication.playAudio(file_path, 0.0, 0.50, 0.0, false);//playAudio(std::string file_path, double begin_position, double volume, double balance, bool play_in_loop)
 
+		
 		// Try to recognize the word from dictionary
 		do {
 			recognizedWord = Nao_Communication.wordSpotting(dictionary, 2);
