@@ -1,3 +1,4 @@
 string joint_name
+float32 joint_angle
 ---
-float64 angle_now
+float32 angle_now

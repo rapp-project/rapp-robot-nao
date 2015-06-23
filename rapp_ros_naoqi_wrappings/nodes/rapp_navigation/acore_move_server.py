@@ -508,8 +508,8 @@ class MoveNaoModule(ALModule):
 
 	def handle_rapp_moveJoint(self,req):
 		self.StiffnessOn(req.joint_name)
-		req.fractionMaxSpeed = 0.1
-		self.proxy_motion.setAngles(req.joint_name,req.joint_angle,req.fractionMaxSpeed)
+		fractionMaxSpeed = 0.1
+		self.proxy_motion.setAngles(req.joint_name,req.joint_angle,fractionMaxSpeed)
 		useSensors  = True
 		angle_now = 0
 	

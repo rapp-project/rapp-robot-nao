@@ -26,7 +26,7 @@ void init(int argc, char **argv);
 	void updatePose();
 	void getPose();
 	void getPlan();
-	void moveJoint(std::string joint);
+	void moveJoint(std::string joint, float angle);
 	void removeStiffness(std::string joint);
 	void takePredefinedPose(std::string pose);
 };
