@@ -20,78 +20,67 @@ ROS_ADDITIONAL_PACKAGES_SRC_DIR=$ROS_ADDITIONAL_PACKAGES_DIR"/src"
 
 VM_SCRIPTS="/home/nao/scripts"
 
-VM_FLAG="/home/nao/ws_rapp_nao/src/rapp-robot-nao"
-
-
-if [ "$#" -ne 1 ]; then
-	echo -e "$COL_RED[Error]$COL_RESET - Usage: $COL_GREEN$0 <flag>$COL_RESET"
-	echo "flag = 0 - create structure of folders and copy files from downloaded repositories"
-	echo "flag = 1 - download <rapp-robot-nao> and <rapp_application> repositories, create structure of folders and copy files from downloaded repositories"
-	exit 1
-fi
-
-if [ -d $GIT_WS_RAPP_NAO_DIR ]; then #If directory exists
-	if [ $1 -eq 1 ]; then #clone from github
-		echo -e "$COL_GREEN[OK]$COL_RESET - Removing $GIT_WS_RAPP_NAO_DIR - a directory. Cleaning git folder."
-		rm $GIT_WS_RAPP_NAO_DIR -rf
-		mkdir -p $GIT_WS_RAPP_NAO_DIR
-	fi
-else
+# If folder doesnt exist
+if [ ! -d $GIT_WS_RAPP_NAO_DIR ]; then
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_NAO_DIR - a directory."
 	mkdir -p $GIT_WS_RAPP_NAO_DIR
 fi
 
-if [ -d $GIT_WS_RAPP_APPLICATIONS_DIR ]; then #If directory exists
-	if [ $1 -eq 1 ]; then #clone from github
-		echo -e "$COL_GREEN[OK]$COL_RESET - Removing $GIT_WS_RAPP_APPLICATION_DIR - a directory. Cleaning git folder."
-		rm $GIT_WS_RAPP_APPLICATIONS_DIR -rf
-		mkdir -p $GIT_WS_RAPP_APPLICATIONS_DIR
-	fi
-else
+# If folder doesnt exist
+if [ ! -d $GIT_WS_RAPP_APPLICATIONS_DIR ]; then
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_APPLICATIONS_DIR - a directory."
 	mkdir -p $GIT_WS_RAPP_APPLICATIONS_DIR
 fi
 
-if [ -d $WS_RAPP_APPLICATIONS_NAO_DIR ]; then #If directory exists
-	echo -e "$COL_GREEN[OK]$COL_RESET - Directory $WS_RAPP_APPLICATIONS_NAO_DIR exists"
-	if [ $1 -eq 1 ]; then #clone from github
-		echo -e "$COL_GREEN[OK]$COL_RESET - Removing $WS_RAPP_APPLICATIONS_NAO_DIR - a directory. Cleaning git folder."
-		rm $WS_RAPP_APPLICATIONS_NAO_DIR -rf
-		mkdir -p $WS_RAPP_APPLICATIONS_NAO_DIR
-	fi
-else
-	echo -e "$COL_GREEN[OK]$COL_RESET - Creating - a directory. Creating $WS_RAPP_APPLICATIONS_NAO_DIR directory."
+# If folder doesnt exist
+if [ ! -d $WS_RAPP_APPLICATIONS_NAO_DIR ]; then
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $WS_RAPP_APPLICATIONS_NAO_DIR - directory."
 	mkdir -p $WS_RAPP_APPLICATIONS_NAO_DIR
 fi
 
-if [ $1 -eq 1 ]; then #clone from github
-	cd $GIT_WS_RAPP_NAO_DIR
-	echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
-	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-	git clone -b master https://github.com/rapp-project/rapp-robot-nao.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
+# Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR
+cd $GIT_WS_RAPP_NAO_DIR
+echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
+echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
+git clone -b master https://github.com/rapp-project/rapp-robot-nao.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
 	
-	cd $GIT_WS_RAPP_APPLICATIONS_DIR
-	echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
-	echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-	git clone -b master https://github.com/rapp-project/rapp-applications.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
+# Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR
+cd $GIT_WS_RAPP_APPLICATIONS_DIR
+echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
+echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
+git clone -b master https://github.com/rapp-project/rapp-applications.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
+
+# Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src folder with name src
+echo -e "$COL_GREEN[OK]$COL_RESET - Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src folder with name src"
+cd $WS_RAPP_APPLICATIONS_NAO_DIR
+ln -s /home/nao/ws_rapp_applications/rapp-applications/nao/src/ src
+
+# If folder doesnt exist
+if [ ! -d $HZ_DIRECTORY/packages ]; then
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $HZ_DIRECTORY/packages - a directory."
+	mkdir -p $HZ_DIRECTORY/packages
 fi
 
-echo -e "$COL_GREEN[OK]$COL_RESET - Copying dynamic agent packages to $WS_RAPP_APPLICATIONS_NAO_DIR directory"
-cp -r $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src $WS_RAPP_APPLICATIONS_NAO_DIR
-
-echo -e "$COL_GREEN[OK]$COL_RESET - Creating folder $HZ_DIRECTORY"
-mkdir -p $HZ_DIRECTORY/packages
-
-if [ -d $ROS_ADDITIONAL_PACKAGES_SRC_DIR ]; then #If directory exists
-	echo "Workspace $ROS_ADDITIONAL_PACKAGES_SRC_DIR exists"
-else
+# If folder doesnt exist
+if [ ! -d $ROS_ADDITIONAL_PACKAGES_SRC_DIR ]; then 
 	echo -e "$COL_GREEN[OK]$COL_RESET - Creates $ROS_ADDITIONAL_PACKAGES_SRC_DIR"
 	mkdir -p $ROS_ADDITIONAL_PACKAGES_SRC_DIR
 fi
 
-if [ -d $VM_FLAG ]; then # If directory exists
-	echo -e "$COL_GREEN[OK]$COL_RESET - Updates virtual machine scripts in $VM_SCRIPTS folder"
-	cd $VM_SCRIPTS
-	rm vm*
-	cp $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts/vm* .
-	cp $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts/rapp_create_hz.sh .
-	cp $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts/rapp_generate_hop_files.sh .
-fi
+# Adding to system variable PATH - a path to virtual machine scritps
+echo -e "$COL_GREEN[OK]$COL_RESET - Adding to system variable PATH - paths to virtual machine scritps"
+echo -e "$COL_GREEN[OK]$COL_RESET - Setting scripts to be executable"
+chmod +x $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts/*
+chmod +x $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts/*
+
+echo -e "$COL_GREEN[OK]$COL_RESET - Editting ~/.bashrc file"
+echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts to PATH variable"
+echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a PATH a path to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts  to PATH variable"
+cd /etc/profiles.d/
+sudo /bin/cat <<EOM >"add_path.sh"
+#!/bin/bash
+export PATH=${PATH}:$GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts
+export PATH=${PATH}:$GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts
+EOM
+
+
