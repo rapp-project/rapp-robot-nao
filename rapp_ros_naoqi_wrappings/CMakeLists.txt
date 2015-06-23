@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
 ### COMMUNICATION SERVICES
    Say.srv
+	PlayAudio.srv
 	MicrophoneEnergy.srv
    RecognizeWord.srv
    GetEmailAddress.srv
