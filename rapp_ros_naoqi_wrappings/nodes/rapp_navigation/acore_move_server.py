@@ -10,7 +10,7 @@ __author__ = "Wojciech Dudek"
 
 # Importing services
 from rapp_ros_naoqi_wrappings.srv import *
-from navfn.srv import *
+#from navfn.srv import *
 
 # Importing core system functionality
 import signal
@@ -288,7 +288,7 @@ class MoveNaoModule(ALModule):
 		#####################
 		## Collision detection
 		#####################
-		self.proxy_motion.setExternalCollisionProtectionEnabled('All', True)
+		self.proxy_motion.setExternalCollisionProtectionEnabled('All', False)
 
 		#####################
 		## Enable arms control by move algorithm
@@ -359,8 +359,9 @@ class MoveNaoModule(ALModule):
 		self.proxy_motion.angleInterpolationWithSpeed(req.joint_name,req.joint_angle,maxSpeed)
 		useSensors  = True
 		sensorAngles = self.proxy_motion.getAngles(req.joint_name, useSensors)
-
-		return MoveJointResponse(sensorAngles)
+		print "sensorAngles type is: \n", type(sensorAngles)
+		joint_angle = float(sensorAngles[0])
+		return MoveJointResponse(joint_angle)
 
 	def handle_rapp_removeStiffness(self,req):
 		pNames = req.joint_name
