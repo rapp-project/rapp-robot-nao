@@ -31,7 +31,7 @@ public:
 
 	ros::NodeHandle *n;
 
-	std::vector< std::vector<unsigned char> > audio_buffer_vector;
+	//std::vector< std::vector<unsigned char> > audio_buffer_vector;
 
 	void init(int argc, char **argv);
 	bool textToSpeech(std::string str);
