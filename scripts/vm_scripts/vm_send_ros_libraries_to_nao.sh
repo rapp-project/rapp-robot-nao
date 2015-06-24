@@ -18,7 +18,6 @@ fi
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_ros on Nao"
 rsync -az --rsync-path="mkdir -p /home/nao/ws_ros && rsync" /home/nao/ws_ros/install_isolated nao@$1:/home/nao/ws_ros/install_isolated
 
-
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_ros_additional_packages on Nao"
 rsync -az --rsync-path="mkdir -p /home/nao/ws_ros_additional_packages && rsync" /home/nao/ws_ros_additional_packages/install_isolated nao@$1:/home/nao/ws_ros_additional_packages/install_isolated
   
