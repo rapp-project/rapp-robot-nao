@@ -76,7 +76,7 @@ export PATH=${PATH}:$GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts
 echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a PATH a path to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts to PATH variable"
 export PATH=${PATH}:$GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts
 cd ~
-/bin/cat <<EOM >".bash_profile.sh"
+/bin/cat <<EOM >".bash_profile"
 #!/bin/bash
 export PATH=${PATH}:$GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts
 export PATH=${PATH}:$GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts
