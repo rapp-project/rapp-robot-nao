@@ -10,7 +10,7 @@ __author__ = "Wojciech Dudek"
 
 # Importing services
 from rapp_ros_naoqi_wrappings.srv import *
-#from navfn.srv import *
+from navfn.srv import *
 
 # Importing core system functionality
 import signal
@@ -355,19 +355,12 @@ class MoveNaoModule(ALModule):
 
 	def handle_rapp_moveJoint(self,req):
 		self.StiffnessOn(req.joint_name)
-		fractionMaxSpeed = 0.1
-		self.proxy_motion.setAngles(req.joint_name,req.joint_angle,fractionMaxSpeed)
+		maxSpeed = 0.2
+		self.proxy_motion.angleInterpolationWithSpeed(req.joint_name,req.joint_angle,maxSpeed)
 		useSensors  = True
-		angle_now = 0
-	
-		while True:
-			angle_old = angle_now
-			rospy.sleep(1)
-			sensorAngles = self.proxy_motion.getAngles(req.joint_name, useSensors)
-			angle_now=sensorAngles
-			if angle_old == angle_now:
-				break
-		return MoveJointResponse(angle_now)
+		sensorAngles = self.proxy_motion.getAngles(req.joint_name, useSensors)
+
+		return MoveJointResponse(sensorAngles)
 
 	def handle_rapp_removeStiffness(self,req):
 		pNames = req.joint_name
@@ -395,7 +388,8 @@ class MoveNaoModule(ALModule):
 		except Exception, e:
 				print "[Move server] - Exception %s" % str(e)	
 		print "[Move server] - Actual Nao pose : %s" % str(req.pose)
-		return RemoveStiffnessResponse(True)	
+		status = True
+		return TakePredefinedPoseResponse(status)	
 
 	####
 	##  Nao core drivers
