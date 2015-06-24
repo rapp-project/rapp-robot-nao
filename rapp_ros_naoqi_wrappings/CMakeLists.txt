@@ -46,7 +46,7 @@ find_package(catkin REQUIRED COMPONENTS
    MoveGetCollisionStatus.srv	
    RemoveStiffness.srv	
    MoveJoint.srv	
-   TakePredefinedPose.srv
+   TakePredefinedPosture.srv
  )
 
  add_message_files(
