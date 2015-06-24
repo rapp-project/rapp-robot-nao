@@ -8,7 +8,7 @@
 #include "rapp_ros_naoqi_wrappings/MoveStop.h"
 #include "rapp_ros_naoqi_wrappings/MoveJoint.h"
 #include "rapp_ros_naoqi_wrappings/RemoveStiffness.h"
-#include "rapp_ros_naoqi_wrappings/TakePredefinedPose.h"
+#include "rapp_ros_naoqi_wrappings/TakePredefinedPosture.h"
 
 NaoNavigation::NaoNavigation(int argc,char **argv){
 		ros::init(argc, argv,"NaoNavigation");
