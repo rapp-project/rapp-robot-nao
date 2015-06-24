@@ -124,8 +124,8 @@ class MoveNaoModule(ALModule):
 			print "[Move server] - Exception %s" % str(ex)
 			
 		try:
-			print "[Move server] - service - [rapp_takePredefinedPose]"
-			self.service_mh = rospy.Service('rapp_takePredefinedPose', TakePredefinedPose, self.handle_rapp_takePredefinedPose)
+			print "[Move server] - service - [rapp_takePredefinedPosture]"
+			self.service_mh = rospy.Service('rapp_takePredefinedPosture', TakePredefinedPosture, self.handle_rapp_takePredefinedPosture)
 		except Exception, ex_mh:
 			print "[Move server] - Exception %s" % str(ex)
 	####
