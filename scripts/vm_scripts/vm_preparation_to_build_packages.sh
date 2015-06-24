@@ -69,9 +69,6 @@ fi
 
 # Adding to system variable PATH - a path to virtual machine scritps
 echo -e "$COL_GREEN[OK]$COL_RESET - Adding to system variable PATH - paths to virtual machine scritps"
-echo -e "$COL_GREEN[OK]$COL_RESET - Setting scripts to be executable"
-chmod +x $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts/*
-chmod +x $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts/*
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Editting ~/.bashrc file"
 echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a $GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts to PATH variable"
