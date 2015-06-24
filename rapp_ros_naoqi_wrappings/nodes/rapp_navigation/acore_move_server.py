@@ -10,7 +10,7 @@ __author__ = "Wojciech Dudek"
 
 # Importing services
 from rapp_ros_naoqi_wrappings.srv import *
-from navfn.srv import *
+#from navfn.srv import *
 
 # Importing core system functionality
 import signal
