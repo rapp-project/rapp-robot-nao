@@ -78,11 +78,11 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a $GIT_WS_RAPP_NAO_DIR/rapp-robot-
 export PATH=${PATH}:$GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts
 echo -e "$COL_GREEN[OK]$COL_RESET - Exporting a PATH a path to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts to PATH variable"
 export PATH=${PATH}:$GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts
-cd /etc/profile.d/
-/bin/cat <<EOM >"add_path.sh"
+cd ~
+/bin/cat <<EOM >".bash_profile.sh"
 #!/bin/bash
 export PATH=${PATH}:$GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts
 export PATH=${PATH}:$GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts
 EOM
-chmod +x add_path.sh
+chmod +x .bash_profile.sh
 
