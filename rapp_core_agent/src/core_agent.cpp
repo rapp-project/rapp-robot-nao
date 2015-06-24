@@ -44,6 +44,8 @@
 // Name of servive used to recognized word
 #define RECOGNIZEDWORD "rapp_get_recognized_word"
 
+#define SERVICE_SAY "rapp_say"
+
 
 class CoreAgent {
 
@@ -99,7 +101,9 @@ public:
 protected:
 	ros::NodeHandle nh_;
 
-	ros::ServiceClient client_;
+	ros::ServiceClient client_recognize_;
+	ros::ServiceClient client_say_;
+	
 	// The server service that receives as a request a status and process id of a dynamic agent. As a response it returns an information of a currently executing dynamic agent.
 	ros::ServiceServer serverSetStatus_;
 
@@ -126,6 +130,8 @@ protected:
 	std::string app_path;
 	
 	int package_wait;
+	
+	std::string error_msg;
 };
 
 //Constructor of class CoreAgent
@@ -193,7 +199,9 @@ bool CoreAgent::state_init() {
 	}
 
 	// Create a client for the rapp_get_recognizes_word serivce
-	client_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>(RECOGNIZEDWORD);
+	client_recognize_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>(RECOGNIZEDWORD);
+	
+	client_say_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::Say>(SERVICE_SAY);
 
 	// Create a client for the rapp_get_recognizes_word serivce
 	serverSetStatus_ = nh_.advertiseService(RESPONSE_STATUS_TOPIC, &CoreAgent::dynamicAgentStatusReceived, this);
@@ -221,7 +229,7 @@ bool CoreAgent::state_listen() {
 	rapp_ros_naoqi_wrappings::RecognizeWord srv;
 	srv.request.wordsList=words_;
 
-	if (client_.call(srv)) {
+	if (client_recognize_.call(srv)) {
 		recognized_word = srv.response.recognizedWord;
 		ROS_INFO("Word recognized: %s", recognized_word.c_str());
 	} else {
@@ -245,6 +253,8 @@ bool CoreAgent::state_interpret() {
 		// check, whether application for given keyword exists
 		// note: in general, NaoQI should not recognize words 
 		if (applications_.count(recognized_word) < 1) {
+			error_msg = "Sorry, I don't know command ";
+			error_msg += recognized_word;
 			next_state = Inform;
 			return true;
 		}
@@ -259,6 +269,22 @@ bool CoreAgent::state_interpret() {
 
 bool CoreAgent::state_inform() {
 	ROS_INFO("State::Inform");
+	
+	rapp_ros_naoqi_wrappings::Say srv;
+	bool successful=false;
+	//## slower and lower voice
+	std::string sentence;
+	sentence = "\\RSPD=" + std::string("100") + "\\ ";
+	sentence += "\\VCT="+ std::string("60") + "\\ ";
+	sentence += error_msg;
+	sentence += "\\RST\\ ";
+	ROS_INFO("Saying sentence: %s", error_msg.c_str());
+
+	srv.request.request = sentence;//a message, that will be said
+	srv.request.language = "English";//language selection
+
+	client_say_.call(srv);
+	
 	next_state = Listen;
 	return true;
 }
@@ -299,6 +325,7 @@ bool CoreAgent::state_wait_for_dynamic() {
 		
 		if (package_wait > 10) {
 			ROS_WARN("Waiting for package - timed out.");
+			error_msg = "Sorry, I can't download this package.";
 			next_state = Inform;
 		} else {		
 			ros::Duration(0.5).sleep();
@@ -307,6 +334,7 @@ bool CoreAgent::state_wait_for_dynamic() {
 	} else if (path == "") {
 		// download failed
 		ROS_ERROR("Download failed");
+		error_msg = "Sorry, package download failed.";
 		next_state = Inform;
 	} else {
 		// activate DA
@@ -321,13 +349,12 @@ bool CoreAgent::state_activate_dynamic() {
 	
 	// Build the path to the 'run' script of the application.
 	std::string path = app_path;
-	app_path.append("/run");
+	path.append("/run");
 
 	ROS_INFO("Running app from: %s", app_path.c_str());
-	//runScript(path);
-	next_state = Inform;
-
-	//next_state = WaitForDACommand;
+	runScript(path);
+	
+	next_state = WaitForDACommand;
 	return true;
 }
 
@@ -339,7 +366,10 @@ bool CoreAgent::state_destroy_dynamic() {
 
 bool CoreAgent::state_wait_for_dynamic_command() {
 	ROS_INFO("State::WaitForDACommand");
-	next_state = DestroyDA;
+	
+	ros::Duration(1.0).sleep();
+	next_state = WaitForDACommand;
+	//next_state = DestroyDA;
 	return true;
 }
 
@@ -349,21 +379,33 @@ bool CoreAgent::state_execute_dynamic_command() {
 	return true;
 }
 
+
+
+
+
+
+
+
+
 // Runs the script which launches dynamic agent
 void CoreAgent::runScript(std::string path) {
 	int counter = 0;
+	
+	// ??
 	std::string new_path="/home/nao/";
 	new_path.append(path.substr(1));
+	
 	std::cout<<new_path;
 	pid_t pid = fork();
 	if (pid == 0) {
 		// child process
-		execl("/bin/bash", "bash", new_path.c_str(), NULL);
+		execl("/bin/bash", "bash", path.c_str(), (char*)0);
 	} else if (pid > 0) {
 		// parent process
+		ROS_INFO("Spawned process: %d", pid);
 	} else {
 		// fork failed
-		std::cout << "fork() failed!\n";
+		ROS_INFO("fork() failed!");
 		return ;
 	}
 	return;
@@ -400,7 +442,7 @@ bool CoreAgent::dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::
 		// Handle error of dynamic agent. Kill the process dynamicAgentPid_
 		res.ca_status="Error";
 	} else {
-		res.ca_status="Status was not recognized";
+		res.ca_status="Working";
 	}
 	return true;
 }

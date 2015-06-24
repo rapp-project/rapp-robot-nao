@@ -2,6 +2,6 @@
 
   <!-- Rapp core agent testing nodes -->
   
-  <node pkg="rapp_ros_naoqi_wrappings" name="acore_move_server" type="acore_move_server.py" output="screen"/>
+  <node pkg="rapp_robot_agent" name="acore_move_server" type="acore_move_server.py" output="screen"/>
 
 </launch>
