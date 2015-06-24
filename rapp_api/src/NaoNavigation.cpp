@@ -1,50 +1,20 @@
 //#####################
 // written by Wojciech Dudek
 //#####################
-#include "rapp_api/NaoNavigation.h"
+#include "NaoNavigation.h"
 #include "ros/ros.h"
-#include "rapp_ros_naoqi_wrappings/MoveTo.h"
 #include "rapp_ros_naoqi_wrappings/MoveVel.h"
 #include "rapp_ros_naoqi_wrappings/MoveHead.h"
 #include "rapp_ros_naoqi_wrappings/MoveStop.h"
-#include "rapp_ros_naoqi_wrappings/MoveGetCollisionStatus.h"
-#include "rapp_ros_naoqi_wrappings/UpdatePose.h"
-#include "rapp_ros_naoqi_wrappings/GetPose.h"
-#include "rapp_ros_naoqi_wrappings/GetPlan.h"
 #include "rapp_ros_naoqi_wrappings/MoveJoint.h"
 #include "rapp_ros_naoqi_wrappings/RemoveStiffness.h"
 #include "rapp_ros_naoqi_wrappings/TakePredefinedPose.h"
 
 NaoNavigation::NaoNavigation(int argc,char **argv){
-		ros::init(argc, argv,"MoveTo_client");
+		ros::init(argc, argv,"NaoNavigation");
 		n = new ros::NodeHandle();
 
 		}
-
-	void NaoNavigation::moveTo(float x, float y, float theta){	
-
-		client_moveTo = n->serviceClient<rapp_ros_naoqi_wrappings::MoveTo>("rapp_moveTo");
-		  rapp_ros_naoqi_wrappings::MoveTo srv;
-		  srv.request.destination_x = x;
-		  srv.request.destination_y = y;
-		  srv.request.destination_theta = theta;
-		  if (client_moveTo.call(srv))
-		  {
-		  	if (srv.response.isDestinationReached == true){
-
-		    ROS_INFO("I stand at the goal!");
-
-		  	}else{
-		    ROS_INFO("Sorry, I can't reach the goal. I can see an obstacle in front of me.");
-
-		  	}
-		  }
-		  else
-		  {
-		    ROS_ERROR("Failed to call service MoveTo"); 
-		  }
-
-	}
 
 	void NaoNavigation::moveVel(float x, float y, float theta){	
 
@@ -130,20 +100,20 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		    ROS_ERROR("Failed to call service removeStiffness"); 
 		  }
 	}	
-	void NaoNavigation::takePredefinedPose(std::string pose){
-		client_takePredefinedPose = n->serviceClient<rapp_ros_naoqi_wrappings::TakePredefinedPose>("rapp_takePredefinedPose");
+	void NaoNavigation::takePredefinedPosture(std::string pose){
+		client_takePredefinedPosture = n->serviceClient<rapp_ros_naoqi_wrappings::TakePredefinedPosture>("rapp_takePredefinedPosture");
 		
 
-		  rapp_ros_naoqi_wrappings::TakePredefinedPose srv;
+		  rapp_ros_naoqi_wrappings::TakePredefinedPosture srv;
 		  srv.request.pose = pose;
 
-		  if (client_takePredefinedPose.call(srv))
+		  if (client_takePredefinedPosture.call(srv))
 		  {
 	  	  	//ROS_INFO_STREAM(srv.request.pose<<" stiffness is off");
 		  }
 		  else
 		  {
-		    ROS_ERROR("Failed to call service takePredefinedPose"); 
+		    ROS_ERROR("Failed to call service takePredefinedPosture"); 
 		  }
 	}	
 	void NaoNavigation::moveStop(){
@@ -158,65 +128,5 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  else
 		  {
 		    ROS_ERROR("Failed to call service MoveStop"); 
-		  }
-	}
-	//Last collision status - obstacle position [x,y,0]
-	void NaoNavigation::moveGetCollisionStatus(){
-
-		client_moveGetCollisionStatus = n->serviceClient<rapp_ros_naoqi_wrappings::MoveGetCollisionStatus>("rapp_moveGetCollisionStatus");
-
-		  rapp_ros_naoqi_wrappings::MoveGetCollisionStatus srv;
-		  srv.request.get_status = true;
-		  if (client_moveGetCollisionStatus.call(srv))
-		  {
-		    ROS_INFO("Got collision status");
-		  }
-		  else
-		  {
-		    ROS_ERROR("Failed to call service MoveGetCollisionStatus"); 
-		  }
-	}
-	void NaoNavigation::updatePose(){
-
-		client_updatePose = n->serviceClient<rapp_ros_naoqi_wrappings::UpdatePose>("rapp_updatePose");
-		  rapp_ros_naoqi_wrappings::UpdatePose srv;
-		  srv.request.update_pose = true;
-		  if (client_updatePose.call(srv))
-		  {
-		    ROS_INFO("Request: POSE_UPDATE has been sent");
-		  }
-		  else
-		  {
-		    ROS_ERROR("REUEST FAILED:  POSE_UPDATE"); 
-		  }
-	}
-
-	void NaoNavigation::getPose(){
-
-		client_getPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetPose>("rapp_getPose");
-		  rapp_ros_naoqi_wrappings::GetPose srv;
-		  srv.request.get_pose = true;
-		  if (client_getPose.call(srv))
-		  {
-		    ROS_INFO("Request: GET_POSE has been sent");
-		  }
-		  else
-		  {
-		    ROS_ERROR("REUEST FAILED:  GET_POSE"); 
-		  }
-	}
-	void NaoNavigation::getPlan(){
-
-		client_getPlan = n->serviceClient<rapp_ros_naoqi_wrappings::GetPlan>("rapp_getPlan");
-		bool get_plan = true;
-		  rapp_ros_naoqi_wrappings::GetPlan srv;
-		  srv.request.get_plan = get_plan;
-		  if (client_getPlan.call(srv))
-		  {
-		    ROS_INFO("Request: GET_PLAN has been sent");
-		  }
-		  else
-		  {
-		    ROS_ERROR("REUEST FAILED:  GET_PLAN"); 
 		  }
 	}
