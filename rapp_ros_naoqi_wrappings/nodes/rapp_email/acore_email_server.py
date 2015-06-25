@@ -214,7 +214,7 @@ class EmailRecognitionModule(ALModule):
 			print "[Core agent server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
 			
 		
-			if len(val[0])!=0 and val[1]>0.5:	
+			if len(val[0])!=0 and val[1]>0.4:	
 				#if(val[0] == "Exit"):
 				#	print "[Core agent server] - Exits"
 				#	self.stopListening=True
@@ -248,7 +248,7 @@ class EmailRecognitionModule(ALModule):
 			print "[Core agent server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
 			
 		
-			if len(val[0])!=0 and val[1]>0.5:	
+			if len(val[0])!=0 and val[1]>0.4:	
 				self.stopListening = True
 				self.wordRecognized = val[0]
 				print "[Core agent server] - [onSoundDetected] - Word recognized: %s" % self.wordRecognized

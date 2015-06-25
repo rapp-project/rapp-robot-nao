@@ -293,7 +293,7 @@ class CommunicationModule(ALModule):
 			print "[Communication server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
 			
 		
-			if len(val[0])!=0 and val[1]>0.5:
+			if len(val[0])!=0 and val[1]>0.45:
 				## val[1] - probability
 				#if(val[0] == "Exit"):
 				#	print "[Communication server] - Exits"
