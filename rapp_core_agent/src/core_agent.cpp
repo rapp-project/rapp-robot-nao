@@ -132,6 +132,8 @@ protected:
 	int package_wait;
 	
 	std::string error_msg;
+	
+	bool da_finished;
 };
 
 //Constructor of class CoreAgent
@@ -339,6 +341,7 @@ bool CoreAgent::state_wait_for_dynamic() {
 	} else {
 		// activate DA
 		next_state = ActivateDA;
+		da_finished = false;
 	}
 
 	return true;
@@ -354,7 +357,9 @@ bool CoreAgent::state_activate_dynamic() {
 	ROS_INFO("Running app from: %s", app_path.c_str());
 	runScript(path);
 	
+
 	next_state = WaitForDACommand;
+
 	return true;
 }
 
@@ -367,9 +372,13 @@ bool CoreAgent::state_destroy_dynamic() {
 bool CoreAgent::state_wait_for_dynamic_command() {
 	ROS_INFO("State::WaitForDACommand");
 	
-	ros::Duration(1.0).sleep();
-	next_state = WaitForDACommand;
-	//next_state = DestroyDA;
+	if (da_finished) {
+		next_state = DestroyDA;
+		da_finished = false;
+	} else {
+		next_state = WaitForDACommand;
+		ros::Duration(1.0).sleep();
+	}
 	return true;
 }
 
@@ -422,19 +431,15 @@ void CoreAgent::responseReceived(const std_msgs::String& msg) {
 
 // A callback function. Executes each time a dynamic agent status arrives
 bool CoreAgent::dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::Request &req, rapp_core_agent::DynamicAgentStatus::Response &res ) {
-	std::cout << "[Core agent] - Dynamic agent status received\n";
-	std::cout << "[Core agent] - Status = "<<req.da_status<<"\n";
-	dynamicAgentPid_ = req.pid;
-	std::cout << "[Core agent] - Pid = "<<dynamicAgentPid_<<"\n";
+	ROS_INFO("[Core agent] - Dynamic agent [%d] status received: %s", req.pid, req.da_status.c_str());
 	if(req.da_status == "Init") {
 		// Setting status of core and dynamic agent's connection to Initialized
 		res.ca_status="Initialized";
 	} else if(req.da_status == "Finished") {
 		// Kill process of dynamic agent
 		// todo - is it necessary?
-		// Ask for the next application's name.
 		res.ca_status="Finished";
-		//sendRequest();
+		da_finished = true;
 	} else if(req.da_status == "Working") {
 		// Setting status of core and dynamic agent's connection to Working
 		res.ca_status="Working";

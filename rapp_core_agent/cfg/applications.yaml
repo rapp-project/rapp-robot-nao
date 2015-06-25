@@ -1,5 +1,7 @@
 applications: {
-  hello: helloworld-1.0.0.hz, 
+  hi: helloworld-1.0.0.hz, 
+  say: communication_test-1.0.0.hz,
+  go: move_test-1.0.0.hz,
   email: voicemail-1.0.0.hz, 
   exit: exit
 }
