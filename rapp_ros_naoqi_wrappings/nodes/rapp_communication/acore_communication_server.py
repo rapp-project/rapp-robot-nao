@@ -217,9 +217,10 @@ class CommunicationModule(ALModule):
 	def subscribeWordDetection(self):
 		print "[Communication server] - Subscribing SoundDetected event"
 		try:
-			prox_memory.subscribeToEvent("WordRecognized", self.moduleName, "onWordRecognized" )
+			self.prox_sprec.subscribe("Test_SpeechDetected",self.period, 0.0)
+			prox_memory.subscribeToEvent("WordRecognized", self.moduleName, self.functionName)#"onWordRecognized" )
 		except Exception, e:
-			print "[Communication server] - Error in subscribe(): %s", str(e)
+			print "[Communication server] - Error in subscribeWordDetection(): %s", str(e)
 		
 		#######################################
 	# Unsubscribes Nao events
@@ -238,12 +239,13 @@ class CommunicationModule(ALModule):
 	def unsubscribeWordDetection(self):
 		print "[Communication server] - Unsubscribing SoundDetected event"
 		try:
+			self.prox_sprec.unsubscribe("Test_SpeechDetected")
 			if (self.stopListening == False):
 				prox_memory.unsubscribeToEvent('WordRecognized', self.moduleName)
 		except TypeError, e:
-			print "[Communication server] - Error TypeError in unsubscribe(): %s", str(e)
+			print "[Communication server] - Error TypeError in unsubscribeWordDetection(): %s", str(e)
 		except Exception, e:
-			print "[Communication server] - Error in unsubscribe(): %s", str(e)
+			print "[Communication server] - Error in unsubscribeWordDetection(): %s", str(e)
 			
 	#######################################
 	#######################################
@@ -254,7 +256,7 @@ class CommunicationModule(ALModule):
 		"""
 		try:
 			# Unsubscribing to the event of Sound detection to avoid calling a method while executing interior of the method.
-			prox_memory.unsubscribeToEvent(Constants.EVENT_SOUND, self.moduleName)
+			prox_memory.unsubscribeToEvent("WordRecognized", self.moduleName)
 			val = prox_memory.getData(self.memValue)
 			
 			print "[Communication server] - \t" + val[0]
@@ -262,7 +264,7 @@ class CommunicationModule(ALModule):
 			time.sleep(1)
 			print "[Communication server] - [onWordRecognized] - Recognized word: " +val[0] +" with the probability equals to " + str(val[1])
 			
-			if len(val[0])!=0 and val[1]>0.45:	# val[0] -- Recognized word; val[1] -- Confidence level;
+			if len(val[0])!=0 and val[1]>0.4:	# val[0] -- Recognized word; val[1] -- Confidence level;
 				self.stopListening = True
 				self.wordRecognized = val[0]
 				print "[Communication server] - [onWordRecognized] - Recognized word: %s" % self.wordRecognized
@@ -293,7 +295,7 @@ class CommunicationModule(ALModule):
 			print "[Communication server] - [onSoundDetected] - Heard name: " +val[0] +" with the probability equals to " + str(val[1])
 			
 		
-			if len(val[0])!=0 and val[1]>0.45:
+			if len(val[0])!=0 and val[1]>0.4:
 				## val[1] - probability
 				#if(val[0] == "Exit"):
 				#	print "[Communication server] - Exits"
@@ -562,7 +564,7 @@ class CommunicationModule(ALModule):
 				print "The default language cannot be set."
 			
 		self.prox_tts.say(req.request)
-		return SayResponse(req.request)
+		return 1
 
 	#########################
 	def handle_rapp_play_audio(self,req):
