@@ -1,0 +1,13 @@
+# List of known objects - names
+string[] names
+# List of known objects - image files (models)
+string[] files
+# Limit search to N best matches
+int32 limit
+---
+# List of found objects - names
+string[] names
+# List of found objects - centroids in image
+geometry_msgs/Point[] centers
+# List of found objects - scores
+float64[] scores
