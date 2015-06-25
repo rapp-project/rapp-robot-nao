@@ -276,7 +276,7 @@ class CommunicationModule(ALModule):
 			prox_memory.subscribeToEvent("WordRecognized", self.moduleName, self.functionName )
 				
 		except Exception, e:
-			print "[Communication server] - onSoundDetected - Exception %s" %e
+			print "[Communication server] - onWordRecognized - Exception %s" %e
 
 		#######################################
 	# Method that is called when sound is detected
@@ -564,7 +564,7 @@ class CommunicationModule(ALModule):
 				print "The default language cannot be set."
 			
 		self.prox_tts.say(req.request)
-		return 1
+		return SayResponse(1)
 
 	#########################
 	def handle_rapp_play_audio(self,req):
@@ -583,13 +583,13 @@ class CommunicationModule(ALModule):
 		#if (balance != -1.0 or balance != 1.0 or balance!= 0.0):
 		if (balance < -1.0 or balance > 1.0): #(-1.0 : left / 1.0 : right / 0.0 : center)
 			balance = 0.0;
-		self.response = False;
+		response = False;
 		try:
 			self.playAudio(file_path, begin_position, volume, balance, loop);
-			self.response = True;
+			response = True;
 		except:
-			self.response = False;
-		return self.response
+			response = False;
+		return PlayAudioResponse(response)
 
 	#########################
 	def handle_rapp_get_email_address(self, req):
@@ -628,20 +628,20 @@ class CommunicationModule(ALModule):
 		self.recordingTime = req.recordingTime
 		self.prox_tts.say("Nao records : ")
 		self.recordEmail()
-		reponse = Constants.recorded_file_dest
-		return RecordResponse(reponse)
+		response = Constants.recorded_file_dest
+		return RecordResponse(response)
 
 	#########################
 	def handle_rapp_record_with_sound_detection(self,req):
 		print "[Communication server]: - Nao records [s]"
-		file_dest = req.file_dest
+		self.file_dest = req.file_dest
 		waiting_time = req.waiting_time
 		microphone_energy = req.microphone_energy
 		#self.prox_tts.say("Nao records : ")
 		self.recordAudio(file_dest, waiting_time, microphone_energy)
-		if (file_dest=="" or (file_dest[len(file_dest)-4:len(file_dest)]!=".ogg")):
-			file_dest = Constants.recorded_file_dest;
-		response = file_dest
+		if (self.file_dest=="" or (self.file_dest[len(self.file_dest)-4:len(self.file_dest)]!=".ogg")):
+			self.file_dest = Constants.recorded_file_dest;
+		response = self.file_dest
 		return RecordWithSoundDetectionResponse(response)
 
 	#########################
@@ -651,7 +651,7 @@ class CommunicationModule(ALModule):
 		nDeinterleave = 0;
 		nSampleRate = 16000;# 16000 or 48000
 		voice_detect = False
-		
+		self.buff = []
 		# response = ""
 		if (req.startRecording==True):
 			if (self.isAudDeviceSubscribed == False):
@@ -722,7 +722,7 @@ class CommunicationModule(ALModule):
 		else:
 			energy = int(self.prox_audevice.getFrontMicEnergy())
 		
-		return energy;
+		return MicrophoneEnergyResponse(energy);
 
 
 	#########################
