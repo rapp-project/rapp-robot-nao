@@ -16,10 +16,10 @@ if [ "$#" -ne 1 ]; then
 fi
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_ros on Nao"
-rsync -az --rsync-path="mkdir -p /home/nao/ws_ros && rsync" /home/nao/ws_ros/install_isolated nao@$1:/home/nao/ws_ros/install_isolated
+rsync -az --rsync-path="mkdir -p /home/nao/ws_ros && rsync" /home/nao/ws_ros/install_isolated nao@$1:/home/nao/ws_ros/
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_ros_additional_packages on Nao"
-rsync -az --rsync-path="mkdir -p /home/nao/ws_ros_additional_packages && rsync" /home/nao/ws_ros_additional_packages/install_isolated nao@$1:/home/nao/ws_ros_additional_packages/install_isolated
+rsync -az --rsync-path="mkdir -p /home/nao/ws_ros_additional_packages && rsync" /home/nao/ws_ros_additional_packages/install_isolated nao@$1:/home/nao/ws_ros_additional_packages/
   
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of nao_scripts on Nao"
 rsync -az --rsync-path="mkdir -p /home/nao/scripts && rsync" /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/nao_scripts/ nao@$1:/home/nao/scripts/
