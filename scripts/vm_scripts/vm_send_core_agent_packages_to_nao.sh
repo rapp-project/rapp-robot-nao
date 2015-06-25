@@ -20,4 +20,4 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of store_interaction.js on N
 rsync -az --rsync-path="mkdir -p /home/nao/ws_rapp_applications_nao/nao/hz_packages/ && rsync" /home/nao/ws_rapp_applications/rapp-applications/nao/hz_packages/store_interaction.js nao@$1:/home/nao/ws_rapp_applications_nao/nao/hz_packages/
   
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of nao_scripts on Nao"
-rsync -az --rsync-path="mkdir -p /home/nao/ws_rapp_application_nao/nao/ && rsync" /home/nao/ws_rapp_applications/rapp-applications/nao/data nao@$1:/home/nao/ws_rapp_application_nao/nao/
+rsync -az --rsync-path="mkdir -p /home/nao/ws_rapp_applications_nao/nao/ && rsync" /home/nao/ws_rapp_applications/rapp-applications/nao/data nao@$1:/home/nao/ws_rapp_applications_nao/nao/
