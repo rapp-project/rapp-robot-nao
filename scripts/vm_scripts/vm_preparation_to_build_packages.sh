@@ -81,5 +81,4 @@ cd ~
 export PATH=${PATH}:$GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts
 export PATH=${PATH}:$GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts
 EOM
-chmod +x .bash_profile.sh
 

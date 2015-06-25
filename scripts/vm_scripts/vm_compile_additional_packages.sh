@@ -7,7 +7,7 @@ COL_GREEN=$ESC_SEQ"32;01m"
 COL_RESET=$ESC_SEQ"39;49;00m"
 COL_RED=$ESC_SEQ"31;01m"
 
-PROGRAMS_DIRECTORY="/home/nao/programs"
+PROGRAMS_DIRECTORY="/home/nao/ws_ros_additional_packages/programs"
 
 # ROS - core ROS packages
 ROS_DIR="/home/nao/ws_ros"
