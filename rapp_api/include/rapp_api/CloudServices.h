@@ -17,4 +17,5 @@ private:
 	ros::ServiceClient client_FindObjects;
 	ros::ServiceClient client_UploadImage;
 	
+	ros::NodeHandle * n_;
 };

@@ -26,7 +26,7 @@ bool service_UploadImage(cloud_services::UploadImage::Request  &req,
 
 	std::string fname = base_path;
 	std::ostringstream ss;
-	ss << ros::Time::now().toSec();
+	ss << ros::Time::now().toNSec();
 	fname += ss.str();
 	fname += ".png";
 
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 	}
 
 	ros::ServiceServer service = n.advertiseService("upload_image", service_UploadImage);
-	ROS_INFO("Ready receive images.");
+	ROS_INFO("Ready to receive images.");
 	ros::spin();
 
 	return 0;

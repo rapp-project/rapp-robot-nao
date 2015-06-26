@@ -25,7 +25,7 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES NaoCommunication NaoVision DAInit NaoNavigation  
+  LIBRARIES NaoCommunication NaoVision DAInit NaoNavigation CloudServices
   CATKIN_DEPENDS roscpp rapp_ros_naoqi_wrappings rapp_core_agent
 )
 
@@ -38,6 +38,7 @@ include_directories(
 add_library(NaoNavigation SHARED src/NaoNavigation.cpp)
 add_library(NaoVision SHARED src/NaoVision.cpp)
 add_library(NaoCommunication SHARED src/NaoCommunication.cpp src/NaoSendEmail.cpp)
+add_library(CloudServices SHARED src/CloudServices.cpp)
 add_library(DAInit SHARED src/DAInit.cpp)
 
 target_link_libraries(NaoVision
@@ -46,6 +47,10 @@ target_link_libraries(NaoVision
 )
 
 target_link_libraries(NaoNavigation 
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(CloudServices 
   ${catkin_LIBRARIES}
 )
 
@@ -62,6 +67,7 @@ add_dependencies(NaoCommunication ${catkin_EXPORTED_TARGETS})
 add_dependencies(DAInit ${catkin_EXPORTED_TARGETS}) 
 add_dependencies(NaoNavigation ${catkin_EXPORTED_TARGETS})
 add_dependencies(NaoVision ${catkin_EXPORTED_TARGETS})
+add_dependencies(CloudServices ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(NaoVision /usr/lib/libzbar.so)
 
@@ -69,7 +75,7 @@ target_link_libraries(NaoVision /usr/lib/libzbar.so)
 ## Install ##
 #############
 
-install(TARGETS NaoCommunication NaoVision DAInit NaoNavigation
+install(TARGETS NaoCommunication NaoVision DAInit NaoNavigation CloudServices
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 

@@ -1,5 +1,7 @@
 #include "rapp_api/CloudServices.h"
 
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/image_encodings.h>
 
 CloudServices::CloudServices(int argc,char **argv)
 {
@@ -25,7 +27,7 @@ std::string CloudServices::uploadImage(cv::Mat img) {
 	
 	cv_bridge::CvImage out_msg;
 	out_msg.header   = std_msgs::Header();
-	out_msg.encoding = sensor_msgs::image_encodings::TYPE_BGR8;
+	out_msg.encoding = sensor_msgs::image_encodings::BGR8;
 	out_msg.image    = img;
 	
 	cloud_services::UploadImage srv;
