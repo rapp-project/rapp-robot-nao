@@ -60,6 +60,7 @@ cv::BFMatcher matcher(NORM_L2, true);
 // ******************************* FUNCTIONS *******************************
 bool loadImage(const std::string filename_, cv::Mat & image_) {
 	try {
+		// TODO: fix the case of invalid file.
 	        image_ = imread( filename_ );
 		return true;
 	} catch (...) {
@@ -81,6 +82,8 @@ bool extractFeatures(const cv::Mat image_, std::vector<KeyPoint> & keypoints_, c
 
 		// Detect the keypoints.
 		detector.detect( gray_img, keypoints_ );
+
+		ROS_DEBUG("Detected %d keypoints", keypoints_.size());
 
 		// Extract descriptors (feature vectors).
 		extractor.compute( gray_img, keypoints_, descriptors_ );
@@ -105,6 +108,8 @@ void loadModels(std::vector<std::string> names_, std::vector<std::string> files_
 	// Load all models - read image, extract feature and add data to lists.
 	for (int i=0; i<names_.size(); i++) {
 		if ( loadImage(files_[i], model_img) ) {
+			ROS_DEBUG("Size of loaded image (%d,%d)", model_img.size().width, model_img.size().height );
+
 			std::vector<cv::KeyPoint> model_keypoints;
 			cv::Mat model_descriptors;
 			extractFeatures(model_img, model_keypoints, model_descriptors);
