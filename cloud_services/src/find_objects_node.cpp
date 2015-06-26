@@ -6,7 +6,7 @@
 bool service_FindObjects(cloud_services::FindObjects::Request  &req,
                          cloud_services::FindObjects::Response &res)
 {
-  FindObjects::findObjects(req.names, req.files, req.limit, res.names, res.centers, res.scores);
+  FindObjects::findObjects(req.fname, req.names, req.files, req.limit, res.names, res.centers, res.scores);
   return true;
 }
 
