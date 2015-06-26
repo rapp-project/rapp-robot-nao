@@ -45,3 +45,29 @@ std::string CloudServices::uploadImage(cv::Mat img) {
 	return path;
 }
 
+int CloudServices::lightCheck(const std::string & fname) {
+	if (!client_LightCheck) {
+		ROS_DEBUG("Invalid service client, creating new one...");
+		double secs = ros::Time::now().toSec();
+		client_LightCheck = n_->serviceClient<cloud_services::LightCheck>("light_check", true);
+		double sec2 = ros::Time::now().toSec();
+		ROS_DEBUG("Creating service client took %lf seconds", sec2-secs);
+	} else {
+		ROS_DEBUG("Service client valid.");
+	}
+	
+	cloud_services::LightCheck srv;
+	srv.request.fname = fname;
+	
+	int result = -1;
+	if (client_LightCheck.call(srv)) {
+		result = srv.response.result;
+		ROS_INFO("[CloudServices] - Light level %d", result);
+	} else {
+		//Failed to call service rapp_get_image
+		ROS_ERROR("[CloudServices] - Error calling service light_check");
+	}
+	
+	return result;
+}
+

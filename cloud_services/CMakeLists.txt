@@ -16,6 +16,7 @@ add_service_files(
   FILES
   FindObjects.srv
   UploadImage.srv
+  LightCheck.srv
 )
 
 #add_message_files(
@@ -51,11 +52,15 @@ add_executable(upload_image_node src/upload_image_node.cpp)
 target_link_libraries(upload_image_node ${catkin_LIBRARIES})
 add_dependencies(upload_image_node ${PROJECT_NAME}_generate_messages_cpp)
 
+add_executable(light_check_node src/light_check_node.cpp src/light_check.cpp)
+target_link_libraries(light_check_node ${catkin_LIBRARIES})
+add_dependencies(light_check_node ${PROJECT_NAME}_generate_messages_cpp)
+
 #############
 ## Install ##
 #############
 
-install(TARGETS find_objects_node upload_image_node
+install(TARGETS find_objects_node upload_image_node light_check_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
