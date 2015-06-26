@@ -5,7 +5,7 @@ string[] names
 # List of known objects - image files (models)
 string[] files
 # Limit search to N best matches
-int32 limit
+uint32 limit
 ---
 # List of found objects - names
 string[] names
