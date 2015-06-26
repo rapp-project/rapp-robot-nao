@@ -1,0 +1,5 @@
+<launch>
+
+	<node name="upload_image_node" type="upload_image_node" pkg="cloud_services" />
+
+</launch>
