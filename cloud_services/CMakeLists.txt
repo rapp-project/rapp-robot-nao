@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   FindObjects.srv
+  UploadImage.srv
 )
 
 #add_message_files(
@@ -43,17 +44,18 @@ include_directories(
 
 
 add_executable(find_objects_node src/find_objects_node.cpp src/find_objects.cpp)
-
 target_link_libraries(find_objects_node ${catkin_LIBRARIES})
-
 add_dependencies(find_objects_node ${PROJECT_NAME}_generate_messages_cpp)
 
+add_executable(upload_image_node src/upload_image_node.cpp)
+target_link_libraries(upload_image_node ${catkin_LIBRARIES})
+add_dependencies(upload_image_node ${PROJECT_NAME}_generate_messages_cpp)
 
 #############
 ## Install ##
 #############
 
-install(TARGETS find_objects_node
+install(TARGETS find_objects_node upload_image_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
