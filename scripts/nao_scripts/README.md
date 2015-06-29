@@ -14,3 +14,4 @@ List of scripts
 * nao_launch_rosbridge.sh - launches rosbridge
 * nao_launch_wrappings_node.sh - launches services of core agent
 * nao_launch_core_agent.sh - launches the whole core agent
+* nao_clean.sh - removes hop configuration folder
