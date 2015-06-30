@@ -136,6 +136,7 @@ void storeObjectHypothesis(std::string name_, cv::Point2f center_, std::vector<c
 
 	// Special case: insert first object hypothesis.
 	if (recognized_names.size() == 0) {
+		ROS_INFO("Adding first (0) object hypothesis");
 		recognized_names.push_back(name_);
 		recognized_centers.push_back(center_);
 		recognized_corners.push_back(corners_);
@@ -149,20 +150,24 @@ void storeObjectHypothesis(std::string name_, cv::Point2f center_, std::vector<c
 	std::vector<std::vector<cv::Point2f> >::iterator corners_it= recognized_corners.begin();
 	std::vector<double>::iterator scores_it= recognized_scores.begin();
 
+	bool added = false;
 	// Insert in proper order.
-	for (; names_it<recognized_names.end(); names_it++, centers_it++, corners_it++, scores_it++) {
+	for (; names_it != recognized_names.end(); names_it++, centers_it++, corners_it++, scores_it++) {
 		if (*scores_it < score_){
-			// Insert here! (i.e. before)
-			recognized_names.insert(names_it, name_);
-			recognized_centers.insert(centers_it, center_);
-			recognized_corners.insert(corners_it, corners_);
-			recognized_scores.insert(scores_it, score_);
+			// Insert here! (i.e. before) - stop the iterator at this place.
 			break;
 		}//: if
-	}//: for*/
+	}//: for
+	ROS_INFO("Adding next object hypothesis");
+	recognized_names.insert(names_it, name_);
+	recognized_centers.insert(centers_it, center_);
+	recognized_corners.insert(corners_it, corners_);
+	recognized_scores.insert(scores_it, score_);
+
 
 	// Limit the size of vectors.
 	if (recognized_names.size() > limit_){
+		ROS_INFO("Removing last object hypothesis");
 		recognized_names.pop_back();
 		recognized_centers.pop_back();
 		recognized_corners.pop_back();
