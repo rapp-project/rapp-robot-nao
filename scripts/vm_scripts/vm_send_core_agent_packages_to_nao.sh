@@ -9,7 +9,7 @@ COL_BLUE=$ESC_SEQ"34;01m"
 COL_RED=$ESC_SEQ"31;01m"
 
 if [ "$#" -ne 1 ]; then
-	echo -e "$COL_RED[Error]$COL_RESET - Usage: Usage: $COL_GREEN$0 <NAO_IP_ADDRESS>$COL_RESET"
+	echo -e "$COL_RED[Error]$COL_RESET - Usage: $COL_GREEN$0 <NAO_IP_ADDRESS>$COL_RESET"
 	exit 1
 fi
 
