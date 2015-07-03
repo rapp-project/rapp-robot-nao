@@ -46,6 +46,10 @@
 
 #define SERVICE_SAY "rapp_say"
 
+class CoreAgent;
+
+CoreAgent * core_agent_ptr = NULL;
+
 
 class CoreAgent {
 
@@ -85,6 +89,8 @@ public:
 	bool state_destroy_dynamic();
 	bool state_wait_for_dynamic_command();
 	bool state_execute_dynamic_command();
+
+	void finish_ros();
 
 	bool run();
 
@@ -293,6 +299,22 @@ bool CoreAgent::state_inform() {
 
 bool CoreAgent::state_unregister() {
 	ROS_INFO("State::Unregister");
+	
+	rapp_ros_naoqi_wrappings::Say srv;
+	bool successful=false;
+	//## slower and lower voice
+	std::string sentence;
+	sentence = "\\RSPD=" + std::string("90") + "\\ ";
+	sentence += "\\VCT="+ std::string("50") + "\\ ";
+	sentence += "Hasta la vista";
+	sentence += "\\RST\\ ";
+
+	srv.request.request = sentence;//a message, that will be said
+	srv.request.language = "Spanish";//language selection
+
+	client_say_.call(srv);
+	
+	
 	next_state = Finish;
 	return true;
 }
@@ -452,22 +474,26 @@ bool CoreAgent::dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::
 	return true;
 }
 
+void CoreAgent::finish_ros() {
+	next_state = Unregister;
+}
+
 void sigint_signal (int param) {
-	ros::shutdown();
+	core_agent_ptr->finish_ros();
 }
 
 int main(int argc, char **argv) {
-	// SIGINT - signal handler
-/*	void (*prev_handler)(int);
-	prev_handler = signal (SIGINT, sigint_signal);*/
-
 	// Initialize the ROS system and become a node.
 	ros::init(argc, argv, "core_agent");
 	ros::NodeHandle nh;
+	
+	// SIGINT - signal handler
+	void (*prev_handler)(int);
+	prev_handler = signal (SIGINT, sigint_signal);
 
 	CoreAgent coreAgent_;
+	core_agent_ptr = &coreAgent_;
 	coreAgent_.run();
-
-	// Let ROS take over and execute callbacks.
+	
 	return 0;
 }
