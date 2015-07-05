@@ -10,7 +10,10 @@
 #include "ros/ros.h"
 #include "ros/service.h"
 #include <sys/types.h>
+
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "std_msgs/String.h"
 #include "rapp_ros_naoqi_wrappings/RecognizeWord.h"
@@ -32,6 +35,9 @@
 #include <string>
 #include <signal.h>
 #include <map>
+
+
+#define SILENT
 
 
 
@@ -66,7 +72,11 @@ enum State {
 	ActivateDA,
 	DestroyDA,
 	WaitForDACommand,
-	ExecuteDACommand
+	ExecuteDACommand,
+	ActivateHOP,
+	ActivateCPP,
+	WaitForHOP,
+	WaitForCPP,
 };
 
 public:
@@ -89,6 +99,12 @@ public:
 	bool state_destroy_dynamic();
 	bool state_wait_for_dynamic_command();
 	bool state_execute_dynamic_command();
+	
+	bool state_activate_hop();
+	bool state_activate_cpp();
+	
+	bool state_wait_hop();
+	bool state_wait_cpp();
 
 	void finish_ros();
 
@@ -96,6 +112,9 @@ public:
 
 	// Runs the script which launches dynamic agent
 	void runScript(std::string path);
+	
+	// Runs the binary and returns process pid
+	pid_t runBinary(std::string path);
 
 	// A callback function. Executes each time a new response
 	// message from HOP arrives.
@@ -103,6 +122,10 @@ public:
 
 	// A callback function. Executes each time a dynamic agent status arrives
 	bool dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::Request &req, rapp_core_agent::DynamicAgentStatus::Response &res);
+
+	// pid of C++ RApp
+	pid_t cpp_pid;
+	std::string entry_point;
 
 protected:
 	ros::NodeHandle nh_;
@@ -190,6 +213,18 @@ bool CoreAgent::run() {
 		case ExecuteDACommand:
 			state_execute_dynamic_command();
 			break;
+		case ActivateCPP:
+			state_activate_cpp();
+			break;
+		case ActivateHOP:
+			state_activate_hop();
+			break;
+		case WaitForCPP:
+			state_wait_cpp();
+			break;
+		case WaitForHOP:
+			state_wait_hop();
+			break;
 		}
 		
 		ros::spinOnce();
@@ -204,6 +239,7 @@ bool CoreAgent::state_init() {
 	nh_.getParam("applications", applications_);
 	for (std::map<std::string,std::string>::iterator it=applications_.begin(); it!=applications_.end(); ++it) {
 		words_.push_back(it->first);
+		std::cout << "Known keyword: " << it->first << std::endl;
 	}
 
 	// Create a client for the rapp_get_recognizes_word serivce
@@ -222,6 +258,8 @@ bool CoreAgent::state_init() {
 
 	//
 	next_state = Register;
+	
+	cpp_pid = -1;
 
 	return true;
 }
@@ -245,10 +283,12 @@ bool CoreAgent::state_listen() {
 		return false;
 	}
 
+	// TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP
+	recognized_word = "hi";
+	// TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP
+
 	if (recognized_word != "Empty") {
 		next_state = Interpret;
-	} else {
-		next_state = Listen;
 	}
 
 	return true;
@@ -288,10 +328,12 @@ bool CoreAgent::state_inform() {
 	sentence += "\\RST\\ ";
 	ROS_INFO("Saying sentence: %s", error_msg.c_str());
 
+#ifndef SILENT
 	srv.request.request = sentence;//a message, that will be said
 	srv.request.language = "English";//language selection
 
 	client_say_.call(srv);
+#endif
 	
 	next_state = Listen;
 	return true;
@@ -304,9 +346,9 @@ bool CoreAgent::state_unregister() {
 	bool successful=false;
 	//## slower and lower voice
 	std::string sentence;
-	sentence = "\\RSPD=" + std::string("90") + "\\ ";
-	sentence += "\\VCT="+ std::string("50") + "\\ ";
-	sentence += "Hasta la vista";
+	sentence = "\\RSPD=" + std::string("100") + "\\ ";
+	sentence += "\\VCT="+ std::string("100") + "\\ ";
+	sentence += "";
 	sentence += "\\RST\\ ";
 
 	srv.request.request = sentence;//a message, that will be said
@@ -362,7 +404,7 @@ bool CoreAgent::state_wait_for_dynamic() {
 		next_state = Inform;
 	} else {
 		// activate DA
-		next_state = ActivateDA;
+		next_state = ActivateCPP;
 		da_finished = false;
 	}
 
@@ -410,6 +452,45 @@ bool CoreAgent::state_execute_dynamic_command() {
 	return true;
 }
 
+bool CoreAgent::state_activate_cpp() {
+	ROS_INFO("State::ActivateCPP");
+	
+	entry_point = "a";
+	// Build the path to the entry point of the application.
+	std::string path = app_path + "/../" + entry_point;
+
+	ROS_INFO("Running app from: %s", path.c_str());
+	cpp_pid = runBinary(path);
+	ROS_INFO("App %d is running", cpp_pid);
+
+	next_state = WaitForCPP;
+
+	return true;
+}
+
+bool CoreAgent::state_activate_hop() {
+	next_state = DestroyDA;
+	/*std_msgs::String msg;
+	msg.data = app_name;
+	pub_.publish(msg);*/
+}
+
+bool CoreAgent::state_wait_cpp() {
+	ROS_INFO("State::WaitForCPP %d", cpp_pid);
+	
+	int status;
+	if (!waitpid(cpp_pid, &status, WNOHANG)) {
+		sleep(1);
+	} else {
+		if (WIFEXITED(status)) ROS_INFO("RApp %d ended", cpp_pid);
+		if (WCOREDUMP(status)) ROS_INFO("RApp %d segfaulted", cpp_pid);
+		next_state = DestroyDA;
+	}
+}
+
+bool CoreAgent::state_wait_hop() {
+	next_state = DestroyDA;
+}
 
 
 
@@ -420,13 +501,6 @@ bool CoreAgent::state_execute_dynamic_command() {
 
 // Runs the script which launches dynamic agent
 void CoreAgent::runScript(std::string path) {
-	int counter = 0;
-	
-	// ??
-	std::string new_path="/home/nao/";
-	new_path.append(path.substr(1));
-	
-	std::cout<<new_path;
 	pid_t pid = fork();
 	if (pid == 0) {
 		// child process
@@ -440,6 +514,26 @@ void CoreAgent::runScript(std::string path) {
 		return ;
 	}
 	return;
+}
+
+// Runs the script which launches dynamic agent
+pid_t CoreAgent::runBinary(std::string path) {
+	pid_t pid = fork();
+	if (pid == 0) {
+		// child process
+		execl("/home/nao/RAPPCache/a", "a", (char*)0);
+		ROS_INFO("Something went wrong");
+		exit(1);
+	} else if (pid > 0) {
+		// parent process
+		ROS_INFO("Spawned process: %d", pid);
+	} else {
+		// fork failed
+		ROS_INFO("fork() failed!");
+		return pid;
+	}
+	
+	return pid;
 }
 
 
@@ -477,6 +571,8 @@ bool CoreAgent::dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::
 void CoreAgent::finish_ros() {
 	next_state = Unregister;
 }
+
+
 
 void sigint_signal (int param) {
 	core_agent_ptr->finish_ros();
