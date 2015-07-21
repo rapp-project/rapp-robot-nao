@@ -103,6 +103,8 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbridge_suite
 git clone https://github.com/RobotWebTools/rosbridge_suite.git
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosauth repository"
 git clone https://github.com/WPI-RAIL/rosauth.git
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from robot_localization repository"
+git clone https://github.com/cra-ros-pkg/robot_localization.git
 cd ..
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
