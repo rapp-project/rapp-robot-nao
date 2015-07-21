@@ -17,5 +17,5 @@ void init(int argc, char **argv);
 	void moveStop();
 	void moveJoint(std::string joint, float angle);
 	void removeStiffness(std::string joint);
-	void takePredefinedPosture(std::string pose);
+	void TakePredefinedPosture(std::string pose);
 };
