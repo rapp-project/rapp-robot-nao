@@ -1,7 +1,0 @@
-<launch>
-  <node name="global_planner_new" pkg="global_planner" type="planner" output="screen" >
-  <param name="/use_sim_time" value="false"/>
-    <rosparam file="$(find costmap_2d)/launch/example_params.yaml" command="load" ns="costmap" />
-    <rosparam file="$(find global_planner)/moj_launch/planner.yaml" command="load" ns="planner" />
-  </node>
-</launch>

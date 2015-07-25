@@ -12,6 +12,11 @@ public:
 	ros::ServiceClient client_updatePose;
 	ros::ServiceClient client_getPose;
 	ros::ServiceClient client_getPlan;
+	ros::ServiceClient client_removeStiffness;
+	ros::ServiceClient client_moveJoint;
+	ros::ServiceClient client_takePredefinedPosture;
+	ros::ServiceClient client_lookAtPoint;
+
 	ros::NodeHandle *n;
 
 void init(int argc, char **argv);
@@ -23,4 +28,9 @@ void init(int argc, char **argv);
 	void updatePose();
 	void getPose();
 	void getPlan();
+	void moveJoint(std::string joint, float angle);
+	void removeStiffness(std::string joint);
+	void takePredefinedPosture(std::string pose);
+	void visOdom();
+	void lookAtPoint(float x, float y, float z);
 };

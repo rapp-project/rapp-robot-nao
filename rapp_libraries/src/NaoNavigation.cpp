@@ -3,51 +3,51 @@
 //#####################
 #include "NaoNavigation.h"
 #include "ros/ros.h"
-#include "rapp_robot_agent/MoveTo.h"
-#include "rapp_robot_agent/MoveVel.h"
-#include "rapp_robot_agent/MoveHead.h"
-#include "rapp_robot_agent/MoveStop.h"
-#include "rapp_robot_agent/MoveGetCollisionStatus.h"
-#include "rapp_robot_agent/UpdatePose.h"
-#include "rapp_robot_agent/GetPose.h"
-#include "rapp_robot_agent/GetPlan.h"
+#include "rapp_ros_naoqi_wrappings/MoveTo.h"
+#include "rapp_ros_naoqi_wrappings/MoveVel.h"
+#include "rapp_ros_naoqi_wrappings/MoveHead.h"
+#include "rapp_ros_naoqi_wrappings/MoveStop.h"
+#include "rapp_ros_naoqi_wrappings/MoveGetCollisionStatus.h"
+#include "rapp_ros_naoqi_wrappings/UpdatePose.h"
+#include "rapp_ros_naoqi_wrappings/GetPose.h"
+#include "rapp_ros_naoqi_wrappings/GetPlan.h"
+#include "rapp_ros_naoqi_wrappings/MoveJoint.h"
+#include "rapp_ros_naoqi_wrappings/RemoveStiffness.h"
+#include "rapp_ros_naoqi_wrappings/TakePredefinedPosture.h"
+#include "rapp_ros_naoqi_wrappings/LookAtPoint.h"
+
+//#include "string.h"
 
 NaoNavigation::NaoNavigation(int argc,char **argv){
-		ros::init(argc, argv,"MoveTo_client");
+		ros::init(argc, argv,"NaoNavigation_library");
 		n = new ros::NodeHandle();
 
 		}
 
 	void NaoNavigation::moveTo(float x, float y, float theta){	
 
-		client_moveTo = n->serviceClient<rapp_robot_agent::MoveTo>("rapp_moveTo");
-		  rapp_robot_agent::MoveTo srv;
+		client_moveTo = n->serviceClient<rapp_ros_naoqi_wrappings::MoveTo>("rapp_moveTo");
+		  rapp_ros_naoqi_wrappings::MoveTo srv;
 		  srv.request.destination_x = x;
 		  srv.request.destination_y = y;
 		  srv.request.destination_theta = theta;
 		  if (client_moveTo.call(srv))
 		  {
-		  	if (srv.response.isDestinationReached == true){
+		   ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
 
-		    ROS_INFO("I stand at the goal!");
-
-		  	}else{
-		    ROS_INFO("Sorry, I can't reach the goal. I can see an obstacle in front of me.");
-
-		  	}
-		  }
+			}
 		  else
 		  {
-		    ROS_ERROR("Failed to call service MoveTo"); 
+		    ROS_ERROR("Failed to call service moveTo"); 
 		  }
 
 	}
 
 	void NaoNavigation::moveVel(float x, float y, float theta){	
 
-		client_moveVel = n->serviceClient<rapp_robot_agent::MoveVel>("rapp_moveVel");
+		client_moveVel = n->serviceClient<rapp_ros_naoqi_wrappings::MoveVel>("rapp_moveVel");
 
-		  rapp_robot_agent::MoveVel srv;
+		  rapp_ros_naoqi_wrappings::MoveVel srv;
 		  srv.request.velocity_x = x;
 		  srv.request.velocity_y = y;
 		  srv.request.velocity_theta = theta;
@@ -57,7 +57,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  }
 		  else
 		  {
-		    ROS_ERROR("Failed to call service MoveVel"); 
+		    ROS_ERROR("Failed to call service moveVel"); 
 		  }
 	}
 
@@ -78,10 +78,10 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 //  119.52		-25.73			18.91			 2.086017	-0.449073		0.330041
 
 	void NaoNavigation::moveHead(float yaw,float pitch){
-		client_moveHead = n->serviceClient<rapp_robot_agent::MoveHead>("rapp_moveHead");
+		client_moveHead = n->serviceClient<rapp_ros_naoqi_wrappings::MoveHead>("rapp_moveHead");
 		
 
-		  rapp_robot_agent::MoveHead srv;
+		  rapp_ros_naoqi_wrappings::MoveHead srv;
 		  srv.request.pitch = pitch;
 		  srv.request.yaw = yaw;
 		  if (client_moveHead.call(srv))
@@ -92,13 +92,61 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  }
 		  else
 		  {
-		    ROS_ERROR("Failed to call service MoveHead"); 
+		    ROS_ERROR("Failed to call service moveHead"); 
 		  }
 	}
+	void NaoNavigation::moveJoint(std::string joint, float angle){
+		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
+
+		rapp_ros_naoqi_wrappings::MoveJoint srv;
+		srv.request.joint_name = joint;
+		srv.request.joint_angle = angle;
+
+		if (client_moveJoint.call(srv))
+		  {
+	  	  	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
+		  }
+		else
+		  {
+		    ROS_ERROR("Failed to call service moveJoint"); 
+		  }
+	}	
+	void NaoNavigation::removeStiffness(std::string joint){
+		client_removeStiffness = n->serviceClient<rapp_ros_naoqi_wrappings::RemoveStiffness>("rapp_removeStiffness");
+		
+
+		  rapp_ros_naoqi_wrappings::RemoveStiffness srv;
+		  srv.request.joint_name = joint;
+
+		  if (client_removeStiffness.call(srv))
+		  {
+	  	  	ROS_INFO_STREAM(srv.request.joint_name<<" stiffness is off");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service removeStiffness"); 
+		  }
+	}	
+	void NaoNavigation::takePredefinedPosture(std::string pose){
+		client_takePredefinedPosture = n->serviceClient<rapp_ros_naoqi_wrappings::TakePredefinedPosture>("rapp_takePredefinedPosture");
+		
+
+		  rapp_ros_naoqi_wrappings::TakePredefinedPosture srv;
+		  srv.request.pose = pose;
+
+		  if (client_takePredefinedPosture.call(srv))
+		  {
+	  	  	//ROS_INFO_STREAM(srv.request.pose<<" stiffness is off");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service takePredefinedPosture"); 
+		  }
+	}	
 	void NaoNavigation::moveStop(){
 
-		client_moveStop = n->serviceClient<rapp_robot_agent::MoveStop>("rapp_moveStop");
-		  rapp_robot_agent::MoveStop srv;
+		client_moveStop = n->serviceClient<rapp_ros_naoqi_wrappings::MoveStop>("rapp_moveStop");
+		  rapp_ros_naoqi_wrappings::MoveStop srv;
 		  srv.request.stop_signal = true;
 		  if (client_moveStop.call(srv))
 		  {
@@ -106,66 +154,37 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  }
 		  else
 		  {
-		    ROS_ERROR("Failed to call service MoveStop"); 
+		    ROS_ERROR("Failed to call service moveStop"); 
 		  }
 	}
-	//Last collision status - obstacle position [x,y,0]
-	void NaoNavigation::moveGetCollisionStatus(){
+	void NaoNavigation::visOdom(){
 
-		client_moveGetCollisionStatus = n->serviceClient<rapp_robot_agent::MoveGetCollisionStatus>("rapp_moveGetCollisionStatus");
-
-		  rapp_robot_agent::MoveGetCollisionStatus srv;
-		  srv.request.get_status = true;
-		  if (client_moveGetCollisionStatus.call(srv))
+		client_moveStop = n->serviceClient<rapp_ros_naoqi_wrappings::MoveStop>("rapp_moveStop");
+		  rapp_ros_naoqi_wrappings::MoveStop srv;
+		  srv.request.stop_signal = true;
+		  if (client_moveStop.call(srv))
 		  {
-		    ROS_INFO("Got collision status");
+		    ROS_INFO("Nao has been localized via QR-code");
 		  }
 		  else
 		  {
-		    ROS_ERROR("Failed to call service MoveGetCollisionStatus"); 
+		    ROS_ERROR("Failed to call service visOdom"); 
 		  }
 	}
-	void NaoNavigation::updatePose(){
+	void NaoNavigation::lookAtPoint(float pointX,float pointY,float pointZ ){
 
-		client_updatePose = n->serviceClient<rapp_robot_agent::UpdatePose>("rapp_updatePose");
-		  rapp_robot_agent::UpdatePose srv;
-		  srv.request.update_pose = true;
-		  if (client_updatePose.call(srv))
+		client_lookAtPoint = n->serviceClient<rapp_ros_naoqi_wrappings::LookAtPoint>("rapp_lookAtPoint");
+		  rapp_ros_naoqi_wrappings::LookAtPoint srv;
+		  srv.request.pointX = pointX;
+		  srv.request.pointY = pointY;
+		  srv.request.pointZ = pointZ;
+
+		  if (client_lookAtPoint.call(srv))
 		  {
-		    ROS_INFO("Request: POSE_UPDATE has been sent");
+		   ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
 		  }
 		  else
 		  {
-		    ROS_ERROR("REUEST FAILED:  POSE_UPDATE"); 
-		  }
-	}
-
-	void NaoNavigation::getPose(){
-
-		client_getPose = n->serviceClient<rapp_robot_agent::GetPose>("rapp_getPose");
-		  rapp_robot_agent::GetPose srv;
-		  srv.request.get_pose = true;
-		  if (client_getPose.call(srv))
-		  {
-		    ROS_INFO("Request: GET_POSE has been sent");
-		  }
-		  else
-		  {
-		    ROS_ERROR("REUEST FAILED:  GET_POSE"); 
-		  }
-	}
-	void NaoNavigation::getPlan(){
-
-		client_getPlan = n->serviceClient<rapp_robot_agent::GetPlan>("rapp_getPlan");
-		bool get_plan = true;
-		  rapp_robot_agent::GetPlan srv;
-		  srv.request.get_plan = get_plan;
-		  if (client_getPlan.call(srv))
-		  {
-		    ROS_INFO("Request: GET_PLAN has been sent");
-		  }
-		  else
-		  {
-		    ROS_ERROR("REUEST FAILED:  GET_PLAN"); 
+		    ROS_ERROR("REUEST FAILED:  lookAtPoint"); 
 		  }
 	}

@@ -15,28 +15,28 @@ def handle_markers_tf():
                      time,
                      "Wall",
                      "map")
-	br.sendTransform((0.259,0.603, 0.32),
+	br.sendTransform((0.256,0.534, 0.32),
                      tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
                      time,
                      "Wardrobe",
                      "map")
-	br.sendTransform((2.5044,0.5097, 0.825),
+	br.sendTransform((2.5097,0.44, 0.825),
                      tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
                      time,
                      "Microwave",
                      "map")
-	br.sendTransform((3.303,0.6697, 0.75),
+	br.sendTransform((3.306,0.6173, 0.75),
                      tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
                      time,
                      "Fridge",
                      "map")
 
-	br.sendTransform((3.9593,0.751, 0.505),
+	br.sendTransform((4.04,0.697, 0.505),
                      tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
                      time,
                      "Stable object",
                      "map")
-	br.sendTransform((0.0654,1.993, 0.555),
+	br.sendTransform((0.0727,1.963, 0.555),
                      tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2),
                      time,
                      "Door",

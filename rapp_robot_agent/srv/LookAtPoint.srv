@@ -1,0 +1,5 @@
+float32 pointX
+float32 pointY
+float32 pointZ
+---
+string status

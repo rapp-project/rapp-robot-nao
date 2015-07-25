@@ -1,0 +1,7 @@
+<launch>
+
+  <!-- Rapp core agent testing nodes -->
+  
+  <node pkg="rviz" name="rviz" type="rviz" args="-d $(find rapp_robot_agent)/config/rviz_config.rviz" output="screen"/>
+
+</launch>

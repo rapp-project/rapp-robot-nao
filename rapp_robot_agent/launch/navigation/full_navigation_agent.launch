@@ -1,7 +1,7 @@
 <launch>
 
   <!-- map nodes -->
-  <node pkg="map_server" name="map_server" type="map_server" args="$(find rapp_map)/map/523.yaml" output="screen"/>
+  <node pkg="map_server" name="map_server" type="map_server" args="$(find rapp_map)/map/523_m.yaml" output="screen"/>
   <node pkg="rapp_map" name="rapp_setup_tf" type="rapp_setup_tf.py" output="screen"/>
 
   <!-- Core agent vision nodes -->
@@ -13,10 +13,9 @@
   <node pkg="rapp_robot_agent" name="acore_move_server" type="acore_move_server.py" output="screen"/>
  
   <!-- Core agent navigation node -->
-  <node pkg="rapp_robot_agent" name="acore_estimator_server" type="acore_estimator_server.py" output="screen"/>
- 
-  <!-- Kalman filter node -->
-  <include  file="$(find robot_localization)/launch/nao_ekf.launch" />
+   <node pkg="rapp_robot_agent" name="acore_estimator_server" type="acore_estimator_server.py" output="screen"/>
+  <!-- Kalman filter node
+  <include  file="$(find robot_localization)/launch/nao_ekf.launch" /> -->
 
 
 </launch>
