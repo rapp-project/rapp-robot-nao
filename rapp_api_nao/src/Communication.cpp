@@ -3,7 +3,15 @@
 
 namespace rapp {
 namespace robot {
-	
+
+Communication::Communication(int argc, char * argv[]) {
+	pimpl = new CommunicationImpl(argc, argv);
+}
+
+Communication::~Communication() {
+	delete pimpl;
+}
+
 bool Communication::playAudio(const std::string & file_path, double position, double volume, double balance, bool play_in_loop) {
 	pimpl->playAudio(file_path, position, volume, balance, play_in_loop);
 }

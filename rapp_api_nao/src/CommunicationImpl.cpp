@@ -13,6 +13,10 @@ CommunicationImpl::~CommunicationImpl() {
 
 bool CommunicationImpl::textToSpeech(const std::string & str, Language language) {
 	client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
+	if (!client_say) {
+		ROS_ERROR("Can't connect to service rapp_say!");
+		return false;
+	}
 	rapp_ros_naoqi_wrappings::Say srv;
 	bool successful = false;
 	
