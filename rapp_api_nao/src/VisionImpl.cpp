@@ -15,7 +15,7 @@ cv::Mat VisionImpl::captureImage(std::string cameraId, int cameraResolution) {
 	if (!client_captureImage) {
 		ROS_DEBUG("Invalid service client, creating new one...");
 		double secs = ros::Time::now().toSec();
-		client_captureImage = n_->serviceClient<rapp_ros_naoqi_wrappings::GetImage>("rapp_capture_image", true);
+		client_captureImage = n->serviceClient<rapp_ros_naoqi_wrappings::GetImage>("rapp_capture_image", true);
 		double sec2 = ros::Time::now().toSec();
 		ROS_DEBUG("Creating service client took %lf seconds", sec2-secs);
 	} else {
@@ -49,7 +49,7 @@ cv::Mat VisionImpl::captureImage(std::string cameraId, int cameraResolution) {
 
 bool VisionImpl::setCameraParams(int cameraId, int cameraParameterId, int newValue )
 {
-	client_setCameraParam = n_->serviceClient<rapp_ros_naoqi_wrappings::SetCameraParam>("rapp_set_camera_parameter");
+	client_setCameraParam = n->serviceClient<rapp_ros_naoqi_wrappings::SetCameraParam>("rapp_set_camera_parameter");
 	rapp_ros_naoqi_wrappings::SetCameraParam srv;
 	srv.request.cameraId = cameraId;
 	srv.request.cameraParameterId = cameraParameterId;
@@ -75,7 +75,7 @@ bool VisionImpl::setCameraParams(int cameraId, int cameraParameterId, int newVal
 
 cv::Mat VisionImpl::getTransform(std::string chainName, int space)
 {
-	client_getTransform = n_->serviceClient<rapp_ros_naoqi_wrappings::GetTransform>("rapp_get_transform");
+	client_getTransform = n->serviceClient<rapp_ros_naoqi_wrappings::GetTransform>("rapp_get_transform");
 	rapp_ros_naoqi_wrappings::GetTransform srv;
 	srv.request.chainName = chainName;
 	srv.request.space = space;
@@ -105,3 +105,4 @@ cv::Mat VisionImpl::getTransform(std::string chainName, int space)
 
 } // namespace robot
 } // namespace rapp
+

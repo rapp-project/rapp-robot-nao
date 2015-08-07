@@ -9,6 +9,7 @@
 
 #include <rapp/robot/Vision.hpp>
 
+
 namespace rapp {
 namespace robot {
 
