@@ -33,7 +33,7 @@ fi
 if [ -d $ROS_ADDITIONAL_PACKAGES_ISOLATED ]; then #If directory exists
 	echo -e "$COL_GREEN[OK]$COL_RESET - Removing $ROS_ADDITIONAL_PACKAGES_ISOLATED"
 	cd $ROS_ADDITIONAL_PACKAGES_DIR
-	rm install_isolated devel_isolated build_isolated -rf
+	sudo rm install_isolated devel_isolated build_isolated -rf
 fi
 
 # Builds ROS core packages 
@@ -87,6 +87,97 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED 
 make install
+# Eigen
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of Eigen"
+wget http://bitbucket.org/eigen/eigen/get/3.2.5.tar.gz
+tar zxvf 3.2.5.tar.gz
+mkdir eigen-eigen-bdd17ee3b1b3/build_dir
+cd eigen-eigen-bdd17ee3b1b3/build_dir
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release
+make install
+make clean
+
+
+# FLANN
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
+wget http://www.cs.ubc.ca/research/flann/uploads/FLANN/flann-1.8.4-src.zip
+unzip flann-1.8.4-src.zip
+cd flann-1.8.4-src && mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
+make 
+make install
+make clean
+
+#QHULL
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of QHULL"
+wget http://www.qhull.org/download/qhull-2012.1-src.tgz
+tar zxvf qhull-2012.1-src.tgz
+cd qhull-2012.1
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
+make 
+make install
+make clean
+
+# PCL
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
+git clone https://github.com/PointCloudLibrary/pcl.git
+cd pcl && mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA:BOOL=OFF -DWITH_DAVIDSDK:BOOL=ON -DWITH_DOCS:BOOL=OFF -DWITH_ENSENSO:BOOL=ON -DWITH_FZAPI:BOOL=OFF -DWITH_LIBUSB:BOOL=OFF -DWITH_OPENGL:BOOL=OFF -DWITH_OPENNI:BOOL=OFF -DWITH_OPENNI2:BOOL=OFF -DWITH_PCAP:BOOL=OFF -DWITH_PNG:BOOL=ON -DWITH_PXCAPI:BOOL=OFF -DWITH_QHULL:BOOL=ON -DWITH_QT:BOOL=OFF -DWITH_VTK:BOOL=OFF -DBUILD_recognition:BOOL=OFF ..
+make 
+make install
+make clean
+
+# SDL2
+#cd $PROGRAMS_DIRECTORY
+#echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
+#wget https://www.libsdl.org/release/SDL2-2.0.3.tar.gz
+#tar zxvf SDL2-2.0.3.tar.gz
+##cd SDL2-2.0.3 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED && mkdir build && cd build
+#cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
+#make
+#sudo make install
+#make clean
+
+# SDL_image 2.0
+#cd $PROGRAMS_DIRECTORY
+#echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
+#wget https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.0.tar.gz
+#tar zxvf SDL2_image-2.0.0.tar.gz
+
+#cd SDL2_image-2.0.0 && sh ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED CPPFLAGS="-I/home/nao/ws_ros_additional_packages/install_isolated/include" LDFLAGS="-L/home/nao/ws_ros_additional_packages/install_isolated/lib"
+#make
+#make install
+#make clean
+# SDL-1.2
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of SDL-1.2.15"
+wget https://www.libsdl.org/release/SDL-1.2.15.tar.gz
+tar zxvf SDL-1.2.15.tar.gz
+cd SDL-1.2.15 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+make 
+make install
+
+# SDL_image-1.2
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of SDL_image-1.2.12"
+wget https://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.12.tar.gz
+tar zxvf SDL_image-1.2.12.tar.gz
+cd SDL_image-1.2.12 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED 
+#cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
+make
+make install
+
+# link libraries to system path
+sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libyaml-cpp.a /usr/lib/libyaml-cpp.a
+sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL_image.so /usr/lib/libSDL_image.so
+sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL.so /usr/lib/libSDL.so
+
 
 cd $ROS_ADDITIONAL_PACKAGES_SRC_DIR
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from bond_core repository"
@@ -103,12 +194,66 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbridge_suite
 git clone https://github.com/RobotWebTools/rosbridge_suite.git
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosauth repository"
 git clone https://github.com/WPI-RAIL/rosauth.git
+
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from uuid_msgs repository for robot_localization pkg"
+git clone https://github.com/ros-geographic-info/unique_identifier.git
+
+# for robot_localization
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
+git clone https://github.com/ros/ros_comm.git
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from geographic_msgs repository for robot_localization pkg"
+git clone https://github.com/ros-geographic-info/geographic_info.git 
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from tf2 repository for robot_localization pkg"
+git clone https://github.com/ros/geometry_experimental.git
+cd geometry_experimental
+rm -R tf2_bullet
+cd ..
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from diagnostics repository for robot_localization pkg"
+git clone  https://github.com/ros/diagnostics.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from robot_localization repository"
 git clone https://github.com/cra-ros-pkg/robot_localization.git
+
+
+# for global_planner
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code common_msgs for costmap_2d package"
+git clone  https://github.com/ros/common_msgs.git  https://github.com/ros/common_msgs.git
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code bondcpp for nodelet package"
+git clone https://github.com/ros/bond_core.git
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code nodelet for global_planner package"
+git clone https://github.com/ros/nodelet_core.git
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code nav_core for global_planner package"
+svn co https://github.com/ros-planning/navigation/trunk/nav_core
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code navfn for global_planner package"
+svn co https://github.com/ros-planning/navigation/trunk/navfn
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code costmap_2d for global_planner package"
+svn co https://github.com/ros-planning/navigation/trunk/costmap_2d
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code angles for global_planner package"
+git clone https://github.com/ros/angles.git
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code map_msgs for global_planner package"
+git clone https://github.com/ros-planning/navigation_msgs.git
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code laser_geometry for global_planner package"
+git clone https://github.com/ros-perception/laser_geometry.git 
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code map_server for global_planner package"
+svn co https://github.com/ros-planning/navigation/trunk/map_server
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code voxel_grid for global_planner package"
+svn co https://github.com/ros-planning/navigation/trunk/voxel_grid
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code pcl_conversions for global_planner package"
+git clone https://github.com/ros-perception/pcl_conversions.git 
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code pcl_ros for global_planner package"
+git clone https://github.com/ros-perception/perception_pcl.git 
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code pcl_msgs for global_planner package"
+git clone https://github.com/ros-perception/pcl_msgs.git 
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code nav_core for global_planner package"
+svn co https://github.com/ros-planning/navigation/trunk/nav_core
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code global_planner package"
+svn co https://github.com/ros-planning/navigation/trunk/global_planner
 cd ..
 
+
+# compilation
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
-catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
+catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake
+
 
 # Gsasl
 cd $PROGRAMS_DIRECTORY
@@ -120,6 +265,7 @@ cd libgsasl-1.8.0
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - gsasl make failed with $?"; exit 1; }
 make install
 make clean
+
 
 # Vmime
 cd $PROGRAMS_DIRECTORY
@@ -139,10 +285,10 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Sourcing ws_ros_additional_packages workspac
 # Openssl
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Openssl"
-wget https://www.openssl.org/source/openssl-1.0.2c.tar.gz
-tar zxvf openssl-1.0.2c.tar.gz
-cd openssl-1.0.2c
-./config --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --openssldir=$ROS_ADDITIONAL_PACKAGES_ISOLATED/openssl
+wget https://www.openssl.org/source/openssl-1.0.2d.tar.gz
+tar zxvf openssl-1.0.2d.tar.gz
+cd openssl-1.0.d
+./config --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --openssldir=$ROS_ADDITIONAL_PACKAGES_ISOLATED/#openssl
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - openssl make failed with $?"; exit 1; }
 sudo make install
 make clean
@@ -172,3 +318,5 @@ cd hop-3.0.0-pre14
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
 sudo make install
 make clean
+
+
