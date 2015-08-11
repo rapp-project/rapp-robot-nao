@@ -4,6 +4,8 @@
 
 #include "NavigationImpl.hpp"
 //#include "string.h"
+namespace rapp {
+namespace robot {
 
 NavigationImpl::NavigationImpl(int argc,char **argv){
 		ros::init(argc, argv,"NavigationImpl_library");
@@ -175,3 +177,6 @@ NavigationImpl::NavigationImpl(int argc,char **argv){
 		    ROS_ERROR("REUEST FAILED:  lookAtPoint"); 
 		  }
 	}
+
+} // namespace robot
+} // namespace rapp
