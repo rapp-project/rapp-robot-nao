@@ -47,6 +47,7 @@ find_package(catkin REQUIRED COMPONENTS
    RemoveStiffness.srv	
    MoveJoint.srv	
    TakePredefinedPosture.srv
+   LookAtPoint.srv
  )
 
  add_message_files(
