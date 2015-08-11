@@ -12,7 +12,8 @@ NavigationImpl::NavigationImpl(int argc,char **argv){
 		n = new ros::NodeHandle();
 
 		}
-
+NavigationImpl::~NavigationImpl() {
+}
 	void NavigationImpl::moveTo(float x, float y, float theta){	
 
 		client_moveTo = n->serviceClient<rapp_ros_naoqi_wrappings::MoveTo>("rapp_moveTo");
