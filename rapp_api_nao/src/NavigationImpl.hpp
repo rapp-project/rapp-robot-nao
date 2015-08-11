@@ -34,15 +34,15 @@ public:
 	ros::ServiceClient client_lookAtPoint;
 	ros::NodeHandle *n;
 	
-	void Navigation::moveTo(float x, float y, float theta);
-	void Navigation::moveVel(float x, float y, float theta);
-	void Navigation::moveHead(float yaw,float pitch);
-	void Navigation::moveStop();
-	void Navigation::moveJoint(std::string joint, float angle);
-	void Navigation::removeStiffness(std::string joint);
-	void Navigation::takePredefinedPosture(std::string pose);
-	void Navigation::visOdom();
-	void Navigation::lookAtPoint(float x, float y, float z);
+	void moveTo(float x, float y, float theta);
+	void moveVel(float x, float y, float theta);
+	void moveHead(float yaw,float pitch);
+	void moveStop();
+	void moveJoint(std::string joint, float angle);
+	void removeStiffness(std::string joint);
+	void takePredefinedPosture(std::string pose);
+	void visOdom();
+	void lookAtPoint(float x, float y, float z);
 	
 };	
 	
