@@ -2,4 +2,4 @@ float32 destination_x
 float32 destination_y
 float32 destination_theta
 ---
-byte isDestinationReached
+string status
