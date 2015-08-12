@@ -85,7 +85,9 @@ tar zxvf yaml-cpp_0.5.1.orig.tar.gz
 cd yaml-cpp-0.5.1
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DBUILD_SHARED_LIBS=OFF
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
+sudo rm /usr/lib/libyaml-cpp.a
+sudo rm /usr/lib/libyaml-cpp.so
 make install
 make clean
 
@@ -180,6 +182,9 @@ make clean
 
 # link libraries to system pathcd ..
 sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libyaml-cpp.a /usr/lib/libyaml-cpp.a
+sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libyaml-cpp.so /usr/lib/libyaml-cpp.so
+sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libyaml-cpp.libyaml-cpp.so.0.5 /usr/lib/libyaml-cpp.so.0.5
+sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libyaml-cpp.libyaml-cpp.so.0.5.1 /usr/lib/libyaml-cpp.so.0.5.1
 sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL_image.so /usr/lib/libSDL_image.so
 sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL.so /usr/lib/libSDL.so
 
