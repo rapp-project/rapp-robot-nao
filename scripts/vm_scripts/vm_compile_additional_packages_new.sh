@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# written by Maksym Figat
+# written by Maksym Figat & Wojciech Dudek
 
 ESC_SEQ="\x1b["
 COL_GREEN=$ESC_SEQ"32;01m"
@@ -85,8 +85,9 @@ tar zxvf yaml-cpp_0.5.1.orig.tar.gz
 cd yaml-cpp-0.5.1
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED 
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DBUILD_SHARED_LIBS=OFF
 make install
+make clean
 
 # Eigen
 cd $PROGRAMS_DIRECTORY
@@ -109,7 +110,7 @@ cd flann-1.8.4-src && mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
 make 
 make install
-#make clean
+make clean
 
 #QHULL
 cd $PROGRAMS_DIRECTORY
@@ -164,6 +165,7 @@ tar zxvf SDL-1.2.15.tar.gz
 cd SDL-1.2.15 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
 make 
 make install
+make clean
 
 # SDL_image-1.2
 cd $PROGRAMS_DIRECTORY
@@ -171,11 +173,12 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of SDL_
 wget https://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.12.tar.gz
 tar zxvf SDL_image-1.2.12.tar.gz
 cd SDL_image-1.2.12 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED 
-cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
+#cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
 make
 make install
+make clean
 
-# link libraries to system path
+# link libraries to system pathcd ..
 sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libyaml-cpp.a /usr/lib/libyaml-cpp.a
 sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL_image.so /usr/lib/libSDL_image.so
 sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL.so /usr/lib/libSDL.so
@@ -201,8 +204,8 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from uuid_msgs repos
 git clone https://github.com/ros-geographic-info/unique_identifier.git
 
 # for robot_localization
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
-git clone https://github.com/ros/ros_comm.git
+#echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
+#git clone https://github.com/ros/ros_comm.git
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from geographic_msgs repository for robot_localization pkg"
 git clone https://github.com/ros-geographic-info/geographic_info.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from tf2 repository for robot_localization pkg"
@@ -255,7 +258,7 @@ cd ..
 
 # compilation
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
-catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake
+catkin_make_isolated -j1 -l1 --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake
 
 
 # Gsasl
