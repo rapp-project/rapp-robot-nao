@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# written by Maksym Figat
+# written by Maksym Figat & Wojciech Dudek
 
 ESC_SEQ="\x1b["
 COL_GREEN=$ESC_SEQ"32;01m"
@@ -109,7 +109,7 @@ cd flann-1.8.4-src && mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
 make 
 make install
-#make clean
+make clean
 
 #QHULL
 cd $PROGRAMS_DIRECTORY
@@ -201,8 +201,8 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from uuid_msgs repos
 git clone https://github.com/ros-geographic-info/unique_identifier.git
 
 # for robot_localization
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
-git clone https://github.com/ros/ros_comm.git
+#echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
+#git clone https://github.com/ros/ros_comm.git
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from geographic_msgs repository for robot_localization pkg"
 git clone https://github.com/ros-geographic-info/geographic_info.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from tf2 repository for robot_localization pkg"
