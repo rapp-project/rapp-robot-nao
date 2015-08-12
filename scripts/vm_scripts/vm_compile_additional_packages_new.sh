@@ -70,11 +70,11 @@ fi
 source $ROS_INSTALL_ISOLATED/setup.bash
 echo -e "$COL_GREEN[OK]$COL_RESET - Building ros additional packages"
 
-#if [ -d $PROGRAMS_DIRECTORY ]; then #If directory exists
-#	echo -e "$COL_GREEN[OK]$COL_RESET - Folder $PROGRAMS_DIRECTORY exists"
-#	rm $PROGRAMS_DIRECTORY -rf
-#fi
-#mkdir -p $PROGRAMS_DIRECTORY
+if [ -d $PROGRAMS_DIRECTORY ]; then #If directory exists
+	echo -e "$COL_GREEN[OK]$COL_RESET - Folder $PROGRAMS_DIRECTORY exists"
+	rm $PROGRAMS_DIRECTORY -rf
+fi
+mkdir -p $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Creating $PROGRAMS_DIRECTORY folder"
 
 # Yaml-cpp
@@ -86,7 +86,7 @@ cd yaml-cpp-0.5.1
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED 
-#make install
+make install
 
 # Eigen
 cd $PROGRAMS_DIRECTORY
@@ -125,14 +125,14 @@ make install
 make clean
 
 # PCL
-#cd $PROGRAMS_DIRECTORY
-#echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
-#git clone https://github.com/PointCloudLibrary/pcl.git
-#cd pcl && mkdir build && cd build
-#cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA:BOOL=OFF -DWITH_DAVIDSDK:BOOL=ON -DWITH_DOCS:BOOL=OFF -DWITH_ENSENSO:BOOL=ON -DWITH_FZAPI:BOOL=OFF -DWITH_LIBUSB:BOOL=OFF -DWITH_OPENGL:BOOL=OFF -DWITH_OPENNI:BOOL=OFF -DWITH_OPENNI2:BOOL=OFF -DWITH_PCAP:BOOL=OFF -DWITH_PNG:BOOL=ON -DWITH_PXCAPI:BOOL=OFF -DWITH_QHULL:BOOL=ON -DWITH_QT:BOOL=OFF -DWITH_VTK:BOOL=OFF -DBUILD_recognition:BOOL=OFF ..
-#make 
-#make install
-#make clean
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
+git clone https://github.com/PointCloudLibrary/pcl.git
+cd pcl && mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA:BOOL=OFF -DWITH_DAVIDSDK:BOOL=ON -DWITH_DOCS:BOOL=OFF -DWITH_ENSENSO:BOOL=ON -DWITH_FZAPI:BOOL=OFF -DWITH_LIBUSB:BOOL=OFF -DWITH_OPENGL:BOOL=OFF -DWITH_OPENNI:BOOL=OFF -DWITH_OPENNI2:BOOL=OFF -DWITH_PCAP:BOOL=OFF -DWITH_PNG:BOOL=ON -DWITH_PXCAPI:BOOL=OFF -DWITH_QHULL:BOOL=ON -DWITH_QT:BOOL=OFF -DWITH_VTK:BOOL=OFF -DBUILD_recognition:BOOL=OFF ..
+make 
+make install
+make clean
 
 # SDL2
 #cd $PROGRAMS_DIRECTORY
