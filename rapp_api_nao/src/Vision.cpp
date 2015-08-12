@@ -13,11 +13,11 @@ Vision::~Vision() {
 }
 
 cv::Mat Vision::captureImage(std::string cameraId, int cameraResolution){
-	pimpl->captureImage(cameraID, cameraResolution);
+	pimpl->captureImage(cameraId, cameraResolution);
 }
 
 bool Vision::setCameraParams(int cameraId, int cameraParameterId, int newValue ){
-	pimpl->setCameraParams(cameraID, cameraParameterId, newValue);
+	pimpl->setCameraParams(cameraId, cameraParameterId, newValue);
 }
 
 cv::Mat Vision::getTransform(std::string chainName, int space){
