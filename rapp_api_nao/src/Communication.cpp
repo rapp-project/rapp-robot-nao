@@ -16,9 +16,9 @@ bool Communication::playAudio(const std::string & file_path, double position, do
 	pimpl->playAudio(file_path, position, volume, balance, play_in_loop);
 }
 
-bool Communication::textToSpeech(const std::string & str) {
-	pimpl->textToSpeech(str);
-}
+//bool Communication::textToSpeech(const std::string & str) {
+//	pimpl->textToSpeech(str);
+//}
 
 bool Communication::textToSpeech(const std::string & str, Language language) {
 	pimpl->textToSpeech(str, language);

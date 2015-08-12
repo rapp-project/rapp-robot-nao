@@ -12,7 +12,7 @@ CommunicationImpl::~CommunicationImpl() {
 }
 
 
-bool CommunicationImpl::textToSpeech(const std::string & str){	
+/*bool CommunicationImpl::textToSpeech(const std::string & str){	
 
 	client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");
 	if (!client_say) {
@@ -36,7 +36,7 @@ bool CommunicationImpl::textToSpeech(const std::string & str){
 		successful = false;
 	}
 	return successful;
-}
+}*/
 	
 bool CommunicationImpl::textToSpeech(const std::string & str, Language language) {
 	client_say = n->serviceClient<rapp_ros_naoqi_wrappings::Say>("rapp_say");

@@ -33,7 +33,7 @@ public:
 
 	ros::NodeHandle *n;
 	
-	bool textToSpeech(const std::string & str);
+	//bool textToSpeech(const std::string & str);
 	
 	bool textToSpeech(const std::string & str, Language language);
 	
