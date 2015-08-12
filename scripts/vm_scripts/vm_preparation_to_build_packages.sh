@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# written by Maksym Figat
-
+# written by Maksym Figat  & Wojciech Dudek
 ESC_SEQ="\x1b["
 COL_GREEN=$ESC_SEQ"32;01m"
 COL_RESET=$ESC_SEQ"39;49;00m"
@@ -48,18 +47,18 @@ git clone -b master https://github.com/rapp-project/rapp-robot-nao.git || { echo
 cd $GIT_WS_RAPP_APPLICATIONS_DIR
 echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
 echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-git clone -b master https://github.com/rapp-project/rapp-applications.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
+git clone -b master https://github.com/rapp-project/rapp-applications-nao.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
 
 # Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src folder with name src
-echo -e "$COL_GREEN[OK]$COL_RESET - Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src folder with name src"
+echo -e "$COL_GREEN[OK]$COL_RESET - Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications-nao/nao/src folder with name src"
 cd $WS_RAPP_APPLICATIONS_NAO_DIR
-ln -s /home/nao/ws_rapp_applications/rapp-applications/nao/src/ src
+ln -s /home/nao/ws_rapp_applications/rapp-applications-nao/nao/src/ src
 
 # If folder doesnt exist
-if [ ! -d $HZ_DIRECTORY/packages ]; then
-	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $HZ_DIRECTORY/packages directory."
-	mkdir -p $HZ_DIRECTORY/packages
-fi
+#if [ ! -d $HZ_DIRECTORY/packages ]; then
+#	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $HZ_DIRECTORY/packages directory."
+#	mkdir -p $HZ_DIRECTORY/packages
+#fi
 
 # If folder doesnt exist
 if [ ! -d $ROS_ADDITIONAL_PACKAGES_SRC_DIR ]; then 
