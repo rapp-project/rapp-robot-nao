@@ -20,7 +20,6 @@ rsync -az --rsync-path="mkdir -p /home/nao/ws_ros && rsync" /home/nao/ws_ros/ins
 
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_ros_additional_packages on Nao"
 rsync -az --rsync-path="mkdir -p /home/nao/ws_ros_additional_packages && rsync" /home/nao/ws_ros_additional_packages/install_isolated nao@$1:/home/nao/ws_ros_additional_packages/
-rsync -az --rsync-path="mkdir -p /home/nao/ws_ros_additional_packages && rsync"  /home/nao/gcc-4.8.4/lib/libstdc++.so.6 nao@$1:/home/nao/ws_ros_additional_packages/install_isolated/lib/libstdc++.so.6
 rsync -az --rsync-path="mkdir -p /home/nao/ws_ros_additional_packages && rsync"  /home/nao/ws_rapp_nao/src/rapp-robot-nao/rapp_ros_naoqi_wrappings/ros_packages_config nao@$1:/home/nao/ws_ros_additional_packages/
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of nao_scripts on Nao"
 rsync -az --rsync-path="mkdir -p /home/nao/scripts && rsync" /home/nao/ws_rapp_nao/src/rapp-robot-nao/scripts/nao_scripts/ nao@$1:/home/nao/scripts/
