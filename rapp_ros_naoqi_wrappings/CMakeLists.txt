@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
 	cv_bridge
 	sensor_msgs
 	image_transport
-)nano
+)
 
  add_service_files(
    FILES
