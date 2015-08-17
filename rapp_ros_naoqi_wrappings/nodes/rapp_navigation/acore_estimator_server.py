@@ -17,7 +17,7 @@ from rapp_ros_naoqi_wrappings.srv import DetectQRcodes
 from rapp_ros_naoqi_wrappings.srv import GetTransform
 from rapp_ros_naoqi_wrappings.srv import VisOdom,VisOdomResponse
 from rapp_ros_naoqi_wrappings.srv import MoveHead
-from rapp_ros_naoqi_wrappings.srv import MoveVel,TakePredefinedPosture
+from rapp_ros_naoqi_wrappings.srv import MoveVel,TakePredefinedPosture, MoveVelRequest
 import threading 
 
 from sensor_msgs.msg import Image

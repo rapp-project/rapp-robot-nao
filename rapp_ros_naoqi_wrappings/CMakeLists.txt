@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
 	cv_bridge
 	sensor_msgs
 	image_transport
-)
+)nano
 
  add_service_files(
    FILES
@@ -48,6 +48,8 @@ find_package(catkin REQUIRED COMPONENTS
    MoveJoint.srv	
    TakePredefinedPosture.srv
    LookAtPoint.srv
+DetectQRcodes.srv
+VisOdom.srv
  )
 
  add_message_files(
