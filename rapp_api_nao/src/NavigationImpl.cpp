@@ -96,7 +96,7 @@ NavigationImpl::~NavigationImpl() {
 
 	 	if (client_moveJoint.call(srv))
 	 	  {
-	   	  	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
+	   	  //	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
 	 	  }
 	 	else
 	 	  {
