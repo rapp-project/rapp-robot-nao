@@ -89,8 +89,10 @@ NavigationImpl::~NavigationImpl() {
 		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
 
 		rapp_ros_naoqi_wrappings::MoveJoint srv;
-		srv.request.joint_name = joint;
-		srv.request.joint_angle = angle;
+		memcpy(&srv.request.joint_name, &joint, sizeof(joint));
+		memcpy(&srv.request.joint_angle, &angle, sizeof(angle));
+		//srv.request.joint_name = joint;
+		//srv.request.joint_angle = angle;
 
 	 	if (client_moveJoint.call(srv))
 	 	  {

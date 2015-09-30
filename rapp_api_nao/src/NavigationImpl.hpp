@@ -12,7 +12,7 @@
 #include "rapp_ros_naoqi_wrappings/TakePredefinedPosture.h"
 #include "rapp_ros_naoqi_wrappings/LookAtPoint.h"
 #include <rapp/robot/Navigation.hpp>
-
+#include <iostream.h>
 namespace rapp {
 namespace robot {
 
