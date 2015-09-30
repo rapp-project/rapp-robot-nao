@@ -85,22 +85,22 @@ NavigationImpl::~NavigationImpl() {
 		    ROS_ERROR("Failed to call service moveHead"); 
 		  }
 	}
-	void NavigationImpl::moveJoint(std::string joint[], float angle[]){
+	void NavigationImpl::moveJoint(std::string joint, float angle){
 		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
 
 		rapp_ros_naoqi_wrappings::MoveJoint srv;
-		srv.request.joint_name = joint[];
-		srv.request.joint_angle = angle[];
+		srv.request.joint_name = joint;
+		srv.request.joint_angle = angle;
 
-	// 	if (client_moveJoint.call(srv))
-	// 	  {
-	//   	  	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
-	// 	  }
-	// 	else
-	// 	  {
-	// 	    ROS_ERROR("Failed to call service moveJoint"); 
-	// 	  }
-	// }	
+	 	if (client_moveJoint.call(srv))
+	 	  {
+	   	  	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
+	 	  }
+	 	else
+	 	  {
+	 	    ROS_ERROR("Failed to call service moveJoint"); 
+	 	  }
+	}	
 	void NavigationImpl::removeStiffness(std::string joint){
 		client_removeStiffness = n->serviceClient<rapp_ros_naoqi_wrappings::RemoveStiffness>("rapp_removeStiffness");
 		
