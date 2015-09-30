@@ -68,7 +68,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		    ROS_ERROR("Failed to call service MoveHead"); 
 		  }
 	}
-	void NaoNavigation::moveJoint(std::string joint, float angle){
+	void NaoNavigation::moveJoint(std::string joint[], float angle[]){
 		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
 
 		rapp_ros_naoqi_wrappings::MoveJoint srv;
@@ -77,7 +77,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 
 		if (client_moveJoint.call(srv))
 		  {
-	  	  	//ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
+	  	  	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
 		  }
 		else
 		  {
