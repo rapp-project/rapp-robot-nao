@@ -85,7 +85,7 @@ NavigationImpl::~NavigationImpl() {
 		    ROS_ERROR("Failed to call service moveHead"); 
 		  }
 	}
-	void NavigationImpl::moveJoint(std::string joint, float angle){
+	void NavigationImpl::moveJoint(std::string joint[], float angle[]){
 		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
 
 		rapp_ros_naoqi_wrappings::MoveJoint srv;
