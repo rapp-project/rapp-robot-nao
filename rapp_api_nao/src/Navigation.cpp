@@ -24,7 +24,7 @@ Navigation::~Navigation() {
 	void Navigation::moveStop(){
 		pimpl->moveStop();		
 	}
-	void Navigation::moveJoint(std::string joint[], float angle[]){
+	void Navigation::moveJoint(std::vector<std::string> joint, std::vector<float> angle){
 		pimpl->moveJoint(joint, angle);		
 	}
 	void Navigation::removeStiffness(std::string joint){
