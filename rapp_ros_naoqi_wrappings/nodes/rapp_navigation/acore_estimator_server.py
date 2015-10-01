@@ -376,25 +376,51 @@ class NaoEstimator(ALModule):
 																			matrix[1][1],
 																			matrix[1][2]),
                                          time, "QR_Torso", self.marker_id )
-		rospy.sleep(1)
-		if self.tl.canTransform("QR_Torso",self.marker_id ,time):
-			transform_QR_map = self.tl.lookupTransform("map","QR_Torso", time)
-			euler_transform_QR_map =  tf.transformations.euler_from_quaternion(transform_QR_map[1])
-			if self.tl.canTransform("odom","base_link",rospy.Time()):
-				transform_Nao_odom = self.tl.lookupTransform("base_link","odom", rospy.Time())
-				euler_transform_Nao_odom =  tf.transformations.euler_from_quaternion(transform_Nao_odom[1])
+		# self.tl.waitForTransform("map", "QR_Torso", rospy.Time(0), rospy.Duration(5.0))
+		# if self.tl.canTransform("QR_Torso",self.marker_id ,rospy.Time(0)):
+		rospy.sleep(3)
+
+		decomposed_matrix = matrix
+		decomposed_matrix_quaternion = tf.transformations.quaternion_from_euler(matrix[1][0],
+																			matrix[1][1],
+																			matrix[1][2])
+		poseMSG = PoseStamped()
+
+		poseMSG.header.seq = 0
+		poseMSG.header.stamp = rospy.Time.now()
+		poseMSG.header.frame_id =  self.marker_id
+
+		poseMSG.pose.position.x = decomposed_matrix[0][0]
+		poseMSG.pose.position.y = decomposed_matrix[0][1]
+		poseMSG.pose.position.z = decomposed_matrix[0][2]
+
+		poseMSG.pose.orientation.x = decomposed_matrix_quaternion[0]
+		poseMSG.pose.orientation.y = decomposed_matrix_quaternion[1]
+		poseMSG.pose.orientation.z = decomposed_matrix_quaternion[2]
+		poseMSG.pose.orientation.w = decomposed_matrix_quaternion[3]
+
+		new_robot_matrix_in_map = self.tl.transformPose("map",poseMSG)
+
+		convert_to_ROS_transform = [[new_robot_matrix_in_map.pose.position.x,new_robot_matrix_in_map.pose.position.y,new_robot_matrix_in_map.pose.position.z]
+									,[new_robot_matrix_in_map.pose.orientation.x,new_robot_matrix_in_map.pose.orientation.y,
+									new_robot_matrix_in_map.pose.orientation.z,new_robot_matrix_in_map.pose.orientation.w]]
+		#transform_QR_map = self.tl.lookupTransform("map","QR_Torso", rospy.Time(0))
+		euler_transform_QR_map =  tf.transformations.euler_from_quaternion(convert_to_ROS_transform[1])
+			# if self.tl.canTransform("odom","base_link",rospy.Time()):
+		transform_Nao_odom = self.tl.lookupTransform("base_link","odom", rospy.Time())
+		euler_transform_Nao_odom =  tf.transformations.euler_from_quaternion(transform_Nao_odom[1])
 				#
 				# calculate new odom position, so Nao_T_odom will be in pointed position
 				#
-				matrix_Nao_odom= np.linalg.pinv(np.array([[np.cos(euler_transform_Nao_odom[2]),-np.sin(euler_transform_Nao_odom[2]),0,transform_Nao_odom[0][0]],
+		matrix_Nao_odom= np.linalg.pinv(np.array([[np.cos(euler_transform_Nao_odom[2]),-np.sin(euler_transform_Nao_odom[2]),0,transform_Nao_odom[0][0]],
 													[np.sin(euler_transform_Nao_odom[2]),np.cos(euler_transform_Nao_odom[2]),0,transform_Nao_odom[0][1]],
 													[0,0,0,transform_Nao_odom[0][2]],
 													[0,0,0,1]]))
 
-				self.odom_transformation.position = [transform_QR_map[0][0]+np.cos(euler_transform_QR_map[2])*transform_Nao_odom[0][0]-np.sin(euler_transform_QR_map[2])*transform_Nao_odom[0][1],
-													transform_QR_map[0][1]+np.sin(euler_transform_QR_map[2])*transform_Nao_odom[0][0]+np.cos(euler_transform_QR_map[2])*transform_Nao_odom[0][1],
+		self.odom_transformation.position = [convert_to_ROS_transform[0][0]+np.cos(euler_transform_QR_map[2])*transform_Nao_odom[0][0]-np.sin(euler_transform_QR_map[2])*transform_Nao_odom[0][1],
+													convert_to_ROS_transform[0][1]+np.sin(euler_transform_QR_map[2])*transform_Nao_odom[0][0]+np.cos(euler_transform_QR_map[2])*transform_Nao_odom[0][1],
 													0]
-				self.odom_transformation.orientation = tf.transformations.quaternion_from_euler(0,0,euler_transform_Nao_odom[2]+euler_transform_QR_map[2])#matrix_Nao_odom[0][1]/matrix_Nao_odom[0][0])#+self.euler_initial[2])
+		self.odom_transformation.orientation = tf.transformations.quaternion_from_euler(0,0,euler_transform_Nao_odom[2]+euler_transform_QR_map[2])#matrix_Nao_odom[0][1]/matrix_Nao_odom[0][0])#+self.euler_initial[2])
 
 			# if self.tl.canTransform("odom","base_link",rospy.Time()):
 			# 	transform_Nao_odom_combined = self.tl.lookupTransform("base_link","odom_combined", rospy.Time())
@@ -432,15 +458,15 @@ class NaoEstimator(ALModule):
 		try:
 			# imu data:
 			self.memData = self.memProxy.getListData(self.dataNamesList)
-			t = rospy.Time.now().to_sec()
+			# t = rospy.Time.now().to_sec()
 
 			# odometry data:
 			self.odomData = self.motionProxy.getPosition('Torso', motion.SPACE_WORLD, True)
-			t1 = rospy.Time.now().to_sec()
+			# t1 = rospy.Time.now().to_sec()
 
-			d_t = t1 -t
-			if d_t> 0.005:
-				print "naoqi",d_t
+			# d_t = t1 -t
+			# if d_t> 0.005:
+			# 	print "naoqi",d_t
 
 			# FSR data
 			#self.FSRData = self.memProxy.getListData(self.FSRdataList)
@@ -570,11 +596,11 @@ class NaoEstimator(ALModule):
 		self.camera_To_Torso_Position = self.motionProxy.getPosition('CameraTop', 0, True)
 		self.quaternion_cameta_to_torso = tf.transformations.quaternion_from_euler(self.camera_To_Torso_Position[3],self.camera_To_Torso_Position[4],self.camera_To_Torso_Position[5])
 		self.start_publishingOdom = True	
-		t2 = rospy.Time.now().to_sec()
+		# t2 = rospy.Time.now().to_sec()
 
-		d_t = t2-t1
-		if d_t> 0.005:
-			print "camera_nao",d_t
+		# d_t = t2-t1
+		# if d_t> 0.005:
+		# 	print "camera_nao",d_t
 		# self.tf_br.sendTransform((self.camera_To_Torso_Position[0],self.camera_To_Torso_Position[1],self.camera_To_Torso_Position[2]), self.quaternion_cameta_to_torso,
 	 #                                       self.timestamp, "cameraTop", "base_link_nao")
 		# 	#self.tf_br.sendTransform((self.torsoOdom.pose.pose.position.x,self.torsoOdom.pose.pose.position.y,self.odomData[2]), self.q_odom,
@@ -618,13 +644,13 @@ class NaoEstimator(ALModule):
 		#/imu_data
 		self.torsoIMUPub.publish(self.torsoIMU)
 		#print "stop",rospy.Time.now()
-		t3 = rospy.Time.now().to_sec()
+		# t3 = rospy.Time.now().to_sec()
 
-		d_t = t3-t2
-		if d_t > 0.005:
-			print "publish",d_t	
+		# d_t = t3-t2
+		# if d_t > 0.005:
+		# 	print "publish",d_t	
 
-		print "total", t3-t
+		# print "total", t3-t
 
 	
 
@@ -651,40 +677,53 @@ class NaoEstimator(ALModule):
 	# 	self.kill_publishOdom = True
 	# 	rospy.sleep(1)
 def handle_markers_tf():
-	br = tf.TransformBroadcaster()
-	time = rospy.Time.now()
+	return
+	# br = tf.TransformBroadcaster()
+	# time = rospy.Time.now()
 	
-	br.sendTransform((0.066,1.7, 0.54),
-                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2),
-                     time,
-                     "Wall",
-                     "map")
-	br.sendTransform((0.256,0.534, 0.32),
-                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
-                     time,
-                     "Wardrobe",
-                     "map")
-	br.sendTransform((2.5097,0.44, 0.825),
-                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
-                     time,
-                     "Microwave",
-                     "map")
-	br.sendTransform((3.306,0.6173, 0.75),
-                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
-                     time,
-                     "Fridge",
-                     "map")
+	# br.sendTransform((0.066,1.7, 0.54),
+ #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2),
+ #                     time,
+ #                     "Wall",
+ #                     "map")
+	# print "Wall",  tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2)
+	# br.sendTransform((0.256,0.534, 0.32),
+ #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
+ #                     time,
+ #                     "Wardrobe",
+ #                     "map")
+	# print "Wardrobe",                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14)
 
-	br.sendTransform((4.04,0.697, 0.505),
-                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
-                     time,
-                     "Stable object",
-                     "map")
-	br.sendTransform((0.0727,1.963, 0.555),
-                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2),
-                     time,
-                     "Door",
-                     "map")
+
+	# br.sendTransform((2.5097,0.44, 0.825),
+ #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
+ #                     time,
+ #                     "Microwave",
+ #                     "map")
+	# print "Microwave",                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14)
+
+
+	# br.sendTransform((3.306,0.6173, 0.75),
+ #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
+ #                     time,
+ #                     "Fridge",
+ #                     "map")
+	# print "Fridge",                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14)
+
+	# br.sendTransform((4.04,0.697, 0.505),
+ #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
+ #                     time,
+ #                     "Stable object",
+ #                     "map")
+	# print "Stable object",                      tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14)
+
+
+	# br.sendTransform((0.0727,1.963, 0.555),
+ #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2),
+ #                     time,
+ #                     "Door",
+ #                     "map")
+	# print "Door",                       tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2)
 
 def signal_handler(signal, frame):
 	print "[Estimator server] - signal SIGINT caught"
@@ -704,7 +743,7 @@ if __name__ == '__main__':
 		TfRate = rospy.Rate(20)
 
 		while not rospy.is_shutdown():
-			handle_markers_tf()
+			#handle_markers_tf()
 			
 			estimator.run()
 

@@ -94,6 +94,10 @@ class MoveNaoModule(ALModule):
 		if self.prox_memory is None:
 			rospy.logerr("[Move server] - Could not get a proxy to ALSonar")
 			exit(1)
+		# self.compass = ALProxy("ALVisualCompass")
+		# if self.compass is None:
+		# 	rospy.logerr("[Move server] - Could not get a proxy to ALVisualCompass")
+		# 	exit(1)
 	# Setting variables
 	def setVariables(self):
 		print "[Move server] - Setting variables"
@@ -193,7 +197,7 @@ class MoveNaoModule(ALModule):
 
 		while self.path_is_finished != True:
 			path = self.plannPath(GoalGlobalPose)
-			if len(path.path)<0:
+			if len(path.path)<3:
 				noPathavaliable = True
 				break
 			self.thread_followPath = threading.Thread(None,self.followPath,None,[path.path])
@@ -327,8 +331,8 @@ class MoveNaoModule(ALModule):
 			print "theta= ",theta
 			#if abs(theta) > 0.15:
 			if (abs(theta) > 20*numpy.pi/180 and AB > 0.08) or (point_number == len(path)-1):
-				thetaTime = abs(theta)/0.4
-				self.proxy_motion.post.move(0,0,0.4*numpy.sign(theta))
+				thetaTime = abs(theta)/0.3
+				self.rapp_move_vel_interface(0,0,0.3*numpy.sign(theta))
 				thetaTime_now = 0
 				while (thetaTime-thetaTime_now)>0:
 					if self.kill_thread_followPath == True:
@@ -336,11 +340,11 @@ class MoveNaoModule(ALModule):
 					rospy.sleep(0.1)
 					
 					thetaTime_now = thetaTime_now + 0.1
-				self.proxy_motion.post.move(0,0,0)
+				self.handle_rapp_moveStop(0)
 					#self.getch() 
 			print "pojscie na AB"
-			move_X_time = AB/0.06
-			self.proxy_motion.post.move(0.06,0,0)
+			move_X_time = AB/0.03
+			self.rapp_move_vel_interface(0.03,0,0)
 			move_X_time_now = 0
 			while (move_X_time-move_X_time_now)>0:
 				if self.kill_thread_followPath == True:
@@ -349,7 +353,7 @@ class MoveNaoModule(ALModule):
 				
 				move_X_time_now = move_X_time_now + 0.1
 			
-			self.proxy_motion.post.move(0,0,0)
+			self.handle_rapp_moveStop(0)
 			#self.getch() 
 
 			# print "nawrotka na kierunek B"
@@ -380,6 +384,263 @@ class MoveNaoModule(ALModule):
 			self.path_is_finished = True
 			print "PATH END"
 
+	def handle_rapp_MoveTo2(self,req):
+		self.SetPose('StandInit')
+		self.getNaoCurrentPosition()
+		destinationX=req.destination_x
+		destinationY=req.destination_y
+		destinationTheta=req.destination_theta
+		GoalGlobalPose = [destinationX,destinationY,destinationTheta]
+		# flag for detectObstacle
+		self.move_is_finished = False
+		self.path_is_finished = False
+		self.lastTimePlanning = 0
+		self.timeTrigger = False
+		self.plannedAlready = False
+
+		print "[Move server] - waiting for makePlan service"
+		rospy.wait_for_service('/global_planner/make_plan')
+		print "[Move server] - makePlan service found"
+		
+		self.followPath_flag = 'empty'
+		rate_mainThread = rospy.Rate(1)
+		noPathavaliable = False
+		print "[Move server] - walk tajectory planning"
+
+		while self.path_is_finished != True:
+			self.path_is_finished = False
+			self.obstacle_detected = False
+			self.plannNewPath = False
+			self.kill_thread_detectObstacle = False
+			self.kill_thread_followPath = False
+			self.noPathavaliable = False
+			old_path = MakeNavPlanResponse()
+			path = self.plannPath2(GoalGlobalPose)
+			if len(path.path)<3:
+				self.noPathavaliable = True
+				if len(old_path.path) > 1:
+					path = old_path
+				else:
+					break
+			self.thread_followPath = threading.Thread(None,self.followPath2,None,[path.path])
+			thread_detectObstacle = threading.Thread(None,self.detectObstacle,None)	
+
+			# # # zanim zaczniesz ruch ustaw watek do sprawdzania sonarow
+			#thread_detectObstacle.start()
+			self.thread_followPath.start()
+			#self.followPath_flag = self.followPath(path)
+			while self.path_is_finished == False and self.obstacle_detected == False and self.plannNewPath==False:
+				rate_mainThread.sleep()
+			
+			old_path = path
+			
+			#wait to nao stop move
+			if self.path_is_finished == True:
+				self.kill_thread_detectObstacle = True
+				#thread_detectObstacle.join()
+				print "destination reached, and obstacle detection is:\n",thread_detectObstacle.isAlive()
+				print "destination reached, and following path is:\n",self.thread_followPath.isAlive()
+
+			elif self.obstacle_detected == True:
+				self.kill_thread_followPath = True
+				#thread_detectObstacle.join()
+				print "OBSTACLE DETECTED, path following is:\n",self.thread_followPath.isAlive()
+				print "OBSTACLE DETECTED, obstacle detection is:\n",thread_detectObstacle.isAlive()
+				#self.followObstaclesBoundary2()
+				print "BUG BUG BUG BUG BUG BUG BUG BUG \n BUG BUG BUG BUG BUG BUG"
+				break
+			else:
+				self.kill_thread_detectObstacle = True
+				print "killing threads"
+				print "destination reached, and obstacle detection is:\n",thread_detectObstacle.isAlive()
+				print "destination reached, and following path is:\n",self.thread_followPath.isAlive()
+
+		if self.noPathavaliable == True:
+			status = "no path avaliable"
+		else:
+			status = "move finished"
+		self.move_is_finished = True
+		print "[Move server] - move finished"
+
+		return MoveToResponse(status)
+
+
+	def plannPath2(self,GoalGlobalPose):
+		naoCurrentPosition = self.getNaoCurrentPosition()
+		start = PoseStamped()
+		goal = PoseStamped()
+		start.header.seq = 0
+		goal.header.seq = 0
+		start.header.stamp = rospy.Time.now()
+		goal.header.stamp = rospy.Time.now()
+		start.header.frame_id = "/map"
+		goal.header.frame_id = "/map"
+		start.pose.position.x = naoCurrentPosition[0][0]
+		start.pose.position.y = naoCurrentPosition[0][1]
+		start.pose.position.z = naoCurrentPosition[0][2]
+		start.pose.orientation.x = naoCurrentPosition[1][0]
+		start.pose.orientation.y = naoCurrentPosition[1][1]
+		start.pose.orientation.z = naoCurrentPosition[1][2]
+		start.pose.orientation.w = naoCurrentPosition[1][3]
+		goal.pose.position.x = GoalGlobalPose[0]
+		goal.pose.position.y = GoalGlobalPose[1]
+		goal.pose.position.z = 0
+		goal_orientation_quaternion = tf.transformations.quaternion_from_euler(0,0,GoalGlobalPose[2]) 
+		goal.pose.orientation.x = goal_orientation_quaternion[0]
+		goal.pose.orientation.y = goal_orientation_quaternion[1]
+		goal.pose.orientation.z = goal_orientation_quaternion[2]
+		goal.pose.orientation.w = goal_orientation_quaternion[3]
+		print "tu jest start \n",start
+		print "tu jest goal \n",goal
+		path = numpy.array(PoseStamped())
+		print "sdsanaskd"
+		plan_path = rospy.ServiceProxy('/global_planner/make_plan', MakeNavPlan)
+		print "okmpmmlkmvxc ssdf "
+		path = plan_path(start,goal)
+		print "mm,nk jnk jnj dnknsd"
+		return path
+
+#proporcjonalna odleglosc miedzy punktami
+	# def followPath(self,path):			
+		
+	# 	for i in range(int(numpy.floor(len(path)-1)/((len(path))*0.05))+3):
+	# 	#int(numpy.floor(len(path.path)/200))+1):
+	# 		print "liczba petli :\n",int(numpy.floor(len(path)-1)/(len(path)*0.05))+3
+	# 		print "liczba punktow: \n", len(path)
+	# 		rospy.sleep(3)
+	# 		naoCurrentPosition = self.getNaoCurrentPosition()
+	# 		robot_orientation_euler = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])
+	# 		if (len(path)-1-(i+1)*int(numpy.floor(len(path))*0.05))<0:
+	# 			point_number = len(path)-1
+	# 		else:
+	# 			point_number = ((i+1)*int(numpy.floor(len(path))*0.05))
+# staly odstep miedzy punkami
+	def canPlannPath2(self):
+		print "path = self.plannPath(GoalGlobalPose)"
+		print "pathLen + len(path)"
+
+	def followPath2(self,path):			
+		
+		for i in range(int(numpy.ceil(len(path)/(20)))+1):
+		#int(numpy.floor(len(path.path)/200))+1):
+			print "i= ",i
+			print "liczba punktow: \n", len(path)
+			timeDelay =rospy.Time.now().secs -self.lastTimePlanning
+			if self.timeTrigger == True and timeDelay<3:
+				print "Delay   ",timeDelay
+				rospy.sleep(3-timeDelay)
+			elif self.timeTrigger == True and timeDelay>=3:
+				print "Delay   ",timeDelay
+			else:
+				rospy.sleep(3)
+			self.timeTrigger == False
+			naoCurrentPosition = self.getNaoCurrentPosition()
+			robot_orientation_euler = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])
+			if (len(path)-(i+1)*20<0.1):
+				point_number = len(path)-1
+			else:
+				point_number = (i+1)*20
+
+
+			nextPose = path[point_number]
+			nextRotation = [nextPose.pose.orientation.x,nextPose.pose.orientation.y,nextPose.pose.orientation.z,nextPose.pose.orientation.w]
+			nextPoseOrientationZ = tf.transformations.euler_from_quaternion(nextRotation)[2]#.x,nextPose.pose.orientation.y,nextPose.pose.orientation.z,nextPose.pose.orientation.w)[2]
+			print "[Path tracker] - getting to next point:\n ", point_number," / ", (len(path)-1)
+			print "start:\n ",naoCurrentPosition[0][0],naoCurrentPosition[0][1]
+			print "finish:\n",nextPose.pose.position.x,nextPose.pose.position.y
+
+			x_A = naoCurrentPosition[0][0]
+			y_A = naoCurrentPosition[0][1]
+			robot_orientation_euler = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])
+			gamma = robot_orientation_euler[2]
+			x_B = nextPose.pose.position.x
+			y_B = nextPose.pose.position.y
+			AB = numpy.sqrt((x_A-x_B)*(x_A-x_B)+(y_A-y_B)*(y_A-y_B))
+			nextPoseOrientationZ = tf.transformations.euler_from_quaternion(nextRotation)[2]#.x,nextPose.pose.orientation.y,nextPose.pose.orientation.z,nextPose.pose.orientation.w)[2]
+
+			alpha = numpy.arctan2(y_B-y_A,x_B-x_A)
+			#dist_Nao_trajectory = numpy.sqrt(()*()+()*())
+			print "gamma|alpha\n", gamma," | ",alpha
+			print "gamma|alpha", gamma," | ",nextPoseOrientationZ
+			if abs(gamma)> abs(alpha):
+			 	theta = -1*(gamma - alpha)
+			elif abs(gamma)< abs(alpha):
+				theta = (alpha - gamma)
+			else:
+				theta =0
+			if abs(theta) > 3.14:
+				print"\n theta > 3.14\n"
+				theta = theta-(numpy.sign(theta)*2*numpy.pi)
+			print "nawrotka na AB"
+			print "theta= ",theta
+			#if abs(theta) > 0.15:
+			if ((abs(theta) > 20*numpy.pi/180 and AB > 0.08)) or (point_number == len(path)-1):
+				#trigger = self.canPlannPath() # if not in infation space, plann new path
+				if self.noPathavaliable == False and (point_number != 20) and len(path)>20:
+					self.plannNewPath = True
+					self.timeTrigger = True
+					self.plannedAlready = True
+					print "planning new path\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nblah blah"
+					self.lastTimePlanning = rospy.Time.now().secs
+					break
+				else:
+					self.plannedAlready = False
+
+					thetaTime = abs(theta)/0.4
+					self.proxy_motion.post.move(0,0,0.4*numpy.sign(theta))
+					thetaTime_now = 0
+					while (thetaTime-thetaTime_now)>0:
+						if self.kill_thread_followPath == True:
+							break	
+						rospy.sleep(0.1)
+						
+						thetaTime_now = thetaTime_now + 0.1
+					self.proxy_motion.post.move(0,0,0)
+					#self.getch()
+
+			print "pojscie na AB"
+			move_X_time = AB/0.06
+			self.proxy_motion.post.move(0.06,0,0)
+			move_X_time_now = 0
+			while (move_X_time-move_X_time_now)>0:
+				if self.kill_thread_followPath == True:
+					break	
+				rospy.sleep(0.1)
+				
+				move_X_time_now = move_X_time_now + 0.1
+			
+			self.proxy_motion.post.move(0,0,0)
+			#self.getch() 
+
+			# print "nawrotka na kierunek B"
+			# theta2 = nextPoseOrientationZ - alpha
+			# theta2_Time = abs(theta2)/0.2
+			# self.proxy_motion.post.move(0,0,0.2*numpy.sign(theta2))
+			# rospy.sleep(theta2_Time)
+
+			if self.kill_thread_followPath == True:
+				break
+		if self.kill_thread_followPath == True:
+			self.path_is_finished = False
+		elif self.plannNewPath == True:
+			return
+		else:
+			print "nawrotka na kierunek koncowy"
+			naoCurrentPosition = self.getNaoCurrentPosition()
+			robot_orientation_euler = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])
+			print "last point orientation: \n", nextPoseOrientationZ
+			theta2 = nextPoseOrientationZ - robot_orientation_euler[2]
+			if abs(theta2) > 3.14:
+				print"\n theta > 3.14\n"
+				theta2 = theta2-(numpy.sign(theta2)*2*numpy.pi)
+
+			theta2_Time = abs(theta2)/0.2
+			self.proxy_motion.post.move(0,0,0.2*numpy.sign(theta2))
+			rospy.sleep(theta2_Time)
+			self.proxy_motion.post.move(0,0,0)
+
+			self.path_is_finished = True
+			print "PATH END"
 ######
 #### BUG
 #
@@ -493,7 +754,7 @@ class MoveNaoModule(ALModule):
 		#####################
 		## Enable arms control by move algorithm
 		#####################
-		self.proxy_motion.setWalkArmsEnabled(True, True)
+		self.proxy_motion.setWalkArmsEnabled(False, False)
 
 		#####################
 		## FOOT CONTACT PROTECTION
@@ -514,7 +775,7 @@ class MoveNaoModule(ALModule):
 		Y = req.velocity_y
 		Theta = req.velocity_theta
 
-		self.proxy_motion.moveToward(X, Y, Theta)
+		self.proxy_motion.move(X, Y, Theta)
 
 		isVelocitySetted = True
 		return MoveVelResponse(isVelocitySetted)	
@@ -539,7 +800,7 @@ class MoveNaoModule(ALModule):
 			pitch_end=sensorAngles[1]
 			if yaw_end_old == yaw_end and pitch_end_old == pitch_end: 
 				break
-		self.StiffnessOff("Head")
+		#self.StiffnessOff("Head")
 		return MoveHeadResponse(yaw_end,pitch_end)
 
 	def handle_rapp_moveJoint(self,req):
@@ -548,9 +809,9 @@ class MoveNaoModule(ALModule):
 		self.proxy_motion.angleInterpolationWithSpeed(req.joint_name,req.joint_angle,maxSpeed)
 		useSensors  = True
 		sensorAngles = self.proxy_motion.getAngles(req.joint_name, useSensors)
-		print "sensorAngles type is: \n", type(sensorAngles)
-		joint_angle = float(sensorAngles[0])
-		return MoveJointResponse(joint_angle)
+		# print "sensorAngles type is: \n", type(sensorAngles)
+		# joint_angle = []float(sensorAngles[0])
+		return MoveJointResponse(sensorAngles)
 
 	def handle_rapp_removeStiffness(self,req):
 		pNames = req.joint_name
@@ -561,7 +822,8 @@ class MoveNaoModule(ALModule):
 		return RemoveStiffnessResponse(status)	
 
 	def handle_rapp_moveStop(self,req):
-		self.proxy_motion.stopMove()
+		#self.proxy_motion.stopMove()
+		self.proxy_motion.move(0, 0, 0)
 		return MoveStopResponse(True)
 
 	def handle_rapp_takePredefinedPosture(self,req):
