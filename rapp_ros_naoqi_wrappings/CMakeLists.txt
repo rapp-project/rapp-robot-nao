@@ -50,6 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
    LookAtPoint.srv
 DetectQRcodes.srv
 VisOdom.srv
+MoveAlongPath.srv
  )
 
  add_message_files(
