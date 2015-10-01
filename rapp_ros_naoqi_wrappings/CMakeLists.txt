@@ -64,6 +64,7 @@ MoveAlongPath.srv
    DEPENDENCIES
    std_msgs
    sensor_msgs
+   nav_msgs
  )
 
 catkin_package(
