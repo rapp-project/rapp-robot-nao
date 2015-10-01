@@ -1,0 +1,8 @@
+float32 start_x
+float32 start_y
+float32 start_theta
+float32 finish_x
+float32 finish_y
+float32 finish_theta
+---
+nav_msgs/Path path

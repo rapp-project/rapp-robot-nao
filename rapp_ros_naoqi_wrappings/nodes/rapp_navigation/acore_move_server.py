@@ -118,6 +118,18 @@ class MoveNaoModule(ALModule):
 	def openServices(self):
 		try:
 			print "[Move server] - setting services"
+			print "[Move server] - service - [rapp_MoveAlongPath]"
+			self.service_mt = rospy.Service('rapp_plannPath', PlannPath, self.plannPath)
+		except Exception, ex_mt:
+			print "[Move server] - Exception %s" % str(ex_mt)
+		try:
+			print "[Move server] - setting services"
+			print "[Move server] - service - [rapp_MoveAlongPath]"
+			self.service_mt = rospy.Service('rapp_moveAlongPath', MoveAlongPath, self.handle_rapp_MoveAlongPath)
+		except Exception, ex_mt:
+			print "[Move server] - Exception %s" % str(ex_mt)
+		try:
+			print "[Move server] - setting services"
 			print "[Move server] - service - [rapp_MoveTo]"
 			self.service_mt = rospy.Service('rapp_moveTo', MoveTo, self.handle_rapp_MoveTo)
 		except Exception, ex_mt:
@@ -175,7 +187,44 @@ class MoveNaoModule(ALModule):
 	####
 	##  SERVECE HANDLERS
 	####
-	def handle_rapp_MoveTo(self,req):
+	def handle_rapp_moveTo(self,req):
+		try:
+			#self.SetPose('StandInit')
+			#####################
+			## Collision detection
+			#####################
+			self.proxy_motion.setExternalCollisionProtectionEnabled('All', False)
+
+			#####################
+			## Enable arms control by move algorithm
+			#####################
+			self.proxy_motion.setWalkArmsEnabled(False, False)
+
+			#####################
+			## FOOT CONTACT PROTECTION
+			#####################
+			#~ motionProxy.setMotionConfig([["ENABLE_FOOT_CONTACT_PROTECTION",False]])
+			self.proxy_motion.setMotionConfig([["ENABLE_FOOT_CONTACT_PROTECTION", True]])
+
+			#####################
+			## get robot position before move
+			# #####################
+			# InitRobotPosition = m.Pose2D(self.proxy_motion.getRobotPosition(False))
+
+			# print "[MoveVel server] - Velocity X = %s Velocity Y = %s  Velocity Theta = %s" %(req.velocity_x, req.velocity_y, req.velocity_theta)
+
+			# print "[MoveVel server] - Nao init position = ", InitRobotPosition
+
+			self.proxy_motion.moveTo(req.x, req.y, req.theta)
+			status = 0
+		except Exception, ex:
+			print "[MoveTo server] - Exception %s" % str(ex)
+			status = 1
+		return MoveToResponse(status)	
+
+
+
+	def handle_rapp_MoveAlongPath(self,req):
 		self.SetPose('StandInit')
 		self.getNaoCurrentPosition()
 		destinationX=req.destination_x
@@ -195,46 +244,51 @@ class MoveNaoModule(ALModule):
 		rate_mainThread = rospy.Rate(1)
 		noPathavaliable = False
 
-		while self.path_is_finished != True:
-			path = self.plannPath(GoalGlobalPose)
-			if len(path.path)<3:
-				noPathavaliable = True
-				break
-			self.thread_followPath = threading.Thread(None,self.followPath,None,[path.path])
-			thread_detectObstacle = threading.Thread(None,self.detectObstacle,None)	
+		path = req.path
+		# OBSLUGA SCIEZKI
 
+		#while self.path_is_finished != True:
+		# path = self.plannPath(GoalGlobalPose)
+		# if len(path.path)<3:
+		# 	noPathavaliable = True
+		# 	break
+
+		self.thread_followPath = threading.Thread(None,self.followPath,None,[path.path])
+		thread_detectObstacle = threading.Thread(None,self.detectObstacle,None)	
 			# # # zanim zaczniesz ruch ustaw watek do sprawdzania sonarow
-			#thread_detectObstacle.start()
-			self.thread_followPath.start()
-			#self.followPath_flag = self.followPath(path)
-			while self.path_is_finished == False and self.obstacle_detected == False:
-				rate_mainThread.sleep()
-			#wait to nao stop move
-			if self.path_is_finished == True:
-				self.kill_thread_detectObstacle = True
-				#thread_detectObstacle.join()
-				print "destination reached, and obstacle detection is:\n",thread_detectObstacle.isAlive()
-				print "destination reached, and following path is:\n",self.thread_followPath.isAlive()
+		#thread_detectObstacle.start()
+		self.thread_followPath.start()
+		#self.followPath_flag = self.followPath(path)
+		while self.path_is_finished == False and self.obstacle_detected == False:
+			rate_mainThread.sleep()
+		#wait to nao stop move
+		if self.path_is_finished == True:
+			self.kill_thread_detectObstacle = True
+			#thread_detectObstacle.join()
+			print "destination reached, and obstacle detection is:\n",thread_detectObstacle.isAlive()
+			print "destination reached, and following path is:\n",self.thread_followPath.isAlive()
+			status = 0
 
-			else:
-				self.kill_thread_followPath = True
-				#thread_detectObstacle.join()
-				print "OBSTACLE DETECTED, path following is:\n",self.thread_followPath.isAlive()
-				print "OBSTACLE DETECTED, obstacle detection is:\n",thread_detectObstacle.isAlive()
-				#self.followObstaclesBoundary2()
-				print "BUG BUG BUG BUG BUG BUG BUG BUG \n BUG BUG BUG BUG BUG BUG"
-				break
-		if noPathavaliable == True:
-			status = "no path avaliable"
 		else:
-			status = "move finished"
-		self.move_is_finished = True
+			self.kill_thread_followPath = True
+			#thread_detectObstacle.join()
+			print "OBSTACLE DETECTED, path following is:\n",self.thread_followPath.isAlive()
+			print "OBSTACLE DETECTED, obstacle detection is:\n",thread_detectObstacle.isAlive()
+			#self.followObstaclesBoundary2()
+			print "BUG BUG BUG BUG BUG BUG BUG BUG \n BUG BUG BUG BUG BUG BUG"
+			status = 1
+		# if noPathavaliable == True:
+		# 	status = "no path avaliable"
+		# else:
+		# 	status = "move finished"
+
+		#self.move_is_finished = True
 
 		return MoveToResponse(status)
 
 
-	def plannPath(self,GoalGlobalPose):
-		naoCurrentPosition = self.getNaoCurrentPosition()
+	def plannPath(self,req):
+		naoCurrentPosition = [req.start_x,req.start_y,req.start_theta]#self.getNaoCurrentPosition()
 		start = PoseStamped()
 		goal = PoseStamped()
 		start.header.seq = 0
@@ -243,17 +297,19 @@ class MoveNaoModule(ALModule):
 		goal.header.stamp = rospy.Time.now()
 		start.header.frame_id = "/map"
 		goal.header.frame_id = "/map"
-		start.pose.position.x = naoCurrentPosition[0][0]
-		start.pose.position.y = naoCurrentPosition[0][1]
-		start.pose.position.z = naoCurrentPosition[0][2]
-		start.pose.orientation.x = naoCurrentPosition[1][0]
-		start.pose.orientation.y = naoCurrentPosition[1][1]
-		start.pose.orientation.z = naoCurrentPosition[1][2]
-		start.pose.orientation.w = naoCurrentPosition[1][3]
-		goal.pose.position.x = GoalGlobalPose[0]
-		goal.pose.position.y = GoalGlobalPose[1]
+		start.pose.position.x = req.start_x#naoCurrentPosition[0][0]
+		start.pose.position.y = req.start_y#naoCurrentPosition[0][1]
+		start.pose.position.z = 0#naoCurrentPosition[0][2]
+		start_orientation_quaternion = tf.transformations.quaternion_from_euler(0,0,req.start_theta) 
+
+		start.pose.orientation.x = start_orientation_quaternion[0]
+		start.pose.orientation.y = start_orientation_quaternion[1]
+		start.pose.orientation.z = start_orientation_quaternion[2]
+		start.pose.orientation.w = start_orientation_quaternion[3]
+		goal.pose.position.x = req.finish_x
+		goal.pose.position.y = req.finish_y
 		goal.pose.position.z = 0
-		goal_orientation_quaternion = tf.transformations.quaternion_from_euler(0,0,GoalGlobalPose[2]) 
+		goal_orientation_quaternion = tf.transformations.quaternion_from_euler(0,0,req.finish_theta) 
 		goal.pose.orientation.x = goal_orientation_quaternion[0]
 		goal.pose.orientation.y = goal_orientation_quaternion[1]
 		goal.pose.orientation.z = goal_orientation_quaternion[2]
@@ -266,7 +322,7 @@ class MoveNaoModule(ALModule):
 		print "okmpmmlkmvxc ssdf "
 		path = plan_path(start,goal)
 		print "mm,nk jnk jnj dnknsd"
-		return path
+		return PlannPathResponse(path)
 
 #proporcjonalna odleglosc miedzy punktami
 	# def followPath(self,path):			

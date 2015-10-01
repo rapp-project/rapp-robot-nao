@@ -52,6 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
 DetectQRcodes.srv
 VisOdom.srv
 MoveAlongPath.srv
+PlannPath.srv
  )
 
  add_message_files(

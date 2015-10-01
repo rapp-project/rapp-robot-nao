@@ -1,5 +1,5 @@
-float32 destination_x
-float32 destination_y
-float32 destination_theta
+float32 x
+float32 y
+float32 theta
 ---
-string status
+int status
