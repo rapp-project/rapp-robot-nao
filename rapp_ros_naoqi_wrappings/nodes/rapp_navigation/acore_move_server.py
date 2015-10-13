@@ -118,20 +118,20 @@ class MoveNaoModule(ALModule):
 	def openServices(self):
 		try:
 			print "[Move server] - setting services"
-			print "[Move server] - service - [rapp_MoveAlongPath]"
-			self.service_mt = rospy.Service('rapp_plannPath', PlannPath, self.plannPath)
-		except Exception, ex_mt:
-			print "[Move server] - Exception %s" % str(ex_mt)
+			print "[Move server] - service - [rapp_plannPath]"
+			self.service_pp = rospy.Service('rapp_plannPath', PlannPath, self.plannPath)
+		except Exception, ex_pp:
+			print "[Move server] - Exception %s" % str(ex_pp)
 		try:
 			print "[Move server] - setting services"
 			print "[Move server] - service - [rapp_MoveAlongPath]"
-			self.service_mt = rospy.Service('rapp_moveAlongPath', MoveAlongPath, self.handle_rapp_MoveAlongPath)
-		except Exception, ex_mt:
-			print "[Move server] - Exception %s" % str(ex_mt)
+			self.service_map = rospy.Service('rapp_moveAlongPath', MoveAlongPath, self.handle_rapp_MoveAlongPath)
+		except Exception, ex_map:
+			print "[Move server] - Exception %s" % str(ex_map)
 		try:
 			print "[Move server] - setting services"
 			print "[Move server] - service - [rapp_MoveTo]"
-			self.service_mt = rospy.Service('rapp_moveTo', MoveTo, self.handle_rapp_MoveTo)
+			self.service_mt = rospy.Service('rapp_moveTo', MoveTo, self.handle_rapp_moveTo)
 		except Exception, ex_mt:
 			print "[Move server] - Exception %s" % str(ex_mt)
 		try:
@@ -226,11 +226,12 @@ class MoveNaoModule(ALModule):
 
 	def handle_rapp_MoveAlongPath(self,req):
 		self.SetPose('StandInit')
-		self.getNaoCurrentPosition()
-		destinationX=req.destination_x
-		destinationY=req.destination_y
-		destinationTheta=req.destination_theta
-		GoalGlobalPose = [destinationX,destinationY,destinationTheta]
+		naoCurrentPosition = self.getNaoCurrentPosition()
+		nao_theta = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])[2]
+		# destinationX=req.destination_x
+		# destinationY=req.destination_y
+		# destinationTheta=req.destination_theta
+		# GoalGlobalPose = [destinationX,destinationY,destinationTheta]
 		# flag for detectObstacle
 		self.move_is_finished = False
 		self.path_is_finished = False
@@ -243,8 +244,10 @@ class MoveNaoModule(ALModule):
 		self.followPath_flag = 'empty'
 		rate_mainThread = rospy.Rate(1)
 		noPathavaliable = False
+		plannNewPath = rospy.ServiceProxy('rapp_plannPath', PlannPath)
+		path = plannNewPath(naoCurrentPosition[0][0],naoCurrentPosition[0][1],nao_theta,req.x,req.y,req.theta)
 
-		path = req.path
+		#path = req.path
 		# OBSLUGA SCIEZKI
 
 		#while self.path_is_finished != True:
