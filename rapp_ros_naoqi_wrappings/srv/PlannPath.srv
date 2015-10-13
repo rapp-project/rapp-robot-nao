@@ -5,5 +5,7 @@ float32 finish_x
 float32 finish_y
 float32 finish_theta
 ---
-geometry_msgs/PoseStamped[] path
-std_msgs/Header header
+int8 plan_found
+string error_message
+nav_msgs/Path path
+
