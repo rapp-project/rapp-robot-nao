@@ -5,4 +5,5 @@ float32 finish_x
 float32 finish_y
 float32 finish_theta
 ---
-nav_msgs/Path path
+geometry_msgs/PoseStamped[] path
+std_msgs/Header header

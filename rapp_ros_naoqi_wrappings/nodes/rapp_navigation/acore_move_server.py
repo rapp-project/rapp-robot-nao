@@ -323,7 +323,7 @@ class MoveNaoModule(ALModule):
 		plan_path = rospy.ServiceProxy('/global_planner/make_plan', MakeNavPlan)
 		print "okmpmmlkmvxc ssdf "
 		path = plan_path(start,goal)
-		print "mm,nk jnk jnj dnknsd"
+		print "response:", path
 		return PlannPathResponse(path)
 
 #proporcjonalna odleglosc miedzy punktami
