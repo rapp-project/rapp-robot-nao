@@ -7,5 +7,5 @@ float32 finish_theta
 ---
 int8 plan_found
 string error_message
-nav_msgs/Path path
+geometry_msgs/PoseStamped[] path
 
