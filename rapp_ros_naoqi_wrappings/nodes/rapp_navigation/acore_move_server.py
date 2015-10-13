@@ -260,8 +260,7 @@ class MoveNaoModule(ALModule):
 		self.thread_followPath.start()
 		#self.followPath_flag = self.followPath(path)
 		while self.path_is_finished == False and self.obstacle_detected == False:
-			rate_mainThread.sleep()
-		#wait to nao stop move
+			rate_mainThread.sleep()		#wait to nao stop move
 		if self.path_is_finished == True:
 			self.kill_thread_detectObstacle = True
 			#thread_detectObstacle.join()
