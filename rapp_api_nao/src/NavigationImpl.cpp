@@ -18,9 +18,9 @@ NavigationImpl::~NavigationImpl() {
 
 		client_moveTo = n->serviceClient<rapp_ros_naoqi_wrappings::MoveTo>("rapp_moveTo");
 		  rapp_ros_naoqi_wrappings::MoveTo srv;
-		  srv.request.destination_x = x;
-		  srv.request.destination_y = y;
-		  srv.request.destination_theta = theta;
+		  srv.request.x = x;
+		  srv.request.y = y;
+		  srv.request.theta = theta;
 		  if (client_moveTo.call(srv))
 		  {
 		   ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);

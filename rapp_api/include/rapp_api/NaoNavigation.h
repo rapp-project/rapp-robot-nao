@@ -4,6 +4,7 @@ class NaoNavigation {
 
 public:
 	NaoNavigation (int argc, char **argv);
+	ros::ServiceClient client_moveTo;
 	ros::ServiceClient client_moveVel;
 	ros::ServiceClient client_moveHead;
 	ros::ServiceClient client_moveStop;
@@ -13,6 +14,7 @@ public:
 	ros::NodeHandle *n;
 
 void init(int argc, char **argv);
+	void moveTo(float x, float y, float theta);
 	void moveVel(float x, float y, float theta);
 	void moveHead(float yaw,float pitch);
 	void moveStop();

@@ -3,6 +3,7 @@
 //#####################
 #include "rapp_api/NaoNavigation.h"
 #include "ros/ros.h"
+#include "rapp_ros_naoqi_wrappings/MoveTo.h"
 #include "rapp_ros_naoqi_wrappings/MoveVel.h"
 #include "rapp_ros_naoqi_wrappings/MoveHead.h"
 #include "rapp_ros_naoqi_wrappings/MoveStop.h"
@@ -15,7 +16,23 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		n = new ros::NodeHandle();
 
 		}
+	void NaoNavigation::moveTo(float x, float y, float theta){	
 
+		client_moveTo = n->serviceClient<rapp_ros_naoqi_wrappings::MoveTo>("rapp_moveTo");
+
+		  rapp_ros_naoqi_wrappings::MoveTo srv;
+		  srv.request.x = x;
+		  srv.request.y = y;
+		  srv.request.theta = theta;
+		  if (client_moveTo.call(srv))
+		  {
+ 			ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service MoveTo"); 
+		  }
+	}
 	void NaoNavigation::moveVel(float x, float y, float theta){	
 
 		client_moveVel = n->serviceClient<rapp_ros_naoqi_wrappings::MoveVel>("rapp_moveVel");
