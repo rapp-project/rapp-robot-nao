@@ -798,7 +798,7 @@ class MoveNaoModule(ALModule):
 		i = 0
 		print "msg: \n",msg
 
-		if msg.RightBumper || msg.LeftBumper > 0:
+		if (msg.RightBumper == 1 || msg.LeftBumper==1):
 			self.obstacle_detected = True
 			self.handle_rapp_moveStop()
 
