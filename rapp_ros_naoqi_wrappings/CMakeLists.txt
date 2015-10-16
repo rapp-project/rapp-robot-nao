@@ -58,6 +58,7 @@ PlannPath.srv
  add_message_files(
 	FILES
 	Matrix4x4.msg
+	obstacleData.msg
 	#MatrixRot.msg 
 )
 

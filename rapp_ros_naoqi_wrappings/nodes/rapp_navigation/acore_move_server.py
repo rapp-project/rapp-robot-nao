@@ -65,7 +65,7 @@ class MoveNaoModule(ALModule):
 		# Initialization of Naoqi modules and ROS services
 		self.initALModule()
 		self.setVariables()
-		self.subscribeToEvents()
+		#self.subscribeToEvents()
 		self.openServices()
 
 
@@ -104,7 +104,10 @@ class MoveNaoModule(ALModule):
 		self.MoveIsFailed = False
 		self.GP_seq = -1
 		self.tl = tf.TransformListener(True, rospy.Duration(5.0))
-		
+	def subscribeToObstacle(self):
+		self.sub_obstacle = rospy.Subscriber("/obstacleDetectorState", obstacleData , self.detectObstacle)
+	def unsubscribeToObstacle(self):
+		self.sub_obstacle.unregister()
 	# NAOqi Event subscribtion
 	def subscribeToEvents(self):
 		#self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback")
@@ -214,8 +217,11 @@ class MoveNaoModule(ALModule):
 			# print "[MoveVel server] - Velocity X = %s Velocity Y = %s  Velocity Theta = %s" %(req.velocity_x, req.velocity_y, req.velocity_theta)
 
 			# print "[MoveVel server] - Nao init position = ", InitRobotPosition
+			self.subscribeToObstacle()
 
 			self.proxy_motion.moveTo(req.x, req.y, req.theta)
+			self.unsubscribeToObstacle()
+
 			status = 0
 		except Exception, ex:
 			print "[MoveTo server] - Exception %s" % str(ex)
@@ -225,7 +231,7 @@ class MoveNaoModule(ALModule):
 
 
 	def handle_rapp_MoveAlongPath(self,req):
-		self.SetPose('StandInit')
+		
 		naoCurrentPosition = self.getNaoCurrentPosition()
 		nao_theta = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])[2]
 		# destinationX=req.destination_x
@@ -257,15 +263,22 @@ class MoveNaoModule(ALModule):
 		# 	break
 
 		self.thread_followPath = threading.Thread(None,self.followPath,None,[path.path])
-		thread_detectObstacle = threading.Thread(None,self.detectObstacle,None)	
+		#thread_detectObstacle = threading.Thread(None,self.detectObstacle,None)	
 			# # # zanim zaczniesz ruch ustaw watek do sprawdzania sonarow
 		#thread_detectObstacle.start()
+
+		self.SetPose('StandInit')
+		
+		self.subscribeToObstacle()
+		
 		self.thread_followPath.start()
+
 		#self.followPath_flag = self.followPath(path)
 		while self.path_is_finished == False and self.obstacle_detected == False:
 			rate_mainThread.sleep()		#wait to nao stop move
 		if self.path_is_finished == True:
-			self.kill_thread_detectObstacle = True
+			self.unsubscribeToObstacle()
+			#self.kill_thread_detectObstacle = True
 			#thread_detectObstacle.join()
 			print "destination reached, and obstacle detection is:\n",thread_detectObstacle.isAlive()
 			print "destination reached, and following path is:\n",self.thread_followPath.isAlive()
@@ -776,31 +789,38 @@ class MoveNaoModule(ALModule):
 		takePosture = rospy.ServiceProxy('rapp_takePredefinedPosture', TakePredefinedPosture)
 		resp1 = takePosture(pose)
 
-	def detectObstacle(self):
-		print "[detectObstacle] started"
-		k=1
-		l=1
-		while (self.path_is_finished != True): 
-			# sonar data = [right_dist, left_dist]
-			print "[detectObstacle] new scan"
-			data = self.getSonarData()
+	def detectObstacle(self,msg):
+		# while (self.path_is_finished != True): 
+		# sonar data = [right_dist, left_dist]
+		print "[detectObstacle] new scan"
 
-			if (data[0] <0.4 )or (data[1] <0.4):
-  				k=k+1
-  				l=1
-  			else:
-  				l=l+1
-  				k=1
-  			print "k/l\n",k/l
-			if k/l>4:
-				self.kill_thread_followPath = True
-				print "[detectObstacle] stopped, data: \n", data
-				#wait untill followPath thread will be closed
-				self.thread_followPath.join()
-				self.proxy_motion.post.move(0, 0,0)
-				self.obstacle_detected = True
-				break
-			rospy.sleep(3)
+		sum_data = 0
+		i = 0
+		print "msg: \n",msg
+
+		if msg.RightBumper || msg.LeftBumper > 0:
+			self.obstacle_detected = True
+			self.handle_rapp_moveStop()
+
+
+
+
+			# if (data[0] <0.4 )or (data[1] <0.4):
+  	# 			k=k+1
+  	# 			l=1
+  	# 		else:
+  	# 			l=l+1
+  	# 			k=1
+  	# 		print "k/l\n",k/l
+			# if k/l>4:
+			# 	self.kill_thread_followPath = True
+			# 	print "[detectObstacle] stopped, data: \n", data
+			# 	#wait untill followPath thread will be closed
+			# 	self.thread_followPath.join()
+			# 	self.proxy_motion.post.move(0, 0,0)
+			# 	self.obstacle_detected = True
+			# 	break
+			# rospy.sleep(3)
 
 	def handle_rapp_moveVel(self,req):
 
@@ -833,6 +853,8 @@ class MoveNaoModule(ALModule):
 		X = req.velocity_x
 		Y = req.velocity_y
 		Theta = req.velocity_theta
+		
+		self.subscribeToObstacle()
 
 		self.proxy_motion.move(X, Y, Theta)
 
@@ -882,6 +904,8 @@ class MoveNaoModule(ALModule):
 
 	def handle_rapp_moveStop(self,req):
 		#self.proxy_motion.stopMove()
+		self.unsubscribeToObstacle()
+
 		self.proxy_motion.move(0, 0, 0)
 		return MoveStopResponse(True)
 
@@ -1076,6 +1100,7 @@ class MoveNaoModule(ALModule):
 		print "[Move server] - Actual Nao pose : %s" % str(pose)
 			# save SONAR data as self.sonar_data[] -> [0] - RIGHT, [1] - LEFT
 	def getSonarData(self):
+
 		self.proxy_sonar.subscribe("myApplication")
 		self.sonar_data = [0,0]
 		self.sonar_data[0] =self.prox_memory.getData("Device/SubDeviceList/US/Right/Sensor/Value")
