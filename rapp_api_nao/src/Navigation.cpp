@@ -11,35 +11,53 @@ Navigation::Navigation(int argc, char * argv[]) {
 Navigation::~Navigation() {
 	delete pimpl;
 }
-	void Navigation::moveTo(float x, float y, float theta){
+	bool Navigation::moveTo(float x, float y, float theta){
 		pimpl->moveTo( x, y, theta);
 
 	}
-	void Navigation::moveVel(float x, float y, float theta){
+	bool Navigation::moveVel(float x, float y, float theta){
 		pimpl->moveVel(x, y,  theta);
 	}
-	void Navigation::moveHead(float yaw,float pitch){
-		pimpl->moveHead(yaw,pitch);		
-	}
-	void Navigation::moveStop(){
+	// bool Navigation::moveHead(float yaw,float pitch){
+	// 	pimpl->moveHead(yaw,pitch);		
+	// }
+	bool Navigation::moveStop(){
 		pimpl->moveStop();		
 	}
-	void Navigation::moveJoint(std::vector<std::string> joint, std::vector<float> angle){
+	bool Navigation::moveJoint(std::vector<std::string> joint, std::vector<float> angle){
 		pimpl->moveJoint(joint, angle);		
 	}
-	void Navigation::removeStiffness(std::string joint){
-		pimpl->removeStiffness(joint);		
-	}
-	void Navigation::takePredefinedPosture(std::string pose){
+	// bool Navigation::removeStiffness(std::string joint){
+	// 	pimpl->removeStiffness(joint);		
+	// }
+	bool Navigation::takePredefinedPosture(std::string posture){
 		pimpl->takePredefinedPosture(pose);		
 	}
-	void Navigation::visOdom(){
-		pimpl->visOdom();		
-	}
-	void Navigation::lookAtPoint(float x, float y, float z){
+	// bool Navigation::visOdom(){
+	// 	pimpl->visOdom();		
+	// }
+	bool Navigation::lookAtPoint(float x, float y, float z){
 		pimpl->lookAtPoint(x, y, z);		
 	}
+	bool Navigation::rest(){
+		pimpl->rest();		
+	}
+	bool Navigation::moveAlongPath(rapp::objects::Path path){
+		pimpl->moveAlongPath(path);		
+	}
+	rapp::objects::Pose Navigation::getRobotPosition(){
+		pimpl->getRobotPosition();		
+	}
+	bool Navigation::globalLocalization(rapp::objects::Pose pose){
+		pimpl->globalLocalization(x, y, theta);		
+	}
+	rapp::objects::Path Navigation::PathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
+		pimpl->PathPlanner_2D(start, goal, map);		
+	}
+    rapp::objects::Pose Navigation::QRcodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
+		pimpl->QRcodeLocalization(image, QRmap);		
 
+    }
 } // namespace rapp
 } // namespace robot
 

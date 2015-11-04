@@ -1,4 +1,5 @@
 string[] joint_name
 float32[] joint_angle
+float32 speeds
 ---
 float32[] angle_now

@@ -48,7 +48,7 @@ class NaoObstacles(ALModule):
 
 	def onRightBumperPressed(self,name,val, id_event):
 		self.memory.unsubscribeToEvent("RightBumperPressed",
-            "Obstacle_RightBumper")
+            self.moduleName)
 		print "[onRightBumperPressed]: "
 		print "name: ",name, "\nval: ",val,"\nid: ",id_event
 		
@@ -57,11 +57,11 @@ class NaoObstacles(ALModule):
 
         # Subscribe again to the event
 		self.memory.subscribeToEvent("RightBumperPressed",
-            "Obstacle_RightBumper",
+            self.moduleName,
             "onRightBumperPressed")
 	def onLeftBumperPressed(self,name,val, id_event):
 		self.memory.unsubscribeToEvent("LeftBumperPressed",
-            "Obstacle_LeftBumper")
+            self.moduleName)
 		print "[onLeftBumperPressed]: "
 		print "name: ",name, "\nval: ",val,"\nid: ",id_event
 
@@ -70,7 +70,7 @@ class NaoObstacles(ALModule):
 
         # Subscribe again to the event
 		self.memory.subscribeToEvent("LeftBumperPressed",
-            "Obstacle_LeftBumper",
+            self.moduleName,
             "onLeftBumperPressed")		
 	def MsgsInit(self):
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 		
 		global obstacleDetector
 		obstacleDetector = NaoObstacles("obstacleDetector")
-		bumperRate = rospy.Rate(2)
+		bumperRate = rospy.Rate(10)
 
 		while not rospy.is_shutdown():
 			#handle_markers_tf()

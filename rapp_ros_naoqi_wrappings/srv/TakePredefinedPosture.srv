@@ -1,3 +1,4 @@
 string pose
+float speed
 ---
 byte status

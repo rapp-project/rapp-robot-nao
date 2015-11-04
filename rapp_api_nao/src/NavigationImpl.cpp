@@ -14,7 +14,7 @@ NavigationImpl::NavigationImpl(int argc,char **argv){
 		}
 NavigationImpl::~NavigationImpl() {
 }
-	void NavigationImpl::moveTo(float x, float y, float theta){	
+	bool NavigationImpl::moveTo(float x, float y, float theta){	
 
 		client_moveTo = n->serviceClient<rapp_ros_naoqi_wrappings::MoveTo>("rapp_moveTo");
 		  rapp_ros_naoqi_wrappings::MoveTo srv;
@@ -33,7 +33,7 @@ NavigationImpl::~NavigationImpl() {
 
 	}
 
-	void NavigationImpl::moveVel(float x, float y, float theta){	
+	bool NavigationImpl::moveVel(float x, float y, float theta){	
 
 		client_moveVel = n->serviceClient<rapp_ros_naoqi_wrappings::MoveVel>("rapp_moveVel");
 
@@ -67,25 +67,25 @@ NavigationImpl::~NavigationImpl() {
 //  87.49		-18.91			11.46			 1.526988	-0.330041		0.200015
 //  119.52		-25.73			18.91			 2.086017	-0.449073		0.330041
 
-	void NavigationImpl::moveHead(float yaw,float pitch){
-		client_moveHead = n->serviceClient<rapp_ros_naoqi_wrappings::MoveHead>("rapp_moveHead");
+	// bool NavigationImpl::moveHead(float yaw,float pitch){
+	// 	client_moveHead = n->serviceClient<rapp_ros_naoqi_wrappings::MoveHead>("rapp_moveHead");
 		
 
-		  rapp_ros_naoqi_wrappings::MoveHead srv;
-		  srv.request.pitch = pitch;
-		  srv.request.yaw = yaw;
-		  if (client_moveHead.call(srv))
-		  {
-		  	ROS_INFO("Nao-s head position is: \n");
-	  	  	ROS_INFO_STREAM("Yaw: "<<srv.response.yaw_now);
-		  	ROS_INFO_STREAM("Pitch: "<<srv.response.pitch_now);
-		  }
-		  else
-		  {
-		    ROS_ERROR("Failed to call service moveHead"); 
-		  }
-	}
-	void NavigationImpl::moveJoint(std::vector<std::string> joint, std::vector<float> angle){
+	// 	  rapp_ros_naoqi_wrappings::MoveHead srv;
+	// 	  srv.request.pitch = pitch;
+	// 	  srv.request.yaw = yaw;
+	// 	  if (client_moveHead.call(srv))
+	// 	  {
+	// 	  	ROS_INFO("Nao-s head position is: \n");
+	//   	  	ROS_INFO_STREAM("Yaw: "<<srv.response.yaw_now);
+	// 	  	ROS_INFO_STREAM("Pitch: "<<srv.response.pitch_now);
+	// 	  }
+	// 	  else
+	// 	  {
+	// 	    ROS_ERROR("Failed to call service moveHead"); 
+	// 	  }
+	// }
+	bool NavigationImpl::moveJoint(std::vector<std::string> joint, std::vector<float> angle){
 		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
 
 		rapp_ros_naoqi_wrappings::MoveJoint srv;
@@ -103,28 +103,28 @@ NavigationImpl::~NavigationImpl() {
 	 	    ROS_ERROR("Failed to call service moveJoint"); 
 	 	  }
     }	
-	void NavigationImpl::removeStiffness(std::string joint){
-		client_removeStiffness = n->serviceClient<rapp_ros_naoqi_wrappings::RemoveStiffness>("rapp_removeStiffness");
+	// bool NavigationImpl::removeStiffness(std::string joint){
+	// 	client_removeStiffness = n->serviceClient<rapp_ros_naoqi_wrappings::RemoveStiffness>("rapp_removeStiffness");
 		
 
-		  rapp_ros_naoqi_wrappings::RemoveStiffness srv;
-		  srv.request.joint_name = joint;
+	// 	  rapp_ros_naoqi_wrappings::RemoveStiffness srv;
+	// 	  srv.request.joint_name = joint;
 
-		  if (client_removeStiffness.call(srv))
-		  {
-	  	  	ROS_INFO_STREAM(srv.request.joint_name<<" stiffness is off");
-		  }
-		  else
-		  {
-		    ROS_ERROR("Failed to call service removeStiffness"); 
-		  }
-	}	
-	void NavigationImpl::takePredefinedPosture(std::string pose){
+	// 	  if (client_removeStiffness.call(srv))
+	// 	  {
+	//   	  	ROS_INFO_STREAM(srv.request.joint_name<<" stiffness is off");
+	// 	  }
+	// 	  else
+	// 	  {
+	// 	    ROS_ERROR("Failed to call service removeStiffness"); 
+	// 	  }
+	// }	
+	bool NavigationImpl::takePredefinedPosture(std::string posture){
 		client_takePredefinedPosture = n->serviceClient<rapp_ros_naoqi_wrappings::TakePredefinedPosture>("rapp_takePredefinedPosture");
 		
 
 		  rapp_ros_naoqi_wrappings::TakePredefinedPosture srv;
-		  srv.request.pose = pose;
+		  srv.request.pose = posture;
 
 		  if (client_takePredefinedPosture.call(srv))
 		  {
@@ -135,7 +135,7 @@ NavigationImpl::~NavigationImpl() {
 		    ROS_ERROR("Failed to call service takePredefinedPosture"); 
 		  }
 	}	
-	void NavigationImpl::moveStop(){
+	bool NavigationImpl::moveStop(){
 
 		client_moveStop = n->serviceClient<rapp_ros_naoqi_wrappings::MoveStop>("rapp_moveStop");
 		  rapp_ros_naoqi_wrappings::MoveStop srv;
@@ -149,21 +149,21 @@ NavigationImpl::~NavigationImpl() {
 		    ROS_ERROR("Failed to call service moveStop"); 
 		  }
 	}
-	void NavigationImpl::visOdom(){
+	// bool NavigationImpl::visOdom(){
 
-		client_moveStop = n->serviceClient<rapp_ros_naoqi_wrappings::MoveStop>("rapp_moveStop");
-		  rapp_ros_naoqi_wrappings::MoveStop srv;
-		  srv.request.stop_signal = true;
-		  if (client_moveStop.call(srv))
-		  {
-		    ROS_INFO("Nao has been localized via QR-code");
-		  }
-		  else
-		  {
-		    ROS_ERROR("Failed to call service visOdom"); 
-		  }
-	}
-	void NavigationImpl::lookAtPoint(float pointX,float pointY,float pointZ ){
+	// 	client_moveStop = n->serviceClient<rapp_ros_naoqi_wrappings::MoveStop>("rapp_moveStop");
+	// 	  rapp_ros_naoqi_wrappings::MoveStop srv;
+	// 	  srv.request.stop_signal = true;
+	// 	  if (client_moveStop.call(srv))
+	// 	  {
+	// 	    ROS_INFO("Nao has been localized via QR-code");
+	// 	  }
+	// 	  else
+	// 	  {
+	// 	    ROS_ERROR("Failed to call service visOdom"); 
+	// 	  }
+	// }
+	bool NavigationImpl::lookAtPoint(float pointX,float pointY,float pointZ ){
 
 		client_lookAtPoint = n->serviceClient<rapp_ros_naoqi_wrappings::LookAtPoint>("rapp_lookAtPoint");
 		  rapp_ros_naoqi_wrappings::LookAtPoint srv;
@@ -180,6 +180,36 @@ NavigationImpl::~NavigationImpl() {
 		    ROS_ERROR("REUEST FAILED:  lookAtPoint"); 
 		  }
 	}
+	bool NavigationImpl::rest(){
+
+
+
+	}
+	bool NavigationImpl::moveAlongPath(rapp::objects::Path path){
+
+
+
+
+	}
+	rapp::objects::Pose NavigationImpl::getRobotPosition(){
+
+
+
+	}
+	bool NavigationImpl::globalLocalization(rapp::objects::Pose pose){
+
+
+
+	}
+	rapp::objects::Path NavigationImpl::PathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
+
+
+
+	}
+    rapp::objects::Pose NavigationImpl::QRcodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
+
+
+    }
 
 } // namespace robot
 } // namespace rapp
