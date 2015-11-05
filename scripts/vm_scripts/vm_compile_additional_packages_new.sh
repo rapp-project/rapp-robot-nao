@@ -297,7 +297,7 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Sourcing ws_ros_additional_packages workspac
 # Openssl
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Openssl"
-wget https://www.openssl.org/source/openssl-1.0.2d.tar.gz
+wget ftp://www.openssl.org/source/openssl-1.0.2d.tar.gz
 tar zxvf openssl-1.0.2d.tar.gz
 cd openssl-1.0.2d
 ./config --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --openssldir=$ROS_ADDITIONAL_PACKAGES_ISOLATED/#openssl
