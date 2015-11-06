@@ -309,12 +309,23 @@ make clean
 echo -e "$COL_GREEN[OK]$COL_RESET - Exporting LIBRARY PATH"
 export LIBRARY_PATH=$ROS_ADDITIONAL_PACKAGES_ISOLATED/lib
 
+# unistring
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of unistring library"
+wget http://ftp.gnu.org/gnu/libunistring/libunistring-latest.tar.gz
+tar -zxvf libunistring-latest.tar.gz
+cd libunistring-0.9.6/
+./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - unistring make failed with $?"; exit 1; }
+sudo make install
+make clean
+
 # Bigloo
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
-wget ftp://ftp-sop.inria.fr/indes/rapp/hop/2015-05-07/bigloo4.2a.tar.gz
+wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2c-beta04Nov15.tar.gz
 tar zxvf bigloo4.2a.tar.gz
-cd bigloo4.2a
+cd bigloo4.2c
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - bigloo make failed with $?"; exit 1; }
 sudo make install
@@ -323,10 +334,9 @@ make clean
 # Hop
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Hop"
-wget ftp://ftp-sop.inria.fr/indes/rapp/hop/2015-05-07/hop-3.0.0-pre14.tar.gz
-tar zxvf hop-3.0.0-pre14.tar.gz
-cd hop-3.0.0-pre14
-./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+git clone https://github.com/manuel-serrano/hop.git
+cd hop
+./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --bigloo=$ROS_ADDITIONAL_PACKAGES_ISOLATED/bin/bigloo --bigloo-unistring=no
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
 sudo make install
 make clean
