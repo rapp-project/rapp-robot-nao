@@ -85,7 +85,7 @@ Navigation::~Navigation() {
 		pose.pose.orientation.y = resp.pose.orientation.y;	
 		pose.pose.orientation.z = resp.pose.orientation.z;
 		pose.pose.orientation.w = resp.pose.orientation.w;
-		return pose
+		return pose;
 
 	}
 	bool Navigation::setGlobalPose(rapp::object::Pose pose){
