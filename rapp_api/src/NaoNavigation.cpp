@@ -31,7 +31,9 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  srv.request.theta = theta;
 		  if (client_moveTo.call(srv))
 		  {
-	  	  	return true
+		  	bool resp;
+	  	  	resp = bool(srv.response.status);
+	  	  	return resp;
  			ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
 		  }
 		  else
@@ -138,7 +140,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 
 		  if (client_takePredefinedPosture.call(srv))
 		  {
-	  	  	return srv.response.status
+	  	  	return srv.response.status;
 	  	  	//ROS_INFO_STREAM(srv.request.pose<<" stiffness is off");
 		  }
 		  else
@@ -154,7 +156,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  srv.request.stop_signal = true;
 		  if (client_moveStop.call(srv))
 		  {
-	  	  	return srv.response.status
+	  	  	return srv.response.status;
 		    ROS_INFO("Nao has stopped");
 		  }
 		  else
@@ -169,7 +171,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  srv.request.posture = posture;
 		  if (client_rest.call(srv))
 		  {
-	  	  	return srv.response.status
+	  	  	return srv.response.status;
 		    ROS_INFO("Nao is in rest state");
 		  }
 		  else
@@ -187,7 +189,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 
 		  if (client_MoveAlongPath.call(srv))
 		  {
-	  	  	return srv.response.status
+	  	  	return srv.response.status;
 		    ROS_INFO("Nao moved along path");
 		  }
 		  else
@@ -205,7 +207,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  if (client_MoveAlongPath.call(srv))
 		  {
 		  	service_response = srv.response.pose
-		  	return service_response
+		  	return service_response;
 		    ROS_INFO("Nao returned his pose");
 		  }
 		  else
@@ -222,7 +224,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
   		  srv.request.pose = pose;
 		  if (client_MoveAlongPath.call(srv))
 		  {
-	  	  	return srv.response.status
+	  	  	return srv.response.status;
 		    ROS_INFO("Nao is localized");
 		  }
 		  else
