@@ -1,3 +1,2 @@
-byte stop_signal
 ---
-byte isStopped
+byte status
