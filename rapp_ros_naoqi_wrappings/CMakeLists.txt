@@ -36,14 +36,13 @@ find_package(catkin REQUIRED COMPONENTS
    #RecognizeFaces.srv
 
 ###  MOVE & NAVIGATION SERVICES
-   FollowMarker.srv
+
    MoveTo.srv
    MoveVel.srv
    MoveStop.srv
    SetGlobalPose.srv
    GetRobotPose.srv
    UpdatePose.srv
-   MoveGetCollisionStatus.srv	
    Rest.srv	
    MoveJoint.srv	
    TakePredefinedPosture.srv
