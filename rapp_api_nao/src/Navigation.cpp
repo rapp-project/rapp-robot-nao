@@ -70,7 +70,23 @@ Navigation::~Navigation() {
 		pimpl->moveAlongPath(path2);		
 	}
 	rapp::object::PoseStamped Navigation::getRobotPose(){
-		pimpl->getRobotPose();		
+		geometry_msgs::PoseStamped resp;
+		rapp::object::Pose pose;
+		resp = pimpl->getRobotPose();
+		pose.header.seq = resp.header.seq;
+		pose.header.frame_id = resp.header.frame_id;
+		pose.header.stamp.sec = resp.header.stamp.sec;
+		pose.header.stamp.nsec = resp.header.stamp.nsec;
+		pose.pose.position.x = resp.pose.position.x;
+		pose.pose.position.y = resp.pose.position.y;
+		pose.pose.position.z = resp.pose.position.z;
+
+		pose.pose.orientation.x = resp.pose.orientation.x;
+		pose.pose.orientation.y = resp.pose.orientation.y;	
+		pose.pose.orientation.z = resp.pose.orientation.z;
+		pose.pose.orientation.w = resp.pose.orientation.w;
+		return pose
+
 	}
 	bool Navigation::setGlobalPose(rapp::object::Pose pose){
 		geometry_msgs::Pose pose2;
