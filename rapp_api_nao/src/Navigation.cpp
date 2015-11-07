@@ -48,7 +48,7 @@ Navigation::~Navigation() {
 	}
 	bool Navigation::moveAlongPath(rapp::object::Path path){
 		nav_msgs::Path path2;
-		path2.header.seq = path.header.seq;
+		path2.header.seq = path.h.seq;
 		path2 = path;
 		pimpl->moveAlongPath(path2);		
 	}
