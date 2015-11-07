@@ -22,7 +22,8 @@ NavigationImpl::~NavigationImpl() {
 		  srv.request.theta = theta;
 		  if (client_moveTo.call(srv))
 		  {
-		   ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
+	  	  	return srv.response.status;
+	  	  	ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
 
 			}
 		  else
@@ -42,7 +43,8 @@ NavigationImpl::~NavigationImpl() {
 		  srv.request.velocity_theta = theta;
 		  if (client_moveVel.call(srv))
 		  {
-		    ROS_INFO("Nao moved ");
+		    return srv.response.status;
+	  	  	ROS_INFO("Nao moved ");
 		  }
 		  else
 		  {
@@ -95,7 +97,8 @@ NavigationImpl::~NavigationImpl() {
 
 	 	if (client_moveJoint.call(srv))
 	 	  {
-	   	  //	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
+	   	  return srv.response.status;
+	  	  	//	ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
 	 	  }
 	 	else
 	 	  {
@@ -128,6 +131,7 @@ NavigationImpl::~NavigationImpl() {
 
 		  if (client_takePredefinedPosture.call(srv))
 		  {
+	  	  	return srv.response.status;
 	  	  	//ROS_INFO_STREAM(srv.request.pose<<" stiffness is off");
 		  }
 		  else
@@ -142,7 +146,8 @@ NavigationImpl::~NavigationImpl() {
 		  srv.request.stop_signal = true;
 		  if (client_moveStop.call(srv))
 		  {
-		    ROS_INFO("Nao has stopped");
+		    return srv.response.status;
+	  	  	ROS_INFO("Nao has stopped");
 		  }
 		  else
 		  {
@@ -173,7 +178,8 @@ NavigationImpl::~NavigationImpl() {
 
 		  if (client_lookAtPoint.call(srv))
 		  {
-		   ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
+		   return srv.response.status;
+	  	  	ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
 		  }
 		  else
 		  {
@@ -186,7 +192,8 @@ NavigationImpl::~NavigationImpl() {
 		  srv.request.posture = posture;
 		  if (client_rest.call(srv))
 		  {
-		    ROS_INFO("Nao is in rest state");
+		    return srv.response.status;
+	  	  	ROS_INFO("Nao is in rest state");
 		  }
 		  else
 		  {
@@ -202,7 +209,8 @@ NavigationImpl::~NavigationImpl() {
 
 		  if (client_MoveAlongPath.call(srv))
 		  {
-		    ROS_INFO("Nao moved along path");
+		    return srv.response.status;
+	  	  	ROS_INFO("Nao moved along path");
 		  }
 		  else
 		  {
@@ -220,9 +228,8 @@ NavigationImpl::~NavigationImpl() {
 		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
 		  if (client_MoveAlongPath.call(srv))
 		  {
-		  	service_response = srv.response.pose
-		  	return service_response
-		    ROS_INFO("Nao returned his pose");
+		    return srv.response.pose;
+	  	  	ROS_INFO("Nao returned his pose");
 		  }
 		  else
 		  {
@@ -237,7 +244,8 @@ NavigationImpl::~NavigationImpl() {
   		  srv.request.pose = pose;
 		  if (client_MoveAlongPath.call(srv))
 		  {
-		    ROS_INFO("Nao is localized");
+		    return srv.response.status;
+	  	  	ROS_INFO("Nao is localized");
 		  }
 		  else
 		  {
