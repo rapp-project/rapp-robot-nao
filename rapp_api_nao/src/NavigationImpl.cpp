@@ -1,7 +1,6 @@
 //#####################
 // written by Wojciech Dudek
 //#####################
-
 #include "NavigationImpl.hpp"
 //#include "string.h"
 namespace rapp {
@@ -195,7 +194,7 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	bool NavigationImpl::moveAlongPath(rapp::objects::Path path){
+	bool NavigationImpl::moveAlongPath(nav_msgs::Path path){
 		client_MoveAlongPath = n->serviceClient<rapp_ros_naoqi_wrappings::MoveAlongPath>("rapp_moveAlongPath");
 		  rapp_ros_naoqi_wrappings::MoveAlongPath srv;
   		  srv.request.path = path;
@@ -214,13 +213,13 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	rapp::objects::PoseStamped NavigationImpl::getRobotPose(){
+	geometry_msgs::PoseStamped NavigationImpl::getRobotPose(){
 
 		client_GetRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
 		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
 		  if (client_MoveAlongPath.call(srv))
 		  {
-		  	rapp::objects::PoseStamped service_response = srv.response.pose
+		  	service_response = srv.response.pose
 		  	return service_response
 		    ROS_INFO("Nao returned his pose");
 		  }
@@ -231,7 +230,7 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	bool NavigationImpl::setGlobalPose(rapp::objects::Pose pose){
+	bool NavigationImpl::setGlobalPose(geometry_msgs::Pose pose){
 		client_SetGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
 		  rapp_ros_naoqi_wrappings::SetGlobalPose srv;
   		  srv.request.pose = pose;

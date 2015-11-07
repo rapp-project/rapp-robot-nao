@@ -2,7 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <opencv>
-#include "../"
+#include "geometry_msgs/Pose.h"
+#include "geometry_msgs/PoseStamped.h"
+#include "nav_msgs/Path.h"
 class NaoNavigation {
 
 public:
@@ -27,9 +29,9 @@ void init(int argc, char **argv);
 	bool moveJoint(std::vector<std::string> joint, std::vector<float> angle, float speeds);
 	bool takePredefinedPosture(std::string posture);
 	bool rest(std::string posture);
-	bool moveAlongPath(rapp::objects::Path path);
-	rapp::objects::PoseStamped getRobotPose();
-	bool setGlobalPose(rapp::objects::Pose pose);
+	bool moveAlongPath(nav_msgs::Path path);
+	geometry_msgs::PoseStamped getRobotPose();
+	bool setGlobalPose(geometry_msgs::Pose pose);
 	// rapp::objects::Path pathPlanner_2D(std::string algorithm, rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map);
 	// rapp::objects::Pose qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap);
 

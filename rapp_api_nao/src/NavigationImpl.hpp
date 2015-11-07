@@ -11,7 +11,6 @@
 #include "rapp_ros_naoqi_wrappings/RemoveStiffness.h"
 #include "rapp_ros_naoqi_wrappings/TakePredefinedPosture.h"
 #include "rapp_ros_naoqi_wrappings/LookAtPoint.h"
-#include <rapp/robot/Navigation.hpp>
 //#include <iostream.h>
 namespace rapp {
 namespace robot {
@@ -44,9 +43,9 @@ public:
 	// bool visOdom();
 	bool lookAtPoint(float x, float y, float z);
 	bool rest(std::string posture);
-	bool moveAlongPath(rapp::objects::Path path);
-	rapp::objects::PoseStamped getRobotPose();
-	bool setGlobalPose(rapp::objects::Pose pose);
+	bool moveAlongPath(nav_msgs::Path path);
+	geometry_msgs::PoseStamped getRobotPose();
+	bool setGlobalPose(geometry_msgs::Pose pose);
 	// rapp::objects::Path pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map);
  //    rapp::objects::Pose qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap);
 	

@@ -1,6 +1,10 @@
 #include <rapp/robot/Navigation.hpp>
 #include "NavigationImpl.hpp"
 
+#include <rapp/robot/Navigation.hpp>
+#include <rapp/objects/Path/Path.hpp>
+#include <rapp/objects/Pose/Pose.hpp>
+#include <rapp/objects/PoseStamped/PoseStamped.hpp>
 namespace rapp {
 namespace robot {
 
@@ -42,14 +46,14 @@ Navigation::~Navigation() {
 	bool Navigation::rest(){
 		pimpl->rest();		
 	}
-	bool Navigation::moveAlongPath(rapp::objects::Path path){
+	bool Navigation::moveAlongPath(rapp::object::Path path){
 		pimpl->moveAlongPath(path);		
 	}
-	rapp::objects::PoseStamped Navigation::getRobotPose(){
+	rapp::object::PoseStamped Navigation::getRobotPose(){
 		pimpl->getRobotPose();		
 	}
-	bool Navigation::setGlobalPose(rapp::objects::Pose pose){
-		pimpl->setGlobalPose(x, y, theta);		
+	bool Navigation::setGlobalPose(rapp::object::Pose pose){
+		pimpl->setGlobalPose(pose);		
 	}
 	// rapp::objects::Path Navigation::pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
 	// 	pimpl->pathPlanner_2D(start, goal, map);		
