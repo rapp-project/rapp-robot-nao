@@ -39,18 +39,17 @@ find_package(catkin REQUIRED COMPONENTS
    FollowMarker.srv
    MoveTo.srv
    MoveVel.srv
-   MoveHead.srv
    MoveStop.srv
-   GetPlan.srv
-   GetPose.srv
+   SetGlobalPose.srv
+   GetRobotPose.srv
    UpdatePose.srv
    MoveGetCollisionStatus.srv	
-   RemoveStiffness.srv	
+   Rest.srv	
    MoveJoint.srv	
    TakePredefinedPosture.srv
    LookAtPoint.srv
 DetectQRcodes.srv
-VisOdom.srv
+
 MoveAlongPath.srv
 PlannPath.srv
  )
