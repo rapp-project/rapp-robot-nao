@@ -81,7 +81,8 @@ Navigation::~Navigation() {
 		pose2.orientation.y = pose.orientation.y; 
 		pose2.orientation.z = pose.orientation.z; 
 		pose2.orientation.w = pose.orientation.w; 
-		pimpl->setGlobalPose(pose2);		
+		resp = pimpl->setGlobalPose(pose2);
+		return resp;
 	}
 	// rapp::objects::Path Navigation::pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
 	// 	pimpl->pathPlanner_2D(start, goal, map);		
