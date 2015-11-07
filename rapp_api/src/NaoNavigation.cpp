@@ -153,7 +153,6 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 
 		client_moveStop = n->serviceClient<rapp_ros_naoqi_wrappings::MoveStop>("rapp_moveStop");
 		  rapp_ros_naoqi_wrappings::MoveStop srv;
-		  srv.request.stop_signal = true;
 		  if (client_moveStop.call(srv))
 		  {
 	  	  	return srv.response.status;
