@@ -74,13 +74,13 @@ Navigation::~Navigation() {
 	}
 	bool Navigation::setGlobalPose(rapp::object::Pose pose){
 		geometry_msgs::Pose pose2;
-		pose2.position.x = pose.position.x 
-		pose2.position.y = pose.position.y 
-		pose2.position.z = pose.position.z 
-		pose2.orientation.x = pose.orientation.x 
-		pose2.orientation.y = pose.orientation.y 
-		pose2.orientation.z = pose.orientation.z 
-		pose2.orientation.w = pose.orientation.w 
+		pose2.position.x = pose.position.x;
+		pose2.position.y = pose.position.y;
+		pose2.position.z = pose.position.z; 
+		pose2.orientation.x = pose.orientation.x; 
+		pose2.orientation.y = pose.orientation.y; 
+		pose2.orientation.z = pose.orientation.z; 
+		pose2.orientation.w = pose.orientation.w; 
 		pimpl->setGlobalPose(pose2);		
 	}
 	// rapp::objects::Path Navigation::pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
