@@ -50,7 +50,8 @@ Navigation::~Navigation() {
 		nav_msgs::Path path2;
 		path2.header.seq = path.header.seq;
 		path2.header.frame_id = path.header.frame_id;
-		path2.header.stamp = path.header.stamp;
+		path2.header.stamp.sec = path.header.stamp.sec;
+		path2.header.stamp.nsec = path.header.stamp.nsec;
 		for (int i=0; i < path.poses.size();i++)){
 
 			path2.header.poses.push_back(path.poses.at(i));
