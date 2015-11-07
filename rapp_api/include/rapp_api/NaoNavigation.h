@@ -1,7 +1,6 @@
 #include "ros/ros.h"
 #include <iostream>
 #include <vector>
-#include <opencv>
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "nav_msgs/Path.h"
