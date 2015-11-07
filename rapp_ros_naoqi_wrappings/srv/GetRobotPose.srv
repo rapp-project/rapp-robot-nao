@@ -1,0 +1,3 @@
+byte get_pose
+---
+geometry_msgs/PoseStamped pose

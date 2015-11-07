@@ -1,0 +1,4 @@
+string joint_name
+byte trigger
+---
+byte status

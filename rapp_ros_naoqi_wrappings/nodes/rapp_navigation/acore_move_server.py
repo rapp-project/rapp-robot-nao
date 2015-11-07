@@ -20,7 +20,7 @@ import sys, os
 import rospy
 import almath as m
 import numpy
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from geometry_msgs.msg import PolygonStamped, Point32
 
 import tf.transformations
@@ -106,6 +106,7 @@ class MoveNaoModule(ALModule):
 		self.MoveIsFailed = False
 		self.GP_seq = -1
 		self.tl = tf.TransformListener(True, rospy.Duration(5.0))
+		globalPosePublisher = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=10)
 	def subscribeToObstacle(self):
 		global sub_obstacle
 		sub_obstacle = rospy.Subscriber("/obstacleDetectorState", obstacleData , self.detectObstacle)
@@ -171,8 +172,13 @@ class MoveNaoModule(ALModule):
 		except Exception, ex_lookAt:
 			print "[Move server] - Exception %s" % str(ex_lookAt)
 		try:
-			print "[Move server] - service - [rapp_getPosition]"
-			self.service_getPosition = rospy.Service('rapp_getPosition', GetPosition, self.handle_rapp_getPosition)
+			print "[Move server] - service - [rapp_getRobotPose]"
+			self.service_getPosition = rospy.Service('rapp_getRobotPose', GetRobotPose, self.handle_rapp_getRobotPose)
+		except Exception, ex_getPosition:
+			print "[Move server] - Exception %s" % str(ex_getPosition)
+		try:
+			print "[Move server] - service - [rapp_setGlobalPose]"
+			self.service_getPosition = rospy.Service('rapp_setGlobalPose', SetGlobalPose, self.handle_rapp_setGlobalPose)
 		except Exception, ex_getPosition:
 			print "[Move server] - Exception %s" % str(ex_getPosition)
 	def getch(self):
@@ -196,17 +202,24 @@ class MoveNaoModule(ALModule):
 	def rapp_move_to_interface(self,x,y,theta):
 		moveTo = rospy.ServiceProxy('moveTo', MoveTo)
 		resp1 = moveTo(x,y,theta)
+		return resp1
+
 	def rapp_take_predefined_posture_interface(self,pose,speed):
 		takePosture = rospy.ServiceProxy('takePredefinedPosture', TakePredefinedPosture)
 		resp1 = takePosture(pose,speed)
+		return resp1
+
 	def rapp_move_joint_interface(self,joints, angles, speed):
 		self.unsubscribeToObstacle()
 		moveJoint = rospy.ServiceProxy('moveJoint', MoveJoint)
 		resp1 = moveJoint(joints, angles, speed)
+		return resp1
+
 	def rapp_stiffness_interface(self,joint,trigger):
 		self.unsubscribeToObstacle()
 		triggerStiffness = rospy.ServiceProxy('triggerStiffness', TriggerStiffness)
 		resp1 = triggerStiffness(joint, trigger)
+		return resp1
 #
 #
 #   Interfaces to virtual receptor ---- TO DO
@@ -215,21 +228,37 @@ class MoveNaoModule(ALModule):
 	####
 	##  SERVECE HANDLERS
 	####
-	def handle_rapp_getPosition(self,req):
+	def handle_rapp_setGlobalPose(self,req):
+		try:
+			data_to_publish = PoseWithCovarianceStamped()
+			data_to_publish.pose.pose = req.pose
+			data_to_publish.header.seq = 0
+			data_to_publish.header.stamp = rospy.Time.now()
+			data_to_publish.header.frame_id = "/map"
+			globalPosePublisher.publish(data_to_publish)
+		except Exception, ex_setPosition:
+			print "[Move server] - Exception %s" % str(ex_setPosition)
+		return SetGlobalPoseResponse(status)
+
+	def handle_rapp_getRobotPose(self,req):
 		try:
 			naoCurrentPosition = self.getNaoCurrentPosition()
 			nao_euler = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])
-			position = rapp.objects.Pose()
-			position.Point.x = naoCurrentPosition
-			position.Point.y = naoCurrentPosition[0][1]
-			position.Point.z = naoCurrentPosition[0][2]
-			position.Quaternion.x = naoCurrentPosition[1][0]
-			position.Quaternion.y = naoCurrentPosition[1][1]
-			position.Quaternion.z = naoCurrentPosition[1][2]
-			position.Quaternion.w = naoCurrentPosition[1][3]
+			position = PoseStamped()
+			position.header.frame_id = "/map"
+			position.header.seq = 0
+			position.header.stamp = rospy.Time.now()
+
+			position.pose.position.x = naoCurrentPosition
+			position.pose.position.y = naoCurrentPosition[0][1]
+			position.pose.position.z = naoCurrentPosition[0][2]
+			position.pose.orientation.x = naoCurrentPosition[1][0]
+			position.pose.orientation.y = naoCurrentPosition[1][1]
+			position.pose.orientation.z = naoCurrentPosition[1][2]
+			position.pose.orientation.w = naoCurrentPosition[1][3]
 		except Exception, ex_getPosition:
 			print "[Move server] - Exception %s" % str(ex_getPosition)
-		return position
+		return GetRobotPositionResponse(position)
 	def handle_rapp_moveTo(self,req):
 		try:
 			self.subscribeToObstacle()
@@ -253,13 +282,13 @@ class MoveNaoModule(ALModule):
 		self.path_is_finished = False
 		self.kill_thread_followPath = False
 		self.obstacle_detected = False
-		print "[Move server] - waiting for makePlan service"
-		rospy.wait_for_service('/global_planner/make_plan')
-		print "[Move server] - makePlan service found"
+		# print "[Move server] - waiting for makePlan service"
+		# rospy.wait_for_service('/global_planner/make_plan')
+		# print "[Move server] - makePlan service found"
 		
 		self.followPath_flag = 'empty'
 		rate_mainThread = rospy.Rate(1)
-		noPathavaliable = False
+		# noPathavaliable = False
 		#plannNewPath = rospy.ServiceProxy('rapp_plannPath', PlannPath)
 		#path = plannNewPath(naoCurrentPosition[0][0],naoCurrentPosition[0][1],nao_theta,req.x,req.y,req.theta)
 
@@ -272,7 +301,9 @@ class MoveNaoModule(ALModule):
 		# 	noPathavaliable = True
 		# 	break
 
-		self.thread_followPath = threading.Thread(None,self.followPath,None,[req.path.poses])
+		# self.thread_followPath = threading.Thread(None,self.followPath,None,[req.path.poses])
+		
+
 		#thread_detectObstacle = threading.Thread(None,self.detectObstacle,None)	
 			# # # zanim zaczniesz ruch ustaw watek do sprawdzania sonarow
 		#thread_detectObstacle.start()
@@ -281,25 +312,20 @@ class MoveNaoModule(ALModule):
 		
 		self.subscribeToObstacle()
 		
-		self.thread_followPath.start()
+		pathFollowingStatus = self.followPath(req.path.poses)
+		
+		self.unsubscribeToObstacle()
 
 		#self.followPath_flag = self.followPath(path)
-		while self.path_is_finished == False and self.obstacle_detected == False:
-			rate_mainThread.sleep()		#wait to nao stop move
-		if self.path_is_finished == True:
-			self.unsubscribeToObstacle()
+		# while self.path_is_finished == False and self.obstacle_detected == False:
+		# 	rate_mainThread.sleep()		#wait to nao stop move
+		if pathFollowingStatus == "finished":
 			#self.kill_thread_detectObstacle = True
 			#thread_detectObstacle.join()
 			#print "destination reached, and obstacle detection is:\n",thread_detectObstacle.isAlive()
-			print "destination reached, and following path is:\n",self.thread_followPath.isAlive()
 			status = 0
 
 		else:
-			self.kill_thread_followPath = True
-			#thread_detectObstacle.join()
-			self.unsubscribeToObstacle()
-			rospy.sleep(1)
-			print "OBSTACLE DETECTED, path following is:\n",self.thread_followPath.isAlive()
 			#print "OBSTACLE DETECTED, obstacle detection is:\n",thread_detectObstacle.isAlive()
 			#self.followObstaclesBoundary2()
 			print "BUG BUG BUG BUG BUG BUG BUG BUG \n BUG BUG BUG BUG BUG BUG"
@@ -420,7 +446,8 @@ class MoveNaoModule(ALModule):
 
 				thetaTime_now = 0
 				while (thetaTime-thetaTime_now)>0:
-					if self.kill_thread_followPath == True:
+					if self.obstacle_detected == True:
+						status = "obstacle"
 						break	
 					rospy.sleep(0.1)
 					
@@ -435,7 +462,8 @@ class MoveNaoModule(ALModule):
 
 			move_X_time_now = 0
 			while (move_X_time-move_X_time_now)>0:
-				if self.kill_thread_followPath == True:
+				if self.obstacle_detected == True:
+					status = "obstacle"
 					break	
 				rospy.sleep(0.1)
 				
@@ -449,11 +477,8 @@ class MoveNaoModule(ALModule):
 			# theta2_Time = abs(theta2)/0.2
 			# self.proxy_motion.post.move(0,0,0.2*numpy.sign(theta2))
 			# rospy.sleep(theta2_Time)
-
-			if self.kill_thread_followPath == True:
-				break
-		if self.kill_thread_followPath == True:
-			 self.path_is_finished = False
+		if self.obstacle_detected == True:
+			return status
 		else:
 			print "nawrotka na kierunek koncowy"
 			naoCurrentPosition = self.getNaoCurrentPosition()
@@ -470,38 +495,44 @@ class MoveNaoModule(ALModule):
 			
 			thetaTime_now = 0
 			while (theta2_Time-thetaTime_now)>0:
-				if self.kill_thread_followPath == True:
+				if self.obstacle_detected == True:
+					status = "obstacle"
 					break	
 				rospy.sleep(0.1)
 				
 				thetaTime_now = thetaTime_now + 0.1
 			self.rapp_move_vel_interface(0,0,0)
 
-			self.path_is_finished = True
-			print "PATH END"
+		if status == "obstacle":
+			return status
+		else:
+			status = "finished"
+			return status
 
 	def getNaoCurrentPosition(self):
-		# while self.tl.canTransform("map","base_link",rospy.Time()) == False:
-		# 	rospy.sleep(0.2)
-		# 	print "cant transform base_link to map frame now. "
-
-		ekf_position = self.tl.lookupTransform("map","base_link",rospy.Time())
-		ekf_euler = tf.transformations.euler_from_quaternion(ekf_position[1])
-		torso_position = self.tl.lookupTransform("map","Nao_T_odom",rospy.Time())
-		torso_euler = tf.transformations.euler_from_quaternion(torso_position[1])
+		if self.tl.canTransform("map","base_link",rospy.Time()):
+			ekf_position = self.tl.lookupTransform("map","base_link",rospy.Time())
+			ekf_euler = tf.transformations.euler_from_quaternion(ekf_position[1])
+			torso_position = self.tl.lookupTransform("map","Nao_T_odom",rospy.Time())
+			torso_euler = tf.transformations.euler_from_quaternion(torso_position[1])
 		# ekf_euler - orientation from EKF
 		# torso_euler - orientation from Odometry
-		quaternion_to_publish = tf.transformations.quaternion_from_euler(torso_euler[0],torso_euler[1],ekf_euler[2])
-		nao_position = [[ekf_position[0][0],ekf_position[0][1],torso_position[0][2]],[quaternion_to_publish[0],quaternion_to_publish[1],quaternion_to_publish[2],quaternion_to_publish[3]]] #torso_position[1][0],torso_position[1][1],ekf_position[1][2]]] 
+			quaternion_to_publish = tf.transformations.quaternion_from_euler(torso_euler[0],torso_euler[1],ekf_euler[2])
+			nao_position = [[ekf_position[0][0],ekf_position[0][1],torso_position[0][2]],[quaternion_to_publish[0],quaternion_to_publish[1],quaternion_to_publish[2],quaternion_to_publish[3]]] #torso_position[1][0],torso_position[1][1],ekf_position[1][2]]] 
 		#print "nao position",(nao_position)
-		sadasda = nao_position[1][1]
-		return nao_position
+			sadasda = nao_position[1][1]
+			return nao_position
+		else:
+			print "can't transform base_blink to map frame" 
+
+
 
 	def getCameraCurrentPosition(self):
-		camera_position = self.tl.lookupTransform("map","cameraTop",rospy.Time())
-
-		return camera_position
-
+		if self.tl.canTransform("map","cameraTop",rospy.Time()):
+			camera_position = self.tl.lookupTransform("map","cameraTop",rospy.Time())
+			return camera_position
+		else:
+			print "can't transform cameraTop to map frame" 
 
 	def handle_rapp_moveVel(self,req):
 
@@ -514,46 +545,43 @@ class MoveNaoModule(ALModule):
 			self.rapp_move_vel_interface(X, Y, Theta)
 			status = 0
 		except Exception, ex:
-			print "[Move server] - Exception in rapp_rest service handling: \n %s" % str(ex)
+			print "[Move server] - Exception in rapp_moveVel service handling: \n %s" % str(ex)
 			status = 1
 
 		return MoveVelResponse(status)	
 
 
 	def handle_rapp_moveJoint(self,req):
-		self.StiffnessOn(req.joint_name)
-		maxSpeed = 0.2
-		self.proxy_motion.angleInterpolationWithSpeed(req.joint_name,req.joint_angle,maxSpeed)
-		useSensors  = True
-		sensorAngles = self.proxy_motion.getAngles(req.joint_name, useSensors)
-		# print "sensorAngles type is: \n", type(sensorAngles)
-		# joint_angle = []float(sensorAngles[0])
-		return MoveJointResponse(sensorAngles)
+		try:
+			status = rapp_move_joint_interface(req.joint_name,req.joint_angle,req.speeds)
+		except Exception, ex:
+			print "[Move server] - Exception in rapp_moveJoint service handling: \n %s" % str(ex)
+			status = 1
+		return MoveJointResponse(status)
 
 	def handle_rapp_rest(self):
 		try:
-			self.rapp_take_predefined_pose_interface("Crouch")
-			self.rapp_stiffness_interface("Body", False)
-			status = 0
+			status = self.rapp_take_predefined_pose_interface("Crouch")
+			status = self.rapp_stiffness_interface("Body", False)
 		except Exception, ex:
 			print "[Move server] - Exception in rapp_rest service handling: \n %s" % str(ex)
 			status = 1
 		return RestResponse(status)	
 
 	def handle_rapp_moveStop(self,req):
-
-		rapp_move_vel_interface(0, 0, 0)
-	
-		self.unsubscribeToObstacle()
-
-		return MoveStopResponse(True)
+		try:
+			status = rapp_move_vel_interface(0, 0, 0)
+			self.unsubscribeToObstacle()
+		except Exception, ex:
+			print "[Move server] - Exception in rapp_moveStop service handling: \n %s" % str(ex)
+			status = 1
+		return MoveStopResponse(status)
 
 	def handle_rapp_takePredefinedPosture(self,req):
 		try:
-			status = True
-			self.rapp_take_predefined_posture_interface(req.pose, req.speed)
+			status = self.rapp_take_predefined_posture_interface(req.pose, req.speed)
 		except Exception, ex:
-			status = False
+			status = 1
 			print "[Move server] - Exception %s" % str(ex)
 		return TakePredefinedPostureResponse(status)	
 
@@ -570,16 +598,14 @@ class MoveNaoModule(ALModule):
 		camera_Map_orientation_euler = tf.transformations.euler_from_quaternion(camera_Map_position[1])
 
 		camera_Nao_orientation_euler = tf.transformations.euler_from_quaternion(camera_Nao_position[1])
-		cameraY_sit = 0.35#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 		dist2D = numpy.sqrt((pointX - camera_Map_position[0][0])*(pointX - camera_Map_position[0][0])+(pointY - camera_Map_position[0][1])*(pointY - camera_Map_position[0][1]))
 		#    *  - point
 		#    |  }
 		#    |  }  h = pointZ - NaoCamera
 		#    o    - Nao camera
 		h = pointZ - camera_Map_position[0][2]#camera_position[2]-nao_position[0][2]
-		h_sitting = 9999#h - cameraY_sit
-		minimalDist = h_sitting/numpy.tan(0.45)
-		#print "camera pose:\n",camera_Nao_orientation_euler[2]
+
 		#print "= ",robot_orientation_euler[2]
 		#print "torso h",nao_position[0][2]
 		gamma = camera_Map_orientation_euler[2]
@@ -632,7 +658,7 @@ class MoveNaoModule(ALModule):
 		turnHeadAngles = self.compute_turn_head_angles([pointX,pointY,pointZ])	
 		head_yaw = turnHeadAngles[0]
 		head_pitch = turnHeadAngles[1]
-		#define ranges
+		#define ranges     YAW    Pitch_min  Pitch_max
 		range_matrix = [-2.086017,-0.449073,0.330041,
 						-1.526988,-0.330041,0.200015,
 						-1.089958,-0.430049,0.300022,
@@ -640,7 +666,11 @@ class MoveNaoModule(ALModule):
 						-0.756077,-0.548033,0.370010,
 						-0.486074,-0.641951,0.422021,
 						0.000000,-0.671951,0.515047]
-
+		#check if pitch component can be reached by Nao
+		if not(head_pitch > range_matrix[19] and head_pitch < range_matrix[20]):
+			print "Nao cant reach the pitch angle"
+			status = 1
+			return LookAtPointResponse(status)	
 		#check if Nao has to turn around to reach the point
 		if abs(head_yaw) < abs(range_matrix[0]):
 			canLookAtPoint_yaw = True
@@ -648,56 +678,36 @@ class MoveNaoModule(ALModule):
 			canLookAtPoint_yaw = False
 
 		i=1
-		#search the matrix for pitch boundaries for estimated head yaw position 
+		#search the matrix for pitch boundaries for the desired head yaw position 
 		while i <= 6 :
 			if abs(head_yaw) > abs(range_matrix[i*3]) and canLookAtPoint_yaw:
 				head_pitch_max = range_matrix[(i-1)*3+2]
 				head_pitch_min = range_matrix[(i-1)*3+1]
 				break
-			elif not canLookAtPoint_yaw:
-				head_pitch_max = range_matrix[20]
-				head_pitch_min = range_matrix[19]
-				break
 			i+=1			
+
+
 			# Nao can reach head_yaw and head_pitch
 		if (head_pitch > head_pitch_min and head_pitch < head_pitch_max and canLookAtPoint_yaw):
-			case = 0
-			print "CASE 0"
-			# Nao can reach head_yaw but cant reach head_pitch
-		elif (not (head_pitch > head_pitch_min and head_pitch < head_pitch_max) and canLookAtPoint_yaw):
-			case = 1
-			print "CASE 1"
-
-			# Nao cant reach head_yaw
-		elif not canLookAtPoint_yaw:
-			case = 1
-			print "CASE 2"
-
-		if case == 0 :
 			print "HeadPitch: \n",head_pitch, "HeadYaw: \n",head_yaw	
 			self.rapp_move_joint_interface("Head",[head_yaw,head_pitch],0.2)
-			status = "point reached"
-		elif case == 1:
+			status = 0
 
-			head_pitch_max = range_matrix[20]
-			head_pitch_min = range_matrix[19]
+			# Nao will rotate to be ahead the point in yaw direction, then he will look at it
+		else:
+			thetaTime = abs(head_yaw)/0.4
+			moveVel_trigger = self.rapp_move_vel_interface(0,0,0.4*numpy.sign(head_yaw))
 
-			if head_pitch > head_pitch_min and head_pitch < head_pitch_max:		
-				thetaTime = abs(head_yaw)/0.4
-				moveVel_trigger = self.rapp_move_vel_interface(0,0,0.4*numpy.sign(head_yaw))
-
-				rospy.sleep(thetaTime)
-				self.proxy_motion.post.move(0,0,0)
+			rospy.sleep(thetaTime)
+			self.proxy_motion.post.move(0,0,0)
 			
-				turnHeadAngles = self.compute_turn_head_angles([pointX,pointY,pointZ])	
-				head_yaw = turnHeadAngles[0]
-				head_pitch = turnHeadAngles[1]
-				print "HeadPitch: \n",head_pitch, "HeadYaw: \n",head_yaw	
+			turnHeadAngles = self.compute_turn_head_angles([pointX,pointY,pointZ])	
+			head_yaw = turnHeadAngles[0]
+			head_pitch = turnHeadAngles[1]
+			print "HeadPitch: \n",head_pitch, "HeadYaw: \n",head_yaw	
 
-				self.rapp_move_joint_interface("Head",[head_yaw,head_pitch],0.2)
-				status = "point reached"	
-			else:
-				status = "Nao camera will not reach altitude of the point even after robot rotation"
+			self.rapp_move_joint_interface("Head",[head_yaw,head_pitch],0.2)
+			status = 0	
 
 		return LookAtPointResponse(status)	
 		

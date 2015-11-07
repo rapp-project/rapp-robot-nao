@@ -8,7 +8,12 @@
 #include "rapp_ros_naoqi_wrappings/MoveHead.h"
 #include "rapp_ros_naoqi_wrappings/MoveStop.h"
 #include "rapp_ros_naoqi_wrappings/MoveJoint.h"
-#include "rapp_ros_naoqi_wrappings/RemoveStiffness.h"
+#include "rapp_ros_naoqi_wrappings/Rest.h"
+#include "rapp_ros_naoqi_wrappings/MoveAlongPath.h"
+#include "rapp_ros_naoqi_wrappings/GetRobotPose.h"
+#include "rapp_ros_naoqi_wrappings/SetGlobalPose.h"
+// #include "rapp_ros_naoqi_wrappings/PathPlanner_2D.h"
+// #include "rapp_ros_naoqi_wrappings/QRcodeLocalization.h"
 #include "rapp_ros_naoqi_wrappings/TakePredefinedPosture.h"
 
 NaoNavigation::NaoNavigation(int argc,char **argv){
@@ -26,11 +31,13 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  srv.request.theta = theta;
 		  if (client_moveTo.call(srv))
 		  {
+	  	  	return srv.response.status
  			ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
 		  }
 		  else
 		  {
 		    ROS_ERROR("Failed to call service MoveTo"); 
+		    return false;
 		  }
 	}
 	bool NaoNavigation::moveVel(float x, float y, float theta){	
@@ -44,10 +51,13 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  if (client_moveVel.call(srv))
 		  {
 		    ROS_INFO("Nao moved ");
+	  	  	return srv.response.status
+		    
 		  }
 		  else
 		  {
 		    ROS_ERROR("Failed to call service MoveVel"); 
+		    return false;
 		  }
 	}
 
@@ -85,7 +95,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 	// 	    ROS_ERROR("Failed to call service MoveHead"); 
 	// 	  }
 	// }
-	bool NaoNavigation::moveJoint(std::vector<std::string> joint, std::vector<float> angle){
+	bool NaoNavigation::moveJoint(std::vector<std::string> joint, std::vector<float> angle, float speeds){
 		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
 
 		rapp_ros_naoqi_wrappings::MoveJoint srv;
@@ -93,14 +103,18 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		//memcpy(&srv.request.joint_angle, &angle, sizeof(angle));
 		srv.request.joint_name = joint;
 		srv.request.joint_angle = angle;
+		srv.request.speeds = speeds;
 
 		if (client_moveJoint.call(srv))
 		  {
+	  	  	return srv.response.status
 	  	  	//ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
 		  }
 		else
 		  {
-		    ROS_ERROR("Failed to call service moveJoint"); 
+		    ROS_ERROR("Failed to call service moveJoint");
+		    return false;
+
 		  }
 	}	
 	// void NaoNavigation::removeStiffness(std::string joint){
@@ -128,11 +142,13 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 
 		  if (client_takePredefinedPosture.call(srv))
 		  {
+	  	  	return srv.response.status
 	  	  	//ROS_INFO_STREAM(srv.request.pose<<" stiffness is off");
 		  }
 		  else
 		  {
 		    ROS_ERROR("Failed to call service takePredefinedPosture"); 
+		    return false;
 		  }
 	}	
 	bool NaoNavigation::moveStop(){
@@ -142,40 +158,105 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  srv.request.stop_signal = true;
 		  if (client_moveStop.call(srv))
 		  {
+	  	  	return srv.response.status
 		    ROS_INFO("Nao has stopped");
 		  }
 		  else
 		  {
 		    ROS_ERROR("Failed to call service MoveStop"); 
+		    return false;
 		  }
 	}
-	bool NaoNavigation::rest(){
-
+	bool NaoNavigation::rest(std::string posture){
+		client_rest = n->serviceClient<rapp_ros_naoqi_wrappings::Rest>("rapp_rest");
+		  rapp_ros_naoqi_wrappings::Rest srv;
+		  srv.request.posture = posture;
+		  if (client_rest.call(srv))
+		  {
+	  	  	return srv.response.status
+		    ROS_INFO("Nao is in rest state");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service rest"); 
+		    return false;
+		  }
 
 
 	}
 	bool NaoNavigation::moveAlongPath(rapp::objects::Path path){
+		client_MoveAlongPath = n->serviceClient<rapp_ros_naoqi_wrappings::MoveAlongPath>("rapp_moveAlongPath");
+		  rapp_ros_naoqi_wrappings::MoveAlongPath srv;
+  		  srv.request.path = path;
 
+		  if (client_MoveAlongPath.call(srv))
+		  {
+	  	  	return srv.response.status
+		    ROS_INFO("Nao moved along path");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service MoveAlongPath"); 
+		    return false;
+		  }
 
 
 
 	}
-	rapp::objects::Pose NaoNavigation::getRobotPosition(){
+	rapp::objects::PoseStamped NaoNavigation::getRobotPose(){
+		client_GetRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
+		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
+		  if (client_MoveAlongPath.call(srv))
+		  {
+		  	rapp::objects::PoseStamped service_response = srv.response.pose
+		  	return service_response
+		    ROS_INFO("Nao returned his pose");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service getRobotPose");
+		    return false;
+		  }
+
+
+	}
+	bool NaoNavigation::setGlobalPose(rapp::objects::Pose pose){
+		client_SetGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
+		  rapp_ros_naoqi_wrappings::SetGlobalPose srv;
+  		  srv.request.pose = pose;
+		  if (client_MoveAlongPath.call(srv))
+		  {
+	  	  	return srv.response.status
+		    ROS_INFO("Nao is localized");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service setGlobalPose"); 
+	  	  	return false;
+
+		  }
 
 
 
 	}
-	bool NaoNavigation::globalLocalization(rapp::objects::Pose pose){
+	// rapp::objects::Path NaoNavigation::pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
+	// 	client_PathPlanner_2D = n->serviceClient<rapp_ros_naoqi_wrappings::PathPlanner_2D>("rapp_pathPlanner_2D");
+	// 	  rapp_ros_naoqi_wrappings::PathPlanner_2D srv;
+ //  		  srv.request.pose = pose;
+ //  		  srv.request.pose = pose;
+ //  		  srv.request.pose = pose;
+	// 	  if (client_MoveAlongPath.call(srv))
+	// 	  {
+	// 	    ROS_INFO("Nao is localized");
+	// 	  }
+	// 	  else
+	// 	  {
+	// 	    ROS_ERROR("Failed to call service pathPlanner_2D"); 
+	// 	  }
 
 
-
-	}
-	rapp::objects::Path NaoNavigation::PathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
-
+	// }
+ //    rapp::objects::Pose NaoNavigation::qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
 
 
-	}
-    rapp::objects::Pose NaoNavigation::QRcodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
-
-
-    }
+ //    }

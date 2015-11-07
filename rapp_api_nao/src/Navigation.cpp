@@ -45,19 +45,19 @@ Navigation::~Navigation() {
 	bool Navigation::moveAlongPath(rapp::objects::Path path){
 		pimpl->moveAlongPath(path);		
 	}
-	rapp::objects::Pose Navigation::getRobotPosition(){
-		pimpl->getRobotPosition();		
+	rapp::objects::PoseStamped Navigation::getRobotPose(){
+		pimpl->getRobotPose();		
 	}
-	bool Navigation::globalLocalization(rapp::objects::Pose pose){
-		pimpl->globalLocalization(x, y, theta);		
+	bool Navigation::setGlobalPose(rapp::objects::Pose pose){
+		pimpl->setGlobalPose(x, y, theta);		
 	}
-	rapp::objects::Path Navigation::PathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
-		pimpl->PathPlanner_2D(start, goal, map);		
-	}
-    rapp::objects::Pose Navigation::QRcodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
-		pimpl->QRcodeLocalization(image, QRmap);		
+	// rapp::objects::Path Navigation::pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
+	// 	pimpl->pathPlanner_2D(start, goal, map);		
+	// }
+ //    rapp::objects::Pose Navigation::qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
+	// 	pimpl->qrCodeLocalization(image, QRmap);		
 
-    }
+ //    }
 } // namespace rapp
 } // namespace robot
 

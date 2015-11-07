@@ -43,12 +43,12 @@ public:
 	bool takePredefinedPosture(std::string posture);
 	// bool visOdom();
 	bool lookAtPoint(float x, float y, float z);
-	bool rest();
+	bool rest(std::string posture);
 	bool moveAlongPath(rapp::objects::Path path);
-	rapp::objects::Pose getRobotPosition();
-	bool globalLocalization(rapp::objects::Pose pose);
-	rapp::objects::Path PathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map);
-    rapp::objects::Pose QRcodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap);
+	rapp::objects::PoseStamped getRobotPose();
+	bool setGlobalPose(rapp::objects::Pose pose);
+	// rapp::objects::Path pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map);
+ //    rapp::objects::Pose qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap);
 	
 };	
 	

@@ -180,36 +180,83 @@ NavigationImpl::~NavigationImpl() {
 		    ROS_ERROR("REUEST FAILED:  lookAtPoint"); 
 		  }
 	}
-	bool NavigationImpl::rest(){
-
+	bool NavigationImpl::rest(std::string posture){
+		client_rest = n->serviceClient<rapp_ros_naoqi_wrappings::Rest>("rapp_rest");
+		  rapp_ros_naoqi_wrappings::Rest srv;
+		  srv.request.posture = posture;
+		  if (client_rest.call(srv))
+		  {
+		    ROS_INFO("Nao is in rest state");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service rest"); 
+		  }
 
 
 	}
 	bool NavigationImpl::moveAlongPath(rapp::objects::Path path){
+		client_MoveAlongPath = n->serviceClient<rapp_ros_naoqi_wrappings::MoveAlongPath>("rapp_moveAlongPath");
+		  rapp_ros_naoqi_wrappings::MoveAlongPath srv;
+  		  srv.request.path = path;
+
+		  if (client_MoveAlongPath.call(srv))
+		  {
+		    ROS_INFO("Nao moved along path");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service MoveAlongPath"); 
+		  }
+
+
+
+
+
+	}
+	rapp::objects::PoseStamped NavigationImpl::getRobotPose(){
+
+		client_GetRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
+		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
+		  if (client_MoveAlongPath.call(srv))
+		  {
+		  	rapp::objects::PoseStamped service_response = srv.response.pose
+		  	return service_response
+		    ROS_INFO("Nao returned his pose");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service getRobotPose"); 
+		  }
+
+
+	}
+	bool NavigationImpl::setGlobalPose(rapp::objects::Pose pose){
+		client_SetGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
+		  rapp_ros_naoqi_wrappings::SetGlobalPose srv;
+  		  srv.request.pose = pose;
+		  if (client_MoveAlongPath.call(srv))
+		  {
+		    ROS_INFO("Nao is localized");
+		  }
+		  else
+		  {
+		    ROS_ERROR("Failed to call service setGlobalPose"); 
+		  }
 
 
 
 
 	}
-	rapp::objects::Pose NavigationImpl::getRobotPosition(){
+	// rapp::objects::Path NavigationImpl::pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
 
 
 
-	}
-	bool NavigationImpl::globalLocalization(rapp::objects::Pose pose){
+	// }
+ //    rapp::objects::Pose NavigationImpl::qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
 
 
-
-	}
-	rapp::objects::Path NavigationImpl::PathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
-
-
-
-	}
-    rapp::objects::Pose NavigationImpl::QRcodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
-
-
-    }
+ //    }
 
 } // namespace robot
 } // namespace rapp
