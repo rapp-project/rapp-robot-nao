@@ -16,37 +16,51 @@ Navigation::~Navigation() {
 	delete pimpl;
 }
 	bool Navigation::moveTo(float x, float y, float theta){
-		pimpl->moveTo( x, y, theta);
+		bool status;
+		status = pimpl->moveTo( x, y, theta);		
+		return status;
 
 	}
 	bool Navigation::moveVel(float x, float y, float theta){
-		pimpl->moveVel(x, y,  theta);
+		bool status;
+		status = pimpl->moveVel(x, y,  theta);		
+		return status;
 	}
 	// bool Navigation::moveHead(float yaw,float pitch){
 	// 	pimpl->moveHead(yaw,pitch);		
 	// }
 	bool Navigation::moveStop(){
-		pimpl->moveStop();		
+		bool status;
+		status = pimpl->moveStop();				
+		return status;
 	}
 	bool Navigation::moveJoint(std::vector<std::string> joint, std::vector<float> angle){
-		pimpl->moveJoint(joint, angle);		
+		bool status;
+		status = pimpl->moveJoint(joint, angle);			
+		return status;	
 	}
 	// bool Navigation::removeStiffness(std::string joint){
 	// 	pimpl->removeStiffness(joint);		
 	// }
 	bool Navigation::takePredefinedPosture(std::string posture, float speed){
-		pimpl->takePredefinedPosture(posture, speed);		
+		bool status;
+		status = pimpl->takePredefinedPosture(posture, speed);			
+		return status;	
 	}
 	// bool Navigation::visOdom(){
 	// 	pimpl->visOdom();		
 	// }
 	bool Navigation::lookAtPoint(float x, float y, float z){
-		pimpl->lookAtPoint(x, y, z);		
+		bool status;
+		status = pimpl->lookAtPoint(x, y, z);			
+		return status;	
 	}
 	bool Navigation::rest(std::string posture){
-		pimpl->rest(posture);		
+		status = pimpl->rest(posture);		
+		return status;
 	}
 	bool Navigation::moveAlongPath(rapp::object::Path path){
+		bool status;
 		nav_msgs::Path path2;
 		path2.header.seq = path.header.seq;
 		path2.header.frame_id = path.header.frame_id;
@@ -67,7 +81,8 @@ Navigation::~Navigation() {
 			path2.poses.at(i).pose.orientation.w = path.poses.at(i).pose.orientation.w;
 		}
 		//path2 = path;
-		pimpl->moveAlongPath(path2);		
+		status = pimpl->moveAlongPath(path2);
+		return status;		
 	}
 	rapp::object::PoseStamped Navigation::getRobotPose(){
 		geometry_msgs::PoseStamped resp;
