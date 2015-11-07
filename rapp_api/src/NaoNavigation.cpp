@@ -31,13 +31,12 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  srv.request.theta = theta;
 		  if (client_moveTo.call(srv))
 		  {
-	  	  	return srv.response.status
+	  	  	return true
  			ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
 		  }
 		  else
 		  {
 		    ROS_ERROR("Failed to call service MoveTo"); 
-		    return false;
 		  }
 	}
 	bool NaoNavigation::moveVel(float x, float y, float theta){	
@@ -51,13 +50,11 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  if (client_moveVel.call(srv))
 		  {
 		    ROS_INFO("Nao moved ");
-	  	  	return srv.response.status
 
 		  }
 		  else
 		  {
 		    ROS_ERROR("Failed to call service MoveVel"); 
-		    return false;
 		  }
 	}
 
@@ -107,14 +104,11 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 
 		if (client_moveJoint.call(srv))
 		  {
-	  	  	return srv.response.status
 	  	  	//ROS_INFO_STREAM(srv.request.joint_name<<" position is: \n"<<srv.response.angle_now);
 		  }
 		else
 		  {
 		    ROS_ERROR("Failed to call service moveJoint");
-		    return false;
-
 		  }
 	}	
 	// void NaoNavigation::removeStiffness(std::string joint){
