@@ -71,7 +71,7 @@ Navigation::~Navigation() {
 	}
 	rapp::object::PoseStamped Navigation::getRobotPose(){
 		geometry_msgs::PoseStamped resp;
-		rapp::object::Pose pose;
+		rapp::object::PoseStamped pose;
 		resp = pimpl->getRobotPose();
 		pose.header.seq = resp.header.seq;
 		pose.header.frame_id = resp.header.frame_id;
