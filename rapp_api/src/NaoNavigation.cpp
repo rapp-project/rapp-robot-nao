@@ -186,7 +186,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		  rapp_ros_naoqi_wrappings::MoveAlongPath srv;
   		  srv.request.path = path;
 
-		  if (client_MoveAlongPath.call(srv))
+		  if (client_moveAlongPath.call(srv))
 		  {
 	  	  	return srv.response.status;
 		    ROS_INFO("Nao moved along path");
@@ -203,7 +203,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 	geometry_msgs::PoseStamped NaoNavigation::getRobotPose(){
 		client_getRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
 		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
-		  if (client_MoveAlongPath.call(srv))
+		  if (client_getRobotPose.call(srv))
 		  {
 		  	
 		  	return srv.response.pose;
@@ -220,7 +220,7 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 		client_setGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
 		  rapp_ros_naoqi_wrappings::SetGlobalPose srv;
   		  srv.request.pose = pose;
-		  if (client_MoveAlongPath.call(srv))
+		  if (client_setGlobalPose.call(srv))
 		  {
 	  	  	return srv.response.status;
 		    ROS_INFO("Nao is localized");
