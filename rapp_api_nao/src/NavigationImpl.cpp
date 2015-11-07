@@ -143,7 +143,6 @@ NavigationImpl::~NavigationImpl() {
 
 		client_moveStop = n->serviceClient<rapp_ros_naoqi_wrappings::MoveStop>("rapp_moveStop");
 		  rapp_ros_naoqi_wrappings::MoveStop srv;
-		  srv.request.stop_signal = true;
 		  if (client_moveStop.call(srv))
 		  {
 		    return srv.response.status;
@@ -203,11 +202,11 @@ NavigationImpl::~NavigationImpl() {
 
 	}
 	bool NavigationImpl::moveAlongPath(nav_msgs::Path path){
-		client_MoveAlongPath = n->serviceClient<rapp_ros_naoqi_wrappings::MoveAlongPath>("rapp_moveAlongPath");
+		client_moveAlongPath = n->serviceClient<rapp_ros_naoqi_wrappings::MoveAlongPath>("rapp_moveAlongPath");
 		  rapp_ros_naoqi_wrappings::MoveAlongPath srv;
   		  srv.request.path = path;
 
-		  if (client_MoveAlongPath.call(srv))
+		  if (client_moveAlongPath.call(srv))
 		  {
 		    return srv.response.status;
 	  	  	ROS_INFO("Nao moved along path");
@@ -224,9 +223,9 @@ NavigationImpl::~NavigationImpl() {
 	}
 	geometry_msgs::PoseStamped NavigationImpl::getRobotPose(){
 
-		client_GetRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
+		client_getRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
 		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
-		  if (client_MoveAlongPath.call(srv))
+		  if (client_getRobotPose.call(srv))
 		  {
 		    return srv.response.pose;
 	  	  	ROS_INFO("Nao returned his pose");
@@ -239,10 +238,10 @@ NavigationImpl::~NavigationImpl() {
 
 	}
 	bool NavigationImpl::setGlobalPose(geometry_msgs::Pose pose){
-		client_SetGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
+		client_setGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
 		  rapp_ros_naoqi_wrappings::SetGlobalPose srv;
   		  srv.request.pose = pose;
-		  if (client_MoveAlongPath.call(srv))
+		  if (client_setGlobalPose.call(srv))
 		  {
 		    return srv.response.status;
 	  	  	ROS_INFO("Nao is localized");

@@ -26,13 +26,16 @@ public:
 	
 	ros::ServiceClient client_moveTo;
 	ros::ServiceClient client_moveVel;
-	ros::ServiceClient client_moveHead;
 	ros::ServiceClient client_moveStop;
 	ros::ServiceClient client_moveJoint;
-	ros::ServiceClient client_removeStiffness;
+	ros::ServiceClient client_rest;
 	ros::ServiceClient client_takePredefinedPosture;
-	ros::ServiceClient client_visOdom;
 	ros::ServiceClient client_lookAtPoint;
+	ros::ServiceClient client_getRobotPose;
+	ros::ServiceClient client_setGlobalPose;
+	ros::ServiceClient client_moveAlongPath;
+
+
 	ros::NodeHandle *n;
 	
 	bool moveTo(float x, float y, float theta);
