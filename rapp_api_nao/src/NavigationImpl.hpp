@@ -41,7 +41,7 @@ public:
 	bool moveStop();
 	bool moveJoint(std::vector<std::string> joint, std::vector<float> angle);
 	// bool removeStiffness(std::string joint);
-	bool takePredefinedPosture(std::string posture);
+	bool takePredefinedPosture(std::string posture, float speed);
 	// bool visOdom();
 	bool lookAtPoint(float x, float y, float z);
 	bool rest(std::string posture);

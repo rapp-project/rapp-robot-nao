@@ -133,12 +133,14 @@ NaoNavigation::NaoNavigation(int argc,char **argv){
 	// 	    ROS_ERROR("Failed to call service removeStiffness"); 
 	// 	  }
 	// }	
-	bool NaoNavigation::takePredefinedPosture(std::string posture){
+	bool NaoNavigation::takePredefinedPosture(std::string posture, float speed){
 		client_takePredefinedPosture = n->serviceClient<rapp_ros_naoqi_wrappings::TakePredefinedPosture>("rapp_takePredefinedPosture");
 		
 
 		  rapp_ros_naoqi_wrappings::TakePredefinedPosture srv;
 		  srv.request.pose = posture;
+		  srv.request.speed = speed;
+
 
 		  if (client_takePredefinedPosture.call(srv))
 		  {

@@ -27,7 +27,7 @@ void init(int argc, char **argv);
 	bool moveVel(float x, float y, float theta);
 	bool moveStop();
 	bool moveJoint(std::vector<std::string> joint, std::vector<float> angle, float speeds);
-	bool takePredefinedPosture(std::string posture);
+	bool takePredefinedPosture(std::string posture, float speed);
 	bool rest(std::string posture);
 	bool moveAlongPath(nav_msgs::Path path);
 	geometry_msgs::PoseStamped getRobotPose();

@@ -34,8 +34,8 @@ Navigation::~Navigation() {
 	// bool Navigation::removeStiffness(std::string joint){
 	// 	pimpl->removeStiffness(joint);		
 	// }
-	bool Navigation::takePredefinedPosture(std::string posture){
-		pimpl->takePredefinedPosture(posture);		
+	bool Navigation::takePredefinedPosture(std::string posture, float speed){
+		pimpl->takePredefinedPosture(posture, float speed);		
 	}
 	// bool Navigation::visOdom(){
 	// 	pimpl->visOdom();		
