@@ -47,7 +47,9 @@ Navigation::~Navigation() {
 		pimpl->rest(posture);		
 	}
 	bool Navigation::moveAlongPath(rapp::object::Path path){
-		pimpl->moveAlongPath(path);		
+		nav_msgs::Path path2;
+		path2 = path;
+		pimpl->moveAlongPath(path2);		
 	}
 	rapp::object::PoseStamped Navigation::getRobotPose(){
 		pimpl->getRobotPose();		
