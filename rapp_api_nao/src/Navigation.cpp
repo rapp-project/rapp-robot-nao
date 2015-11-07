@@ -56,6 +56,7 @@ Navigation::~Navigation() {
 		return status;	
 	}
 	bool Navigation::rest(std::string posture){
+		bool status;
 		status = pimpl->rest(posture);		
 		return status;
 	}
