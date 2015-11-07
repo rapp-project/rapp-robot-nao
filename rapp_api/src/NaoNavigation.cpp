@@ -5,7 +5,7 @@
 #include "ros/ros.h"
 #include "rapp_ros_naoqi_wrappings/MoveTo.h"
 #include "rapp_ros_naoqi_wrappings/MoveVel.h"
-#include "rapp_ros_naoqi_wrappings/MoveHead.h"
+//#include "rapp_ros_naoqi_wrappings/MoveHead.h"
 #include "rapp_ros_naoqi_wrappings/MoveStop.h"
 #include "rapp_ros_naoqi_wrappings/MoveJoint.h"
 #include "rapp_ros_naoqi_wrappings/Rest.h"

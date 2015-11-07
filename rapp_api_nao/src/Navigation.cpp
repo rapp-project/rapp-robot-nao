@@ -35,7 +35,7 @@ Navigation::~Navigation() {
 	// 	pimpl->removeStiffness(joint);		
 	// }
 	bool Navigation::takePredefinedPosture(std::string posture){
-		pimpl->takePredefinedPosture(pose);		
+		pimpl->takePredefinedPosture(posture);		
 	}
 	// bool Navigation::visOdom(){
 	// 	pimpl->visOdom();		
@@ -43,8 +43,8 @@ Navigation::~Navigation() {
 	bool Navigation::lookAtPoint(float x, float y, float z){
 		pimpl->lookAtPoint(x, y, z);		
 	}
-	bool Navigation::rest(){
-		pimpl->rest();		
+	bool Navigation::rest(std::string posture){
+		pimpl->rest(posture);		
 	}
 	bool Navigation::moveAlongPath(rapp::object::Path path){
 		pimpl->moveAlongPath(path);		
