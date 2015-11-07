@@ -49,6 +49,12 @@ Navigation::~Navigation() {
 	bool Navigation::moveAlongPath(rapp::object::Path path){
 		nav_msgs::Path path2;
 		path2.header.seq = path.header.seq;
+		path2.header.frame_id = path.header.frame_id;
+		path2.header.stamp = path.header.stamp;
+		for (int i=0; i < path.poses.size();i++)){
+
+			path2.header.poses.push_back(path.poses.at(i));
+		}
 		path2 = path;
 		pimpl->moveAlongPath(path2);		
 	}
