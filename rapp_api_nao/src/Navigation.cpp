@@ -58,13 +58,13 @@ Navigation::~Navigation() {
 			path2.poses.at(i).header.frame_id = path.poses.at(i).header.frame_id;
 			path2.poses.at(i).header.stamp.sec = path.poses.at(i).header.stamp.sec;
 			path2.poses.at(i).header.stamp.nsec = path.poses.at(i).header.stamp.nsec;
-			path2.poses.at(i).pose.position.x = path.poses.at(i).pose.position.x
-			path2.poses.at(i).pose.position.y = path.poses.at(i).pose.position.y
-			path2.poses.at(i).pose.position.z = path.poses.at(i).pose.position.z
-			path2.poses.at(i).pose.orientation.x = path.poses.at(i).pose.orientation.x
-			path2.poses.at(i).pose.orientation.y = path.poses.at(i).pose.orientation.y
-			path2.poses.at(i).pose.orientation.z = path.poses.at(i).pose.orientation.z
-			path2.poses.at(i).pose.orientation.w = path.poses.at(i).pose.orientation.w
+			path2.poses.at(i).pose.position.x = path.poses.at(i).pose.position.x;
+			path2.poses.at(i).pose.position.y = path.poses.at(i).pose.position.y;
+			path2.poses.at(i).pose.position.z = path.poses.at(i).pose.position.z;
+			path2.poses.at(i).pose.orientation.x = path.poses.at(i).pose.orientation.x;
+			path2.poses.at(i).pose.orientation.y = path.poses.at(i).pose.orientation.y;
+			path2.poses.at(i).pose.orientation.z = path.poses.at(i).pose.orientation.z;
+			path2.poses.at(i).pose.orientation.w = path.poses.at(i).pose.orientation.w;
 		}
 		//path2 = path;
 		pimpl->moveAlongPath(path2);		
