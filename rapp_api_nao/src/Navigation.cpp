@@ -52,7 +52,7 @@ Navigation::~Navigation() {
 		path2.header.frame_id = path.header.frame_id;
 		path2.header.stamp.sec = path.header.stamp.sec;
 		path2.header.stamp.nsec = path.header.stamp.nsec;
-		for (int i=0; i < path.poses.size();i++){
+		for (uint32_t i=0; i < path.poses.size();i++){
 
 			path2.poses.at(i).header.seq = path.poses.at(i).header.seq;
 			path2.poses.at(i).header.frame_id = path.poses.at(i).header.frame_id;
