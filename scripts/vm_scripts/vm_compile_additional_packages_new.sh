@@ -261,7 +261,7 @@ catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/h
 # echo -e "$COL_GREEN[OK]$COL_RESET - Exporting LIBRARY PATH"
 # export LIBRARY_PATH=$ROS_ADDITIONAL_PACKAGES_ISOLATED/lib
 
-# # unistring
+# unistring
 # cd $PROGRAMS_DIRECTORY
 # echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of unistring library"
 # wget http://ftp.gnu.org/gnu/libunistring/libunistring-latest.tar.gz
@@ -276,7 +276,7 @@ catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/h
 # cd $PROGRAMS_DIRECTORY
 # echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
 # wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2c-beta04Nov15.tar.gz
-# tar zxvf bigloo4.2a.tar.gz
+# tar zxvf bigloo4.2c-beta04Nov15.tar.gz
 # cd bigloo4.2c
 # ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
 # make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - bigloo make failed with $?"; exit 1; }
