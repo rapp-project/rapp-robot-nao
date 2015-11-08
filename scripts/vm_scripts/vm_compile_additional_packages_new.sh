@@ -251,7 +251,7 @@ catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/h
 # echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Openssl"
 # wget ftp://www.openssl.org/source/openssl-1.0.2d.tar.gz
 # tar zxvf openssl-1.0.2d.tar.gz
-# cd openssl-1.0.d
+# cd openssl-1.0.2d
 # ./config --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --openssldir=$ROS_ADDITIONAL_PACKAGES_ISOLATED/#openssl
 # make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - openssl make failed with $?"; exit 1; }
 # sudo make install
