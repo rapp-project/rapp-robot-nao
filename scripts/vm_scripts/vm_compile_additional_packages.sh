@@ -99,39 +99,39 @@ make install
 make clean
 
 
-# FLANN
-cd $PROGRAMS_DIRECTORY
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
-wget http://www.cs.ubc.ca/research/flann/uploads/FLANN/flann-1.8.4-src.zip
-unzip flann-1.8.4-src.zip
-cd flann-1.8.4-src && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
-make 
-make install
-make clean
+# # FLANN
+# cd $PROGRAMS_DIRECTORY
+# echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
+# wget http://www.cs.ubc.ca/research/flann/uploads/FLANN/flann-1.8.4-src.zip
+# unzip flann-1.8.4-src.zip
+# cd flann-1.8.4-src && mkdir build && cd build
+# cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
+# make 
+# make install
+# make clean
 
-#QHULL
-cd $PROGRAMS_DIRECTORY
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of QHULL"
-wget http://www.qhull.org/download/qhull-2012.1-src.tgz
-tar zxvf qhull-2012.1-src.tgz
-cd qhull-2012.1
-mkdir build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
-make 
-make install
-make clean
+# #QHULL
+# cd $PROGRAMS_DIRECTORY
+# echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of QHULL"
+# wget http://www.qhull.org/download/qhull-2012.1-src.tgz
+# tar zxvf qhull-2012.1-src.tgz
+# cd qhull-2012.1
+# mkdir build
+# cd build
+# cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
+# make 
+# make install
+# make clean
 
-# PCL
-cd $PROGRAMS_DIRECTORY
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
-git clone https://github.com/PointCloudLibrary/pcl.git
-cd pcl && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA:BOOL=OFF -DWITH_DAVIDSDK:BOOL=ON -DWITH_DOCS:BOOL=OFF -DWITH_ENSENSO:BOOL=ON -DWITH_FZAPI:BOOL=OFF -DWITH_LIBUSB:BOOL=OFF -DWITH_OPENGL:BOOL=OFF -DWITH_OPENNI:BOOL=OFF -DWITH_OPENNI2:BOOL=OFF -DWITH_PCAP:BOOL=OFF -DWITH_PNG:BOOL=ON -DWITH_PXCAPI:BOOL=OFF -DWITH_QHULL:BOOL=ON -DWITH_QT:BOOL=OFF -DWITH_VTK:BOOL=OFF -DBUILD_recognition:BOOL=OFF ..
-make 
-make install
-make clean
+# # PCL
+# cd $PROGRAMS_DIRECTORY
+# echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of PCL"
+# git clone https://github.com/PointCloudLibrary/pcl.git
+# cd pcl && mkdir build && cd build
+# cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA:BOOL=OFF -DWITH_DAVIDSDK:BOOL=ON -DWITH_DOCS:BOOL=OFF -DWITH_ENSENSO:BOOL=ON -DWITH_FZAPI:BOOL=OFF -DWITH_LIBUSB:BOOL=OFF -DWITH_OPENGL:BOOL=OFF -DWITH_OPENNI:BOOL=OFF -DWITH_OPENNI2:BOOL=OFF -DWITH_PCAP:BOOL=OFF -DWITH_PNG:BOOL=ON -DWITH_PXCAPI:BOOL=OFF -DWITH_QHULL:BOOL=ON -DWITH_QT:BOOL=OFF -DWITH_VTK:BOOL=OFF -DBUILD_recognition:BOOL=OFF ..
+# make 
+# make install
+# make clean
 
 # SDL2
 #cd $PROGRAMS_DIRECTORY
@@ -154,29 +154,29 @@ make clean
 #make
 #make install
 #make clean
-# SDL-1.2
-cd $PROGRAMS_DIRECTORY
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of SDL-1.2.15"
-wget https://www.libsdl.org/release/SDL-1.2.15.tar.gz
-tar zxvf SDL-1.2.15.tar.gz
-cd SDL-1.2.15 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
-make 
-make install
+# # SDL-1.2
+# cd $PROGRAMS_DIRECTORY
+# echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of SDL-1.2.15"
+# wget https://www.libsdl.org/release/SDL-1.2.15.tar.gz
+# tar zxvf SDL-1.2.15.tar.gz
+# cd SDL-1.2.15 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
+# make 
+# make install
 
-# SDL_image-1.2
-cd $PROGRAMS_DIRECTORY
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of SDL_image-1.2.12"
-wget https://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.12.tar.gz
-tar zxvf SDL_image-1.2.12.tar.gz
-cd SDL_image-1.2.12 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED 
-#cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
-make
-make install
+# # SDL_image-1.2
+# cd $PROGRAMS_DIRECTORY
+# echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of SDL_image-1.2.12"
+# wget https://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.12.tar.gz
+# tar zxvf SDL_image-1.2.12.tar.gz
+# cd SDL_image-1.2.12 && ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED 
+# #cmake -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release .. 
+# make
+# make install
 
 # link libraries to system path
-sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libyaml-cpp.a /usr/lib/libyaml-cpp.a
-sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL_image.so /usr/lib/libSDL_image.so
-sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL.so /usr/lib/libSDL.so
+# sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libyaml-cpp.a /usr/lib/libyaml-cpp.a
+# sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL_image.so /usr/lib/libSDL_image.so
+# sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL.so /usr/lib/libSDL.so
 
 
 cd $ROS_ADDITIONAL_PACKAGES_SRC_DIR
@@ -212,43 +212,6 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from diagnostics rep
 git clone  https://github.com/ros/diagnostics.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from robot_localization repository"
 git clone https://github.com/cra-ros-pkg/robot_localization.git
-
-
-# for global_planner
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code common_msgs for costmap_2d package"
-git clone  https://github.com/ros/common_msgs.git  https://github.com/ros/common_msgs.git
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code bondcpp for nodelet package"
-git clone https://github.com/ros/bond_core.git
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code nodelet for global_planner package"
-git clone https://github.com/ros/nodelet_core.git
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code nav_core for global_planner package"
-svn co https://github.com/ros-planning/navigation/trunk/nav_core
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code navfn for global_planner package"
-svn co https://github.com/ros-planning/navigation/trunk/navfn
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code costmap_2d for global_planner package"
-svn co https://github.com/ros-planning/navigation/trunk/costmap_2d
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code angles for global_planner package"
-git clone https://github.com/ros/angles.git
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code map_msgs for global_planner package"
-git clone https://github.com/ros-planning/navigation_msgs.git
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code laser_geometry for global_planner package"
-git clone https://github.com/ros-perception/laser_geometry.git 
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code map_server for global_planner package"
-svn co https://github.com/ros-planning/navigation/trunk/map_server
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code voxel_grid for global_planner package"
-svn co https://github.com/ros-planning/navigation/trunk/voxel_grid
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code pcl_conversions for global_planner package"
-git clone https://github.com/ros-perception/pcl_conversions.git 
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code pcl_ros for global_planner package"
-git clone https://github.com/ros-perception/perception_pcl.git 
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code pcl_msgs for global_planner package"
-git clone https://github.com/ros-perception/pcl_msgs.git 
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code nav_core for global_planner package"
-svn co https://github.com/ros-planning/navigation/trunk/nav_core
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code global_planner package"
-svn co https://github.com/ros-planning/navigation/trunk/global_planner
-cd ..
-
 
 # compilation
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
