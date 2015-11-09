@@ -28,3 +28,28 @@ cv::Mat Vision::getTransform(std::string chainName, int space){
 } // namespace rapp
 } // namespace robot
 
+//######################################################################
+//######################################################################
+
+namespace rappPlatform {
+namespace robot {
+
+Vision::Vision(int argc, char * argv[]) {
+	pimpl = new VisionImpl(argc, argv);
+}
+
+Vision::~Vision() {
+	delete pimpl;
+}
+
+std::vector< std::vector<double> > Vision::faceDetect(cv::Mat image, std::string cameraId, int cameraResolution){
+	pimpl->faceDetect(cv::Mat image, std::string cameraId, int cameraResolution);
+}
+
+struct Vision::QRcodeDetection Vision::qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_){
+	pimpl->qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
+}
+
+
+} // namespace robot
+} // namespace rappPlatform
