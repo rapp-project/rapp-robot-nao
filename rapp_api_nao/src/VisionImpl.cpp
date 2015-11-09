@@ -190,15 +190,15 @@ std::vector< std::vector <double> > VisionImpl::faceDetect(cv::Mat image, std::s
 	return FaceDetectVector;
 }
 
-struct VisionImpl::QRcodeDetection VisionImpl::qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
+struct VisionImpl::QRcodeDetection VisionImpl::qrCodeDetection(cv::Mat &cv_frame, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
 {
 	// initializing the structure QRcodeDetection -- set to default
 	VisionImpl::QRcodeDetection QRcodeDetectionStruct;
 	QRcodeDetectionStruct.clear();
 
 	cv::Mat cv_frame, frame_grayscale;
-	boost::shared_ptr<void const> tracked_object;
-	cv_frame = cv_bridge::toCvShare(frame_, tracked_object, frame_.encoding)->image; //conversion from sensor_msgs::Image to cv::Mat
+	//boost::shared_ptr<void const> tracked_object;
+	//cv_frame = cv_bridge::toCvShare(frame_, tracked_object, frame_.encoding)->image; //conversion from sensor_msgs::Image to cv::Mat
 
 	// Convert to grayscale
 	cv::cvtColor(cv_frame, frame_grayscale, CV_BGR2GRAY);

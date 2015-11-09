@@ -85,7 +85,7 @@ public:
 	double camera_top_matrix_3[3][3]; double camera_top_matrix_2[3][3]; double camera_top_matrix_1[3][3]; // camera intinsic matrix
 	float landmarkTheoreticalSize; //# QRcode real size in meters
 
-	struct QRcodeDetection qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix); // For QRcode detection
+	struct QRcodeDetection qrCodeDetection(cv::Mat &cv_frame, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix); // For QRcode detection
 };	
 	
 } // namespace robot

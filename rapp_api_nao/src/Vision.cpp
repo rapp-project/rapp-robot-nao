@@ -46,8 +46,8 @@ std::vector< std::vector<double> > Vision::faceDetect(cv::Mat image, std::string
 	pimpl->faceDetect(cv::Mat image, std::string cameraId, int cameraResolution);
 }
 
-struct Vision::QRcodeDetection Vision::qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_){
-	pimpl->qrCodeDetection(sensor_msgs::Image &frame_, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
+struct Vision::QRcodeDetection Vision::qrCodeDetection(cv::Mat &cv_frame, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_){
+	pimpl->qrCodeDetection(cv::Mat &cv_frame, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
 }
 
 
