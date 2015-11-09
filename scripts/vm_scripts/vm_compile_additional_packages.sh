@@ -256,10 +256,6 @@ make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - openssl make failed with $?";
 sudo make install
 make clean
 
-# Exporting LIBRARY PATH
-echo -e "$COL_GREEN[OK]$COL_RESET - Exporting LIBRARY PATH"
-export LIBRARY_PATH=$ROS_ADDITIONAL_PACKAGES_ISOLATED/lib
-
 # unistring
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of unistring library"
@@ -281,6 +277,10 @@ cd bigloo4.2c
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - bigloo make failed with $?"; exit 1; }
 sudo make install
 make clean
+
+# Exporting LIBRARY PATH
+echo -e "$COL_GREEN[OK]$COL_RESET - Exporting LIBRARY PATH"
+export LIBRARY_PATH=$ROS_ADDITIONAL_PACKAGES_ISOLATED/lib
 
 # Hop
 cd $PROGRAMS_DIRECTORY
