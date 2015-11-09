@@ -14,12 +14,10 @@ mkdir -p cpp/build/
 WS_RAPP_API_DIR_BUILD="/home/nao/ws_rapp_api/cpp/build"
 cd $WS_RAPP_API_DIR_BUILD
 
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/nao/ws_rapp_api/install
 
-make -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/nao/ws_rapp_api/install
+make 
+make install
 echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
-source $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash 
-echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $WS_RAPP_NAO_DIR"
-#catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --pkg rapp_ros_naoqi_wrappings
-catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release || { echo -e >&2 "$COL_RED[Error]$COL_RESET - catkin_make_isolated failed with $?"; exit 1; }
+
 
