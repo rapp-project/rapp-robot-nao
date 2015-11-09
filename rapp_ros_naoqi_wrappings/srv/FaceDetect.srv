@@ -1,0 +1,7 @@
+uint32 cameraId
+uint32 resolution
+---
+float32[] centerOfFace_X
+float32[] centerOfFace_Y
+float32[] faceSize_X
+float32[] faceSize_Y
