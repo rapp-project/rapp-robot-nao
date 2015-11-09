@@ -143,6 +143,8 @@ add_dependencies(${COMMUNICATION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${VISION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${NAVIGATION_LIB} ${catkin_EXPORTED_TARGETS})
 
+target_link_libraries(${VISION_LIB} /usr/lib/libzbar.so)
+
 #############
 ## Install ##
 #############
