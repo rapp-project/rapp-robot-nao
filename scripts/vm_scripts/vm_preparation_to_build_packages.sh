@@ -8,6 +8,8 @@ COL_RED=$ESC_SEQ"31;01m"
 
 GIT_WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao/src"
 GIT_WS_RAPP_APPLICATIONS_DIR="/home/nao/ws_rapp_applications"
+GIT_WS_RAPP_API_DIR="/home/nao/ws_rapp_api/src"
+
 
 WS_RAPP_APPLICATIONS_NAO_DIR="/home/nao/ws_rapp_applications_nao"
 WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao"
@@ -37,6 +39,12 @@ if [ ! -d $WS_RAPP_APPLICATIONS_NAO_DIR ]; then
 	mkdir -p $WS_RAPP_APPLICATIONS_NAO_DIR
 fi
 
+# If folder doesnt exist
+if [ ! -d $GIT_WS_RAPP_API_DIR ]; then
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_API_DIR directory."
+	mkdir -p $GIT_WS_RAPP_API_DIR
+fi
+
 # Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR
 cd $GIT_WS_RAPP_NAO_DIR
 echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
@@ -47,7 +55,13 @@ git clone -b master https://github.com/rapp-project/rapp-robot-nao.git || { echo
 cd $GIT_WS_RAPP_APPLICATIONS_DIR
 echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
 echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-git clone -b master https://github.com/rapp-project/rapp-applications-nao.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
+git clone -b maser https://github.com/rapp-project/rapp-applications-nao.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
+
+# Clonning rapp-api repository to $GIT_WS_RAPP_API_DIR
+cd $GIT_WS_RAPP_API_DIR
+echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_API_DIR"
+echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
+git clone -b robot-api https://github.com/rapp-project/rapp-api.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
 
 # Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src folder with name src
 echo -e "$COL_GREEN[OK]$COL_RESET - Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications-nao/nao/src folder with name src"
