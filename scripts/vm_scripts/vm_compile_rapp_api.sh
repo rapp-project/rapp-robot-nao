@@ -10,7 +10,7 @@ COL_RED=$ESC_SEQ"31;01m"
 # Rapp - ws_rapp_nao - core agent packages
 WS_RAPP_API_DIR="/home/nao/ws_rapp_api"
 cd $WS_RAPP_API_DIR
-mkdir -p cpp/build/
+mkdir -p src/cpp/build/
 WS_RAPP_API_DIR_BUILD="/home/nao/ws_rapp_api/cpp/build"
 cd $WS_RAPP_API_DIR_BUILD
 
