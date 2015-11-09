@@ -31,7 +31,4 @@ void init(int argc, char **argv);
 	bool moveAlongPath(nav_msgs::Path path);
 	geometry_msgs::PoseStamped getRobotPose();
 	bool setGlobalPose(geometry_msgs::Pose pose);
-	// rapp::objects::Path pathPlanner_2D(std::string algorithm, rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map);
-	// rapp::objects::Pose qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap);
-
 };

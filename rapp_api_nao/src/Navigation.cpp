@@ -1,10 +1,9 @@
 #include <rapp/robot/Navigation.hpp>
 #include "NavigationImpl.hpp"
-
 #include <rapp/robot/Navigation.hpp>
-#include <rapp/objects/Path/Path.hpp>
-#include <rapp/objects/Pose/Pose.hpp>
-#include <rapp/objects/PoseStamped/PoseStamped.hpp>
+#include <rapp/objects/path/path.hpp>
+#include <rapp/objects/pose/pose.hpp>
+#include <rapp/objects/poseStamped/poseStamped.hpp>
 namespace rapp {
 namespace robot {
 
@@ -117,13 +116,7 @@ Navigation::~Navigation() {
 		resp = pimpl->setGlobalPose(pose2);
 		return resp;
 	}
-	// rapp::objects::Path Navigation::pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
-	// 	pimpl->pathPlanner_2D(start, goal, map);		
-	// }
- //    rapp::objects::Pose Navigation::qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
-	// 	pimpl->qrCodeLocalization(image, QRmap);		
 
- //    }
 } // namespace rapp
 } // namespace robot
 

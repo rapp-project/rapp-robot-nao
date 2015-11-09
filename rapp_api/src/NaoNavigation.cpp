@@ -15,7 +15,6 @@
 // #include "rapp_ros_naoqi_wrappings/PathPlanner_2D.h"
 // #include "rapp_ros_naoqi_wrappings/QRcodeLocalization.h"
 #include "rapp_ros_naoqi_wrappings/TakePredefinedPosture.h"
-
 NaoNavigation::NaoNavigation(int argc,char **argv){
 		ros::init(argc, argv,"NaoNavigation");
 		n = new ros::NodeHandle();
