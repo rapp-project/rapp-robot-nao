@@ -120,3 +120,18 @@ Navigation::~Navigation() {
 } // namespace rapp
 } // namespace robot
 
+namespace rappPlatform {
+namespace robot {
+
+	rapp::object::Pose qrCodeLocalization(rapp::object::QRcodeMap QRmap){
+
+
+
+}
+
+
+
+
+
+} // namespace robot
+} // namespace rappPlatform
