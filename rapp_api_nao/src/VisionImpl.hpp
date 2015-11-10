@@ -91,7 +91,7 @@ public:
 
 	std::vector< std::vector <float> > faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution); // Description: Given an RGB image, camera identifier and camera resolution. It detects human faces in the image. Provides a detection of all visible faces. As the output, for each detected face, the position of the center of the face is given and the face size in relation to the image.
 	
-	rapp::object::QRCode3D qrCodeDetection(rapp::object::picture image_, cv::Mat &robotToCameraMatrix, float landmarkTheoreticalSize);
+	rapp::object::QRCode3D qrCodeDetection(rapp::object::picture image_, cv::Mat &robotToCameraMatrix, float landmarkTheoreticalSize = 0.16f);
 	
 	
 };	

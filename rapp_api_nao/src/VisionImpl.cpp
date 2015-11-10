@@ -119,35 +119,33 @@ namespace robot {
 VisionDynImpl::VisionDynImpl(int argc,char **argv) {
 	ros::init(argc, argv,"Dynamic_vision_client");
 	n = new ros::NodeHandle();
+	
+	//data from camera calibration
+	// Top camera intrinsic matrix -- from camera calibration //for 1280x960
+	VisionDynImpl::camera_top_matrix_3[0][0] = 182.0992346 / 0.16;
+	VisionDynImpl::camera_top_matrix_3[0][2] = 658.7582;
+	VisionDynImpl::camera_top_matrix_3[1][1] = 185.0952141 / 0.16;
+	VisionDynImpl::camera_top_matrix_3[1][2] = 484.2186;
+	VisionDynImpl::camera_top_matrix_3[2][2] = 1.0;
+	VisionDynImpl::camera_top_matrix_3[0][1] = 0.0; VisionDynImpl::camera_top_matrix_3[1][0] = 0.0; VisionDynImpl::camera_top_matrix_3[2][0] = 0.0; VisionDynImpl::camera_top_matrix_3[2][1] = 0.0;
+	
+	//for 640x480
+	VisionDynImpl::camera_top_matrix_2[0][0] = 91.0496173 / 0.16; VisionDynImpl::camera_top_matrix_2[0][2] = 329.3791;
+	VisionDynImpl::camera_top_matrix_2[1][1] = 92.5476071 / 0.16; VisionDynImpl::camera_top_matrix_2[1][2] = 242.1093;
+	VisionDynImpl::camera_top_matrix_2[2][2] = 1.0;
+	VisionDynImpl::camera_top_matrix_2[0][1] = 0.0; VisionDynImpl::camera_top_matrix_2[1][0] = 0.0; VisionDynImpl::camera_top_matrix_2[2][0] = 0.0; VisionDynImpl::camera_top_matrix_2[2][1] = 0.0;
+
+	//for 320x240
+	VisionDynImpl::camera_top_matrix_1[0][0] = 0.5*91.0496173 / 0.16; VisionDynImpl::camera_top_matrix_1[0][2] = 0.5*329.3791;
+	VisionDynImpl::camera_top_matrix_1[1][1] = 0.5*92.5476071 / 0.16; VisionDynImpl::camera_top_matrix_1[1][2] = 0.5*242.1093;
+	VisionDynImpl::camera_top_matrix_1[2][2] = 1.0;
+	VisionDynImpl::camera_top_matrix_1[0][1] = 0.0; VisionDynImpl::camera_top_matrix_1[1][0] = 0.0; VisionDynImpl::camera_top_matrix_1[2][0] = 0.0; VisionDynImpl::camera_top_matrix_1[2][1] = 0.0;
+	
 }
 
 VisionDynImpl::~VisionDynImpl() {
 }
-//data from camera calibration
-// Top camera intrinsic matrix -- from camera calibration //for 1280x960
-VisionDynImpl::camera_top_matrix_3[0][0] = 182.0992346 / 0.16;
-VisionDynImpl::camera_top_matrix_3[0][2] = 658.7582;
-VisionDynImpl::camera_top_matrix_3[1][1] = 185.0952141 / 0.16;
-VisionDynImpl::camera_top_matrix_3[1][2] = 484.2186;
-VisionDynImpl::camera_top_matrix_3[2][2] = 1.0;
-VisionDynImpl::camera_top_matrix_3[0][1] = 0.0; 
-VisionDynImpl::camera_top_matrix_3[1][0] = 0.0; 
-VisionDynImpl::camera_top_matrix_3[2][0] = 0.0; 
-VisionDynImpl::camera_top_matrix_3[2][1] = 0.0;
 
-/*
-//for 640x480
-VisionDynImpl::camera_top_matrix_2[0][0] = 91.0496173 / 0.16; VisionDynImpl::camera_top_matrix_2[0][2] = 329.3791;
-VisionDynImpl::camera_top_matrix_2[1][1] = 92.5476071 / 0.16; VisionDynImpl::camera_top_matrix_2[1][2] = 242.1093;
-VisionDynImpl::camera_top_matrix_2[2][2] = 1.0;
-VisionDynImpl::camera_top_matrix_2[0][1] = 0.0; VisionDynImpl::camera_top_matrix_2[1][0] = 0.0; VisionDynImpl::camera_top_matrix_2[2][0] = 0.0; VisionDynImpl::camera_top_matrix_2[2][1] = 0.0;
-
-//for 320x240
-VisionImpl::camera_top_matrix_1[0][0] = 0.5*91.0496173 / 0.16; VisionImpl::camera_top_matrix_1[0][2] = 0.5*329.3791;
-VisionImpl::camera_top_matrix_1[1][1] = 0.5*92.5476071 / 0.16; VisionImpl::camera_top_matrix_1[1][2] = 0.5*242.1093;
-VisionImpl::camera_top_matrix_1[2][2] = 1.0;
-VisionImpl::camera_top_matrix_1[0][1] = 0.0; VisionImpl::camera_top_matrix_1[1][0] = 0.0; VisionImpl::camera_top_matrix_1[2][0] = 0.0; VisionImpl::camera_top_matrix_1[2][1] = 0.0;
-*/
 
 //enum cameraID{'TopCamera', 'BottomCamera', '0','1'};
 std::vector< std::vector <float> > VisionDynImpl::faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution) {
