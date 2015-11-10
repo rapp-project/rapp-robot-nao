@@ -31,6 +31,7 @@ find_package(catkin REQUIRED COMPONENTS
    GetImage.srv
   SetCameraParam.srv
    GetTransform.srv
+	FaceDetect.srv
    #PhotoCapture.srv
    #LearnFace.srv
    #RecognizeFaces.srv

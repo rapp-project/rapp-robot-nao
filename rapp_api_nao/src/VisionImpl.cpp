@@ -101,6 +101,232 @@ cv::Mat VisionImpl::getTransform(std::string chainName, int space)
 	return transformMatrix;
 }
 
+
+//enum cameraID{'TopCamera', 'BottomCamera', '0','1'};
+std::vector< std::vector <float> > VisionImpl::faceDetect(cv::Mat &image, std::string cameraId, int cameraResolution) {
+
+	if(!client_faceDetect){
+		ROS_DEBUG("Invalid service client, creating new one...");
+		double secs = ros::Time::now().toSec();
+		client_faceDetect = n->serviceClient<rapp_ros_naoqi_wrappings::FaceDetect>("rapp_face_detect");
+		double sec2 = ros::Time::now().toSec();
+		ROS_DEBUG("Creating service client took %lf seconds", sec2-secs);
+	} else {
+		ROS_DEBUG("Service client valid.");
+	}
+	
+	std::vector< std::vector <float> > FaceDetectVector;//The vector containing both the position of the Center of the faces, and the size of faces in relation to the image
+	std::vector< float > CenterOfFace_X;//The position of the center of the face
+	std::vector< float > CenterOfFace_Y;//The position of the center of the face
+	std::vector< float > FaceSize_X; //the face size in relation to the image
+	std::vector< float > FaceSize_Y; //the face size in relation to the image
+	
+	
+	rapp_ros_naoqi_wrappings::FaceDetect srv;
+	//srv.request.image = img;
+	if(cameraId=="top camera" || cameraId=="TopCamera" || cameraId=="0" || cameraId=="Top Camera" || cameraId=="topCamera" || cameraId=="top_camera" || cameraId=="TOP_CAMERA")
+		srv.request.cameraId=0; //top camera
+	else
+		srv.request.cameraId=1; //bottom camera
+	//srv.request.cameraId = cameraId;
+	srv.request.resolution = cameraResolution;
+	//sensor_msgs::Image img;
+			
+	if (client_captureImage.call(srv)) {
+		CenterOfFace_X = srv.response.centerOfFace_X;
+		CenterOfFace_Y = srv.response.centerOfFace_Y;
+		FaceSize_X = srv.response.faceSize_X;
+		FaceSize_Y = srv.response.faceSize_Y;
+		
+		if (CenterOfFace_X.size()!=0)
+			ROS_INFO("[Face Detection] - Face was detected");
+			//rectangle(image, cv::Point((int)(CenterOfFace_X[0]-(FaceSize_X[[0]/2)), (int)(CenterOfFace_Y[0]-(FaceSize_Y[0]/2))), cv::Point((int)(CenterOfFace_X[0]+(FaceSize_X[0]/2)), (int)(CenterOfFace_Y[0]+(FaceSize_Y[0]/2))), cv::Scalar(0,255,0), 2); /selecting the first detected face
+		
+	} else {
+		//Failed to call service rapp_get_image
+		ROS_ERROR("[Face detection] - Error calling service rapp_face_detect");
+	}
+	FaceDetectVector.clear();
+	FaceDetectVector.push_back(CenterOfFace_X);
+	FaceDetectVector.push_back(CenterOfFace_Y);
+	FaceDetectVector.push_back(FaceSize_X);
+	FaceDetectVector.push_back(FaceSize_Y);
+	
+	return FaceDetectVector;
+}
+
+
+
+template<typename _Tp> static  std::vector<std::vector<_Tp> > toVec(const cv::Mat_<_Tp> matIn) {
+	std::vector<std::vector<_Tp> > vecOut(matIn.rows);
+	for (int i = 0; i < matIn.rows; ++i) {
+		vecOut[i].resize(matIn.cols);
+		for (int j = 0; j < matIn.cols; ++j) {
+			//vecOut[i][j] =  matIn.at<_Tp>(i, j);
+			vecOut[i][j] =  matIn.at(i, j);
+		}
+	}
+	return vecOut;
+}
+
+
+template<typename _Tp> static  cv::Mat toMat(const std::vector<std::vector<_Tp> > vecIn) {
+	cv::Mat_<_Tp> matOut(vecIn.size(), vecIn.at(0).size());
+	for (int i = 0; i < matOut.rows; ++i) {
+		for (int j = 0; j < matOut.cols; ++j) {
+			matOut(i, j) = vecIn.at(i).at(j);
+		}
+	}
+	return matOut;
+}
+
+
+rapp::object::QRCode3D VisionImpl::qrCodeDetection(cv::Mat &cv_frame, cv::Mat &robotToCameraMatrix_)
+{
+	zbar::ImageScanner set_zbar;
+	
+	/*try{
+		std::vector<std::vector<typename _Tp> vecOut;
+		//cv_frame_ = VisionImpl::toMat(vecOut);
+		vecOut = VisionImpl::toVec(cv_frame);
+	}
+	catch(...){
+	}*/
+		
+	// initializing the structure QRcodeDetection -- set to default
+	rapp::object::QRCode3D QRcodeDetectionStruct;
+	QRcodeDetectionStruct.clear();
+
+	//cv::Mat frame_grayscale;
+	cv::Mat cv_frame_, frame_grayscale;
+	cv_frame_ = cv_frame; // zamienic cv_frame na cv::Mat
+	//boost::shared_ptr<void const> tracked_object;
+	//cv_frame = cv_bridge::toCvShare(frame_, tracked_object, frame_.encoding)->image; //conversion from sensor_msgs::Image to cv::Mat
+
+	// Convert to grayscale
+	cv::cvtColor(cv_frame_, frame_grayscale, CV_BGR2GRAY);
+	// Obtain image data
+	int width = frame_grayscale.cols;
+	int height = frame_grayscale.rows;
+	uchar *raw = (uchar *)(frame_grayscale.data);
+
+	// // ZBar
+	set_zbar.set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ENABLE, 1);
+	// Wrap image data
+	zbar::Image image(width, height, "Y800", raw, width * height);
+	// Scan the image for barcodes
+	set_zbar.scan(image);
+
+	// Extract results
+	int counter = 0;
+
+	for (zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
+		std::vector<cv::Point3f> object_points;
+		std::vector<cv::Point2f> pixel_coords;
+
+		pixel_coords.clear();
+		pixel_coords.push_back(cv::Point2f(symbol->get_location_x(0), symbol->get_location_y(0)));
+		pixel_coords.push_back(cv::Point2f(symbol->get_location_x(1), symbol->get_location_y(1)));
+		pixel_coords.push_back(cv::Point2f(symbol->get_location_x(2), symbol->get_location_y(2)));
+		pixel_coords.push_back(cv::Point2f(symbol->get_location_x(3), symbol->get_location_y(3)));
+
+		cv::Mat rvec;//(3,1,cv::DataType<float>::type);
+		cv::Mat tvec;//(3,1,cv::DataType<float>::type);
+		cv::Mat rotationMatrix;//(3,3,cv::DataType<float>::type);
+		cv::Mat cameraIntrinsicMatrix;
+		cv::Mat distCoeffs = cv::Mat::zeros(4, 1, cv::DataType<double>::type);
+		cv::Mat rotation_matrix, translation_matrix;
+		cv::Mat landmarkToCameraTransform = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
+		cv::Mat cameraToLandmarkTransformMatrix = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
+		cv::Mat robotToLandmarkMatrix = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
+		cv::Mat Rotx_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
+		cv::Mat Rotz_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
+		cv::Mat Mat_I = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
+
+		//$$$$$$$$$$$$$$$$$$
+		std::vector<double> m00, m01, m02, m10, m12, m20, m21, m22, euler1, euler2, euler3;
+		//const double PI = 3.14159265359f;
+
+		// Model for SolvePnP // x-> y^
+		object_points.clear();
+
+		//z^y<-
+		object_points.push_back(cv::Point3f(0, VisionImpl::landmarkTheoreticalSize / 2, VisionImpl::landmarkTheoreticalSize / 2));
+		object_points.push_back(cv::Point3f(0, VisionImpl::landmarkTheoreticalSize / 2, -VisionImpl::landmarkTheoreticalSize / 2));
+		object_points.push_back(cv::Point3f(0, -VisionImpl::landmarkTheoreticalSize / 2, -VisionImpl::landmarkTheoreticalSize / 2));
+		object_points.push_back(cv::Point3f(0, -VisionImpl::landmarkTheoreticalSize / 2, VisionImpl::landmarkTheoreticalSize / 2));
+
+		// Camera Intrinsic Matrix -- from Camera calibration
+		if (width == 1280 && height == 960)
+			cameraIntrinsicMatrix = cv::Mat(3, 3, cv::DataType<double>::type, VisionImpl::camera_top_matrix_3);
+		else if (width == 640 && height == 480)
+			cameraIntrinsicMatrix = cv::Mat(3, 3, cv::DataType<double>::type, VisionImpl::camera_top_matrix_2);
+		else if (width == 320 && height == 240)
+			cameraIntrinsicMatrix = cv::Mat(3, 3, cv::DataType<double>::type, VisionImpl::camera_top_matrix_1);
+		else
+		{
+			std::cout << "Wrong camera intrinsic matrix, the position may be computed wrongly" << std::endl;
+			cameraIntrinsicMatrix = cv::Mat(3, 3, cv::DataType<double>::type, VisionImpl::camera_top_matrix_2);
+		}
+
+
+		cv::solvePnP(cv::Mat(object_points), cv::Mat(pixel_coords), cameraIntrinsicMatrix, distCoeffs, rvec, tvec, false);//, CV_ITERATIVE );
+
+		cv::Rodrigues(rvec, rotationMatrix);
+
+
+		// landmarkToCameraTransform computation
+		for (int i = 0; i<3; i++)
+		{
+			for (int j = 0; j<3; j++)
+				landmarkToCameraTransform.at<double>(i, j) = rotationMatrix.at<double>(i, j);
+		}
+		landmarkToCameraTransform.at<double>(0, 3) = tvec.at<double>(0, 0); //x->y^ : x
+		landmarkToCameraTransform.at<double>(1, 3) = tvec.at<double>(1, 0); //x->y^ : y
+		landmarkToCameraTransform.at<double>(2, 3) = tvec.at<double>(2, 0); //x->y^ : z
+		landmarkToCameraTransform.at<double>(3, 3) = 1.0;
+
+
+		Rotx_minus90.at<double>(0, 0) = 1.f;
+		Rotx_minus90.at<double>(1, 1) = 0.f; Rotx_minus90.at<double>(1, 2) = +1.f;
+		Rotx_minus90.at<double>(2, 1) = -1.f; Rotx_minus90.at<double>(2, 2) = 0.f;
+		Rotx_minus90.at<double>(3, 3) = 1.f;
+
+		Rotz_minus90.at<double>(0, 0) = 0.f; Rotz_minus90.at<double>(0, 1) = +1.f;
+		Rotz_minus90.at<double>(1, 0) = -1.f; Rotz_minus90.at<double>(1, 1) = 0.f;
+		Rotz_minus90.at<double>(2, 2) = 1.f;
+		Rotz_minus90.at<double>(3, 3) = 1.f;
+
+
+		//#####################			
+		//## Transformation from the QR-code coordinate system to the camera coordinate system
+		cameraToLandmarkTransformMatrix = Rotz_minus90*Rotx_minus90*landmarkToCameraTransform;
+		//#####################
+
+		//#####################						
+		//## Transformation from the camera coordinate system to the robot coordinate system
+		robotToLandmarkMatrix = robotToCameraMatrix_*cameraToLandmarkTransformMatrix;
+		//#####################			
+
+		//cv::Mat -> vector<vector<double>>
+		//QRcodeDetectionStruct.LandmarkInCameraCoordinate.push_back(cameraToLandmarkTransformMatrix);
+		//QRcodeDetectionStruct.LandmarkInRobotCoordinate.push_back(robotToLandmarkMatrix);
+
+		counter++;
+		QRcodeDetectionStruct.QRmessage.push_back(symbol->get_data());
+		QRcodeDetectionStruct.isQRcodeFound = true;
+
+	}
+	QRcodeDetectionStruct.numberOfQRcodes = counter;
+
+	//return QRcodeDetectionStruct; // zmienic
+	//rapp::object::QRCode3D QRCodeStruct;
+	
+	//to do QRcodeDetectionStruct -> QRCodeStruct
+	return QRcodeDetectionStruct;
+}
+	
+
 } // namespace robot
 } // namespace rapp
 
@@ -108,15 +334,16 @@ cv::Mat VisionImpl::getTransform(std::string chainName, int space)
 //######################################################################
 //######################################################################
 
+/*
 namespace rappPlatform {
 namespace robot {
 
-VisionImpl::VisionImpl(int argc,char **argv) {
+VisionDynImpl::VisionDynImpl(int argc,char **argv) {
 	ros::init(argc, argv,"Dynamic_vision_client");
 	n = new ros::NodeHandle();
 }
 
-VisionImpl::~VisionImpl() {
+VisionDynImpl::~VisionDynImpl() {
 }
 //data from camera calibration
 // Top camera intrinsic matrix -- from camera calibration //for 1280x960
@@ -126,19 +353,19 @@ camera_top_matrix_3[2][2] = 1.0;
 camera_top_matrix_3[0][1] = 0.0; camera_top_matrix_3[1][0] = 0.0; camera_top_matrix_3[2][0] = 0.0; camera_top_matrix_3[2][1] = 0.0;
 
 //for 640x480
-camera_top_matrix_2[0][0] = 91.0496173 / 0.16; camera_top_matrix_2[0][2] = 329.3791;
-camera_top_matrix_2[1][1] = 92.5476071 / 0.16; camera_top_matrix_2[1][2] = 242.1093;
-camera_top_matrix_2[2][2] = 1.0;
-camera_top_matrix_2[0][1] = 0.0; camera_top_matrix_2[1][0] = 0.0; camera_top_matrix_2[2][0] = 0.0; camera_top_matrix_2[2][1] = 0.0;
+VisionDynImpl::camera_top_matrix_2[0][0] = 91.0496173 / 0.16; VisionDynImpl::camera_top_matrix_2[0][2] = 329.3791;
+VisionDynImpl::camera_top_matrix_2[1][1] = 92.5476071 / 0.16; VisionDynImpl::camera_top_matrix_2[1][2] = 242.1093;
+VisionDynImpl::camera_top_matrix_2[2][2] = 1.0;
+VisionDynImpl::camera_top_matrix_2[0][1] = 0.0; VisionDynImpl::camera_top_matrix_2[1][0] = 0.0; VisionDynImpl::camera_top_matrix_2[2][0] = 0.0; VisionDynImpl::camera_top_matrix_2[2][1] = 0.0;
 
 //for 320x240
-camera_top_matrix_1[0][0] = 0.5*91.0496173 / 0.16; camera_top_matrix_1[0][2] = 0.5*329.3791;
-camera_top_matrix_1[1][1] = 0.5*92.5476071 / 0.16; camera_top_matrix_1[1][2] = 0.5*242.1093;
-camera_top_matrix_1[2][2] = 1.0;
-camera_top_matrix_1[0][1] = 0.0; camera_top_matrix_1[1][0] = 0.0; camera_top_matrix_1[2][0] = 0.0; camera_top_matrix_1[2][1] = 0.0;
+VisionImpl::camera_top_matrix_1[0][0] = 0.5*91.0496173 / 0.16; VisionImpl::camera_top_matrix_1[0][2] = 0.5*329.3791;
+VisionImpl::camera_top_matrix_1[1][1] = 0.5*92.5476071 / 0.16; VisionImpl::camera_top_matrix_1[1][2] = 0.5*242.1093;
+VisionImpl::camera_top_matrix_1[2][2] = 1.0;
+VisionImpl::camera_top_matrix_1[0][1] = 0.0; VisionImpl::camera_top_matrix_1[1][0] = 0.0; VisionImpl::camera_top_matrix_1[2][0] = 0.0; VisionImpl::camera_top_matrix_1[2][1] = 0.0;
 
 
-std::vector< std::vector <double> > VisionImpl::faceDetect(cv::Mat image, std::string cameraId, int cameraResolution) {
+std::vector< std::vector <double> > VisionDynImpl::faceDetect(cv::Mat &image, std::string cameraId, int cameraResolution) {
 
 	if(!client_faceDetect){
 		ROS_DEBUG("Invalid service client, creating new one...");
@@ -190,8 +417,37 @@ std::vector< std::vector <double> > VisionImpl::faceDetect(cv::Mat image, std::s
 	return FaceDetectVector;
 }
 
-struct QRcodeDetection VisionImpl::qrCodeDetection(cv::Mat &cv_frame, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
+
+template<typename _Tp> static  vector<vector<_Tp> > toVec(const cv::Mat_<_Tp> matIn) {
+	vector<vector<_Tp> > vecOut(matIn.rows);
+	for (int i = 0; i < matIn.rows; ++i) {
+		vecOut[i].resize(matIn.cols);
+		for (int j = 0; j < matIn.cols; ++j) {
+			vecOut[i][j] =  matIn.at<_Tp>(i, j);
+		}
+	}
+	return vecOut;
+}
+
+template<typename _Tp> static  cv::Mat toMat(const vector<vector<_Tp> > vecIn) {
+	cv::Mat_<_Tp> matOut(vecIn.size(), vecIn.at(0).size());
+	for (int i = 0; i < matOut.rows; ++i) {
+		for (int j = 0; j < matOut.cols; ++j) {
+			matOut(i, j) = vecIn.at(i).at(j);
+		}
+	}
+	return matOut;
+}
+	
+struct rapp::object::QRCode3D VisionImpl::qrCodeDetection(cv::Mat &cv_frame, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix_)
 {
+	try{
+		std::vector<std::vector<typename _Tp> vecOut;
+		vecOut = toVec(cv_frame);
+	}
+	catch{
+	}
+		
 	// initializing the structure QRcodeDetection -- set to default
 	QRcodeDetection QRcodeDetectionStruct;
 	QRcodeDetectionStruct.clear();
@@ -316,9 +572,12 @@ struct QRcodeDetection VisionImpl::qrCodeDetection(cv::Mat &cv_frame, zbar::Imag
 	}
 	QRcodeDetectionStruct.numberOfQRcodes = counter;
 
-	return QRcodeDetectionStruct;
+	//return QRcodeDetectionStruct; // zmienic
+	rapp::object::QRCode3D QRCodeStruct;
+	* ...
 }
 
 
 } // namespace robot
 } // namespace rappPlatform
+*/
