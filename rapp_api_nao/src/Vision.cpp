@@ -14,9 +14,8 @@ Vision::~Vision() {
 	delete pimpl;
 }
 
-cv::Mat Vision::captureImage(std::string cameraId, int cameraResolution){
-	cv::Mat Image;
-	Image = pimpl->captureImage(cameraId, cameraResolution);
+rapp::object::picture Vision::captureImage(std::string cameraId, int cameraResolution){
+	rapp::object::picture Image = pimpl->captureImage(cameraId, cameraResolution);
 	return Image;
 }
 
@@ -32,29 +31,13 @@ cv::Mat Vision::getTransform(std::string chainName, int space){
 	return Mat;
 }
 
-
- std::vector< std::vector<float> > Vision::faceDetect(cv::Mat &image, std::string cameraId, int cameraResolution){
-	std::vector< std::vector<float> > MatrixOfFaces;
-	MatrixOfFaces = pimpl->faceDetect(image, cameraId, cameraResolution);
-	return MatrixOfFaces;
-}
-
-
-//obiekt w API
-rapp::object::QRCode3D Vision::qrCodeDetection(cv::Mat &cv_frame, cv::Mat &robotToCameraMatrix_){
-	rapp::object::QRCode3D QRCodeStruct;
-	QRCodeStruct = pimpl->qrCodeDetection(cv_frame, robotToCameraMatrix_);
-	return QRCodeStruct;
-}
-
-
 } // namespace rapp
 } // namespace robot
 
 //######################################################################
 //######################################################################
 
-/*namespace rappPlatform {
+namespace rappPlatform {
 namespace robot {
 
 VisionDyn::VisionDyn(int argc, char * argv[]) {
@@ -65,20 +48,19 @@ VisionDyn::~VisionDyn() {
 	delete pimpl;
 }
 
-std::vector< std::vector<double> > Vision::faceDetect(cv::Mat &image, std::string cameraId, int cameraResolution){
-	std::vector< std::vector<double> > MatrixOfFaces;
+std::vector< std::vector <float> > VisionDyn::faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution){
+	std::vector< std::vector<float> > MatrixOfFaces;
 	MatrixOfFaces = pimpl->faceDetect(image, cameraId, cameraResolution);
 	return MatrixOfFaces;
 }
 
-//obiekt w API
-rapp::object::QRCode3D Vision::qrCodeDetection(cv::Mat &cv_frame, cv::Mat &robotToCameraMatrix_){
-	QRCode3D QRCodeStruct;
-	//QRCodeStruct = pimpl->qrCodeDetection(cv_frame, set_zbar, robotToCameraMatrix_);
+
+rapp::object::QRCode3D VisionDyn::qrCodeDetection(rapp::object::picture image, cv::Mat &robotToCameraMatrix_, float landmarkTheoreticalSize){
+	rapp::object::QRCode3D QRCodeStruct;
+	QRCodeStruct = pimpl->qrCodeDetection(image, robotToCameraMatrix_,landmarkTheoreticalSize);
 	return QRCodeStruct;
 }
 
-
 } // namespace robot
 } // namespace rappPlatform
-*/
+
