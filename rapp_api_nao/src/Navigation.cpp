@@ -124,13 +124,22 @@ Navigation::~Navigation() {
 
 namespace rappPlatform {
 namespace robot {
+	/*
+	rapp::object::Pose pose = rappPlatform::robot::getRobotPoseFromQRcodeMap(rapp::object::Matrix matrix,rapp::object::QRcodeMap QRmap){
+	rapp::object::Matrix_2D QR_in_Robot_matrix = matrix[0]
+	
+
+	}
+	
+	*/
 
 	rapp::object::Pose qrCodeLocalization(rapp::object::QRcodeMap QRmap){
 	/*
 	rapp::object::picture image = rapp::robot::Vision::captureImage("0",3);
 	rapp::object::Matrix robot_camera_transform = rapp::robot::Vision::getTransform("CameraTop",0);
-	rapp::object::Matrix matrix = rappPlatform::robot::Vision::qrCodeDetection(image, robot_camera_transform);	
-
+	rapp::object::Matrix_2D matrix = rappPlatform::robot::qrCodeDetection(image, robot_camera_transform);	
+	rapp::object::Pose pose = rappPlatform::robot::getRobotPoseFromQRcodeMap(matrix, QRmap);
+	return pose
 	*/
 }
 
