@@ -257,14 +257,17 @@ NavigationImpl::~NavigationImpl() {
 
 		client_getRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
 		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
+		  geometry_msgs::PoseStamped pose_ros;
+			rapp::object::PoseStamped pose;
+
+		  	pose_ros = srv.response.pose;
+
 		  if (client_getRobotPose.call(srv))
 		  {
 	  	  	ROS_INFO("Nao returned his pose");
 		  	
-		  	geometry_msgs::PoseStamped pose_ros;
-		  	pose_ros = srv.response.pose;
+		  	
 
-			rapp::object::PoseStamped pose;
 			
 			pose.header.seq = pose_ros.header.seq;
 			pose.header.frame_id = pose_ros.header.frame_id;
