@@ -25,10 +25,11 @@ bool Vision::setCameraParams(int cameraId, int cameraParameterId, int newValue )
 	return isDone;
 }
 
-cv::Mat Vision::getTransform(std::string chainName, int space){
-	cv::Mat Mat;
-	Mat = pimpl->getTransform(chainName, space);
-	return Mat;
+rapp::object::Matrix2D Vision::getTransform(std::string chainName, int space){
+	rapp::object::Matrix2D MatStruct;
+	MatStruct.clear();
+	MatStruct = pimpl->getTransform(chainName, space);
+	return MatStruct;
 }
 
 } // namespace rapp
@@ -55,9 +56,18 @@ std::vector< std::vector <float> > VisionDyn::faceDetect(rapp::object::picture i
 }
 
 
-rapp::object::QRCode3D VisionDyn::qrCodeDetection(rapp::object::picture image, cv::Mat &robotToCameraMatrix_, float landmarkTheoreticalSize){
+rapp::object::QRCode3D VisionDyn::qrCodeDetection(rapp::object::picture image, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize){
 	rapp::object::QRCode3D QRCodeStruct;
-	QRCodeStruct = pimpl->qrCodeDetection(image, robotToCameraMatrix_,landmarkTheoreticalSize);
+	cv::Mat tmpMat;
+	/*std::vector<float> tmpRows;
+	std::vector<std::vector<float>> tmpMat;
+	for(int i=0;i<4;i++){
+		tmpRows.clear();
+		for(int j=0;j<4;j++)
+		tmpRows.push_back(robotToCameraMatrix.matrix4x4.at(0)[i][j]);
+		tmpMat.push_back(tmpRows);
+	}//*/
+	QRCodeStruct = pimpl->qrCodeDetection(image, tmpMat,landmarkTheoreticalSize);//robotToCameraMatrix.matrix4x4.at(0)
 	return QRCodeStruct;
 }
 
