@@ -34,7 +34,7 @@ public:
 
 	ros::NodeHandle *n;
 	
-	cv::Mat captureImage(std::string cameraId, int cameraResolution); /*
+	rapp::object::picture captureImage(std::string cameraId, int cameraResolution); /*
 	Input: 
 		cameraId: camera identifier,
 		cameraResolution: camera resolution.
@@ -59,17 +59,6 @@ public:
 	Description. This function computes the transformation matrix from one frame to another (e.g. from camera frame to robot frame).
 	*/
 	
-	
-	ros::ServiceClient client_faceDetect;
-	
-	std::vector< std::vector <float> > faceDetect(cv::Mat &image, std::string cameraId, int cameraResolution); // Description: Given an RGB image, camera identifier and camera resolution. It detects human faces in the image. Provides a detection of all visible faces. As the output, for each detected face, the position of the center of the face is given and the face size in relation to the image.
-	double camera_top_matrix_3[3][3]; double camera_top_matrix_2[3][3]; double camera_top_matrix_1[3][3]; // camera intinsic matrix
-	float landmarkTheoreticalSize; //# QRcode real size in meters
-	
-	template<typename _Tp> static  std::vector<std::vector<_Tp> > toVec(const cv::Mat_<_Tp> matIn);
-	template<typename _Tp> static  cv::Mat toMat(const std::vector<std::vector<_Tp> > vecIn);
-	rapp::object::QRCode3D qrCodeDetection(cv::Mat &cv_frame, cv::Mat &robotToCameraMatrix);
-	
 };	
 	
 } // namespace robot
@@ -79,7 +68,7 @@ public:
 //######################################################################
 //######################################################################
 
-/*
+/**/
 namespace rappPlatform {
 namespace robot {
 
@@ -91,41 +80,22 @@ public:
 	~VisionDynImpl();
 	
 	ros::ServiceClient client_faceDetect;
+	ros::ServiceClient client_captureImage;
 
 	ros::NodeHandle *n;
-	
-	std::vector< std::vector <double> > faceDetect(cv::Mat &image, std::string cameraId, int cameraResolution); // Description: Given an RGB image, camera identifier and camera resolution. It detects human faces in the image. Provides a detection of all visible faces. As the output, for each detected face, the position of the center of the face is given and the face size in relation to the image.
-	
 
-	struct QRcodeDetection //structure for the qrCodeDetection
-	{
-		bool isQRcodeFound;
-		int numberOfQRcodes;//number of detected QRcodes
-		std::vector< cv::Mat > LandmarkInCameraCoordinate;//Transformation matrix from camera to Landmark
-		std::vector< cv::Mat > LandmarkInRobotCoordinate;//Transformation matrix from camera to robot
-		std::vector<std::string> QRmessage; //vector for messages from QRcodes
+	double camera_top_matrix_3[3][3];
+	double camera_top_matrix_2[3][3];
+	double camera_top_matrix_1[3][3]; // camera intinsic matrix
+	const float landmarkTheoreticalSize=0.16; //# QRcode real size in meters
 
-		void clear()
-		{
-			isQRcodeFound = false;
-			numberOfQRcodes = 0;
-			LandmarkInCameraCoordinate.clear();
-			LandmarkInRobotCoordinate.clear();
-			QRmessage.clear();
-		}
-	};
-
-	double camera_top_matrix_3[3][3]; double camera_top_matrix_2[3][3]; double camera_top_matrix_1[3][3]; // camera intinsic matrix
-	float landmarkTheoreticalSize; //# QRcode real size in meters
+	std::vector< std::vector <float> > faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution); // Description: Given an RGB image, camera identifier and camera resolution. It detects human faces in the image. Provides a detection of all visible faces. As the output, for each detected face, the position of the center of the face is given and the face size in relation to the image.
 	
-	//struct rapp::object::QRCode3D qrCodeDetection(cv::Mat &cv_frame, zbar::ImageScanner &set_zbar, cv::Mat &robotToCameraMatrix);
+	rapp::object::QRCode3D qrCodeDetection(rapp::object::picture image_, cv::Mat &robotToCameraMatrix, float landmarkTheoreticalSize = 0.16f);
 	
-	Input: Image – the RGB image; libraryFun() – a pointer to external function (e.g. in the ZBar library),  robot to camera transposition matrix,
-	Output: A structure, which contains: number of detected QR-codes, vector of QR-code messages - QR-code messages, vector of coordinates vector<pair<float, float> >, in camera coordinate system, vector of coordinates (vector<pair<float, float> >) in the robot coordinate system.
-	Description: Given an RGB image, it detects QR-codes. The results are: the number of detected QR-codes, messages contained in the QR-codes, localization matrices in the camera coordinate system, localization matrices in the robot coordinate system. 
 	
 };	
 	
 } // namespace robot
 } // namespace rappPlatform
-*/
+//*/

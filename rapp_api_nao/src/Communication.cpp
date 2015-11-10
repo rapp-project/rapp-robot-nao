@@ -13,7 +13,9 @@ Communication::~Communication() {
 }
 
 bool Communication::playAudio(const std::string & file_path, double position, double volume, double balance, bool play_in_loop) {
-	pimpl->playAudio(file_path, position, volume, balance, play_in_loop);
+	bool success;
+	success = pimpl->playAudio(file_path, position, volume, balance, play_in_loop);
+	return success;
 }
 
 //bool Communication::textToSpeech(const std::string & str) {
@@ -21,29 +23,38 @@ bool Communication::playAudio(const std::string & file_path, double position, do
 //}
 
 bool Communication::textToSpeech(const std::string & str, Language language) {
-	pimpl->textToSpeech(str, language);
+	bool success;
+	success = pimpl->textToSpeech(str, language);
+	return success;
 }
 
 std::string Communication::wordSpotting(std::string dictionary[], int size){
-	pimpl->wordSpotting(dictionary, size);
+	std::string word;
+	word = pimpl->wordSpotting(dictionary, size);
+	return word;
 }
 
 std::string Communication::captureAudio(int time){
-	pimpl->captureAudio(time);
+	std::string message;
+	message = pimpl->captureAudio(time);
+	return message;
 }
 
 std::string Communication::captureAudio(std::string & file_path, float waiting_time, int microphone_energy){
-	pimpl->captureAudio(file_path, waiting_time, microphone_energy);
+	std::string message;
+	message = pimpl->captureAudio(file_path, waiting_time, microphone_energy);
+	return message;
 }
 
 int Communication::microphoneEnergy(std::string & name){
-	pimpl->microphoneEnergy(name);
+	int energy;
+	energy = pimpl->microphoneEnergy(name);
+	return energy;
 }
 
 void Communication::voiceRecord(bool startRecording, std::vector< std::vector<unsigned char> > &audio_buffer_vector){
 	pimpl->voiceRecord(startRecording, audio_buffer_vector);
 }
 
-}
-}
-
+} // namespace robot
+} // namespace rapp
