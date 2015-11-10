@@ -77,24 +77,38 @@ bool VisionImpl::setCameraParams(int cameraId, int cameraParameterId, int newVal
 }
 
 
-cv::Mat VisionImpl::getTransform(std::string chainName, int space)
+rapp::object::Matrix2D VisionImpl::getTransform(std::string chainName, int space)
 {
 	client_getTransform = n->serviceClient<rapp_ros_naoqi_wrappings::GetTransform>("rapp_get_transform");
 	rapp_ros_naoqi_wrappings::GetTransform srv;
 	srv.request.chainName = chainName;
 	srv.request.space = space;
-	cv::Mat transformMatrix = cv::Mat::zeros(4,4,cv::DataType<double>::type);
+	cv::Mat transformMatrix = cv::Mat::zeros(4,4,cv::DataType<float>::type);
+	std::vector<float> rows;
+	rapp::object::Matrix2D transformStruct;
 	
 	if (client_getTransform.call(srv)) //
 	{
-		transformMatrix.at<double>(0,0) = srv.response.transformMatrix.r11[0]; transformMatrix.at<double>(0,1) = srv.response.transformMatrix.r12[0];
-		transformMatrix.at<double>(0,2) = srv.response.transformMatrix.r13[0]; transformMatrix.at<double>(0,3) = srv.response.transformMatrix.r14[0];
-		transformMatrix.at<double>(1,0) = srv.response.transformMatrix.r21[0]; transformMatrix.at<double>(1,1) = srv.response.transformMatrix.r22[0];
-		transformMatrix.at<double>(1,2) = srv.response.transformMatrix.r23[0]; transformMatrix.at<double>(1,3) = srv.response.transformMatrix.r24[0];
-		transformMatrix.at<double>(2,0) = srv.response.transformMatrix.r31[0]; transformMatrix.at<double>(2,1) = srv.response.transformMatrix.r32[0];
-		transformMatrix.at<double>(2,2) = srv.response.transformMatrix.r33[0]; transformMatrix.at<double>(2,3) = srv.response.transformMatrix.r34[0];
-		transformMatrix.at<double>(3,0) = srv.response.transformMatrix.r41[0]; transformMatrix.at<double>(3,1) = srv.response.transformMatrix.r42[0];
-		transformMatrix.at<double>(3,2) = srv.response.transformMatrix.r43[0]; transformMatrix.at<double>(3,3) = srv.response.transformMatrix.r44[0];
+		/*
+		transformMatrix[0][0] = srv.response.transformMatrix.r11[0]; transformMatrix[0][1] = srv.response.transformMatrix.r12[0];
+		transformMatrix[0][2] = srv.response.transformMatrix.r13[0]; transformMatrix[0][3] = srv.response.transformMatrix.r14[0];
+		transformMatrix[1][0] = srv.response.transformMatrix.r21[0]; transformMatrix[1][1] = srv.response.transformMatrix.r22[0];
+		transformMatrix[1][2] = srv.response.transformMatrix.r23[0]; transformMatrix[1][3] = srv.response.transformMatrix.r24[0];
+		transformMatrix[2][0] = srv.response.transformMatrix.r31[0]; transformMatrix[2][1] = srv.response.transformMatrix.r32[0];
+		transformMatrix[2][2] = srv.response.transformMatrix.r33[0]; transformMatrix[2][3] = srv.response.transformMatrix.r34[0];
+		transformMatrix[3][0] = srv.response.transformMatrix.r41[0]; transformMatrix[3][1] = srv.response.transformMatrix.r42[0];
+		transformMatrix[3][2] = srv.response.transformMatrix.r43[0]; transformMatrix[3][3] = srv.response.transformMatrix.r44[0];
+		//*/
+		//
+		transformMatrix.at<float>(0,0) = srv.response.transformMatrix.r11[0]; transformMatrix.at<float>(0,1) = srv.response.transformMatrix.r12[0];
+		transformMatrix.at<float>(0,2) = srv.response.transformMatrix.r13[0]; transformMatrix.at<float>(0,3) = srv.response.transformMatrix.r14[0];
+		transformMatrix.at<float>(1,0) = srv.response.transformMatrix.r21[0]; transformMatrix.at<float>(1,1) = srv.response.transformMatrix.r22[0];
+		transformMatrix.at<float>(1,2) = srv.response.transformMatrix.r23[0]; transformMatrix.at<float>(1,3) = srv.response.transformMatrix.r24[0];
+		transformMatrix.at<float>(2,0) = srv.response.transformMatrix.r31[0]; transformMatrix.at<float>(2,1) = srv.response.transformMatrix.r32[0];
+		transformMatrix.at<float>(2,2) = srv.response.transformMatrix.r33[0]; transformMatrix.at<float>(2,3) = srv.response.transformMatrix.r34[0];
+		transformMatrix.at<float>(3,0) = srv.response.transformMatrix.r41[0]; transformMatrix.at<float>(3,1) = srv.response.transformMatrix.r42[0];
+		transformMatrix.at<float>(3,2) = srv.response.transformMatrix.r43[0]; transformMatrix.at<float>(3,3) = srv.response.transformMatrix.r44[0];
+		//*/
 		ROS_INFO("[Rapp get transform] - Transformation matrix computed");
 	}
 	else
@@ -102,7 +116,17 @@ cv::Mat VisionImpl::getTransform(std::string chainName, int space)
 		//Failed to call service rapp_get_image
 		ROS_ERROR("[Rapp get transform] - Error calling service rapp_get_transform");
 	}
-	return transformMatrix;
+	
+	transformStruct.clear();
+	for (int i=0;i<transformMatrix.rows;i++){
+		rows.clear();
+		for (int j=0;j<transformMatrix.cols;j++){
+			rows.push_back(transformMatrix.at<float>(i,j));
+		}
+		transformStruct.matrix.push_back(rows);
+	}
+	
+	return transformStruct;//tmpVec;
 }
 
 } // namespace robot
@@ -240,22 +264,24 @@ rapp::types::byte * matToBytes(cv::Mat image)
 }
 */
 
-rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture image_, cv::Mat &robotToCameraMatrix_, float landmarkTheoreticalSize)
+//rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture image_, rapp::object::Matrix4x4 robotToCameraMatrix, float landmarkTheoreticalSize)
+//rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture imgFrame, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize)
+rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture imgFrame, cv::Mat robotToCameraMatrix, float landmarkTheoreticalSize)
 {
 	zbar::ImageScanner set_zbar;
 
-	landmarkTheoreticalSize=0.16f;
+	//landmarkTheoreticalSize=0.16f;
 	
 	// initializing the structure QRcodeDetectionStruct -- set to default
 	rapp::object::QRCode3D QRcodeDetectionStruct;
-	if (sizeof(image_)<10) return QRcodeDetectionStruct;
+	if (sizeof(imgFrame)<10) return QRcodeDetectionStruct;
 	QRcodeDetectionStruct.clear();
 
 	//cv::Mat cv_frame, frame_grayscale;
-	//cv_frame = bytesToMat(image_,width,height);
+	//cv_frame = bytesToMat(imgFrame,width,height);
 	
 	////cv::Mat from the std::vector<byte>
-	cv::Mat cv_mat(image_.bytearray(),true);
+	cv::Mat cv_mat(imgFrame.bytearray(),true);
 	////decoding the image
 	//cv::Mat cv_frame(cv::imdecode(cv_mat,1)); //put 0 if you want greyscale
 	cv::Mat frame_grayscale(cv::imdecode(cv_mat,1));//decoding the image to the gray scale
@@ -330,7 +356,15 @@ rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture imag
 		cv::Mat Rotx_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
 		cv::Mat Rotz_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
 		cv::Mat Mat_I = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
+		cv::Mat robotToCameraMat;// = cv::Mat(4, 4, cv::CV_32FC1, robotToCameraMatrix);//initialization from the given data
+		//cv::Mat robotToCameraMat = cv::Mat::zeros(4, 4, cv::DataType<float>::type);
+		robotToCameraMat = robotToCameraMatrix;
 
+		//initialization from the given data
+		//for(int i=0;i<4;i++)
+		//for(int j=0;j<4;j++)
+		//robotToCameraMat.at<float>(i,j)=robotToCameraMatrix[i][j];
+		
 		//$$$$$$$$$$$$$$$$$$
 		std::vector<double> m00, m01, m02, m10, m12, m20, m21, m22, euler1, euler2, euler3;
 		//const double PI = 3.14159265359f;
@@ -382,7 +416,7 @@ rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture imag
 
 		//#####################						
 		//## Transformation from the camera coordinate system to the robot coordinate system
-		robotToLandmarkMatrix = robotToCameraMatrix_*cameraToLandmarkTransformMatrix;
+		robotToLandmarkMatrix = robotToCameraMat*cameraToLandmarkTransformMatrix;
 		//#####################			
 
 		//cv::Mat -> vector<vector<double>>

@@ -51,7 +51,7 @@ public:
 	Description. It sets acquisition parameters of camera device (exposure time, camera resolution, color space etc.). This function is required by light checking behaviour. The most important parameters (available for cameras mounted on Nao robot) are presented the Annex (adapted from Aldebaran documentation for software version 2.1).
 	*/
 	
-	cv::Mat getTransform(std::string chainName, int space);/*
+	rapp::object::Matrix2D getTransform(std::string chainName, int space);/*
 	Input:
 		chainName: Name of the item. Could be: any joint or chain or sensor.
 		space: Task frame {FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2} 
@@ -91,7 +91,8 @@ public:
 
 	std::vector< std::vector <float> > faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution); // Description: Given an RGB image, camera identifier and camera resolution. It detects human faces in the image. Provides a detection of all visible faces. As the output, for each detected face, the position of the center of the face is given and the face size in relation to the image.
 	
-	rapp::object::QRCode3D qrCodeDetection(rapp::object::picture image_, cv::Mat &robotToCameraMatrix, float landmarkTheoreticalSize = 0.16f);
+	//rapp::object::QRCode3D qrCodeDetection(rapp::object::picture image_, rapp::object::Matrix4x4 robotToCameraMatrix, float landmarkTheoreticalSize = 0.16f);
+	rapp::object::QRCode3D qrCodeDetection(rapp::object::picture imgFrame, cv::Mat robotToCameraMatrix, float landmarkTheoreticalSize);
 	
 	
 };	
