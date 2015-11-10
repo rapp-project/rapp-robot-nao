@@ -1,6 +1,8 @@
 #include <rapp/robot/Navigation.hpp>
+#include <rapp/robot/Vision.hpp>
+
+
 #include "NavigationImpl.hpp"
-#include <rapp/robot/Navigation.hpp>
 #include <rapp/objects/path/path.hpp>
 #include <rapp/objects/pose/pose.hpp>
 #include <rapp/objects/poseStamped/poseStamped.hpp>
@@ -124,9 +126,12 @@ namespace rappPlatform {
 namespace robot {
 
 	rapp::object::Pose qrCodeLocalization(rapp::object::QRcodeMap QRmap){
+	/*
+	rapp::object::picture image = rapp::robot::Vision::captureImage("0",3);
+	rapp::object::Matrix robot_camera_transform = rapp::robot::Vision::getTransform("CameraTop",0);
+	rapp::object::Matrix matrix = rappPlatform::robot::Vision::qrCodeDetection(image, robot_camera_transform);	
 
-
-
+	*/
 }
 
 
