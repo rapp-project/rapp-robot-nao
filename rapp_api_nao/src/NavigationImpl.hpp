@@ -14,6 +14,10 @@
 #include "rapp_ros_naoqi_wrappings/TakePredefinedPosture.h"
 #include "rapp_ros_naoqi_wrappings/LookAtPoint.h"
 //#include <iostream.h>
+
+#include <rapp/objects/path/path.hpp>
+#include <rapp/objects/pose/pose.hpp>
+#include <rapp/objects/poseStamped/poseStamped.hpp>
 namespace rapp {
 namespace robot {
 
@@ -48,9 +52,9 @@ public:
 	// bool visOdom();
 	bool lookAtPoint(float x, float y, float z);
 	bool rest(std::string posture);
-	bool moveAlongPath(nav_msgs::Path path);
-	geometry_msgs::PoseStamped getRobotPose();
-	bool setGlobalPose(geometry_msgs::Pose pose);
+	bool moveAlongPath(rapp::object::Path path);
+	rapp::object::PoseStamped getRobotPose();
+	bool setGlobalPose(rapp::object::Pose pose);
 	// rapp::objects::Path pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map);
  //    rapp::objects::Pose qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap);
 	

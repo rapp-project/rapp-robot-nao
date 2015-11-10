@@ -2,6 +2,7 @@
 // written by Wojciech Dudek
 //#####################
 #include "NavigationImpl.hpp"
+
 //#include "string.h"
 namespace rapp {
 namespace robot {
@@ -28,6 +29,8 @@ NavigationImpl::~NavigationImpl() {
 			}
 		  else
 		  {
+
+	  	  	return false;
 		    ROS_ERROR("Failed to call service moveTo"); 
 		  }
 
@@ -48,6 +51,7 @@ NavigationImpl::~NavigationImpl() {
 		  }
 		  else
 		  {
+	  	  	return false;
 		    ROS_ERROR("Failed to call service moveVel"); 
 		  }
 	}
@@ -102,6 +106,7 @@ NavigationImpl::~NavigationImpl() {
 	 	  }
 	 	else
 	 	  {
+	  	  	return false;
 	 	    ROS_ERROR("Failed to call service moveJoint"); 
 	 	  }
     }	
@@ -136,6 +141,7 @@ NavigationImpl::~NavigationImpl() {
 		  }
 		  else
 		  {
+	  	  	return false;
 		    ROS_ERROR("Failed to call service takePredefinedPosture"); 
 		  }
 	}	
@@ -150,6 +156,7 @@ NavigationImpl::~NavigationImpl() {
 		  }
 		  else
 		  {
+	  	  	return false;
 		    ROS_ERROR("Failed to call service moveStop"); 
 		  }
 	}
@@ -182,6 +189,7 @@ NavigationImpl::~NavigationImpl() {
 		  }
 		  else
 		  {
+	  	  	return false;
 		    ROS_ERROR("REUEST FAILED:  lookAtPoint"); 
 		  }
 	}
@@ -196,15 +204,38 @@ NavigationImpl::~NavigationImpl() {
 		  }
 		  else
 		  {
+	  	  	return false;
 		    ROS_ERROR("Failed to call service rest"); 
 		  }
 
 
 	}
-	bool NavigationImpl::moveAlongPath(nav_msgs::Path path){
+	bool NavigationImpl::moveAlongPath(rapp::object::Path path){
+
+			nav_msgs::Path path_ros;
+			path_ros.header.seq = path.header.seq;
+			path_ros.header.frame_id = path.header.frame_id;
+			path_ros.header.stamp.sec = path.header.stamp.sec;
+			path_ros.header.stamp.nsec = path.header.stamp.nsec;
+			for (uint32_t i=0; i < path.poses.size();i++){
+
+				path_ros.poses.at(i).header.seq = path.poses.at(i).header.seq;
+				path_ros.poses.at(i).header.frame_id = path.poses.at(i).header.frame_id;
+				path_ros.poses.at(i).header.stamp.sec = path.poses.at(i).header.stamp.sec;
+				path_ros.poses.at(i).header.stamp.nsec = path.poses.at(i).header.stamp.nsec;
+				path_ros.poses.at(i).pose.position.x = path.poses.at(i).pose.position.x;
+				path_ros.poses.at(i).pose.position.y = path.poses.at(i).pose.position.y;
+				path_ros.poses.at(i).pose.position.z = path.poses.at(i).pose.position.z;
+				path_ros.poses.at(i).pose.orientation.x = path.poses.at(i).pose.orientation.x;
+				path_ros.poses.at(i).pose.orientation.y = path.poses.at(i).pose.orientation.y;
+				path_ros.poses.at(i).pose.orientation.z = path.poses.at(i).pose.orientation.z;
+				path_ros.poses.at(i).pose.orientation.w = path.poses.at(i).pose.orientation.w;
+			}
+
+
 		client_moveAlongPath = n->serviceClient<rapp_ros_naoqi_wrappings::MoveAlongPath>("rapp_moveAlongPath");
 		  rapp_ros_naoqi_wrappings::MoveAlongPath srv;
-  		  srv.request.path = path;
+  		  srv.request.path = path_ros;
 
 		  if (client_moveAlongPath.call(srv))
 		  {
@@ -213,6 +244,7 @@ NavigationImpl::~NavigationImpl() {
 		  }
 		  else
 		  {
+	  	  	return false;
 		    ROS_ERROR("Failed to call service MoveAlongPath"); 
 		  }
 
@@ -221,33 +253,65 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	geometry_msgs::PoseStamped NavigationImpl::getRobotPose(){
+	rapp::object::PoseStamped NavigationImpl::getRobotPose(){
 
 		client_getRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
 		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
 		  if (client_getRobotPose.call(srv))
 		  {
-		    return srv.response.pose;
 	  	  	ROS_INFO("Nao returned his pose");
+		  	
+		  	geometry_msgs::PoseStamped pose_ros;
+		  	pose_ros = srv.response.pose;
+
+			rapp::object::PoseStamped pose;
+			
+			pose.header.seq = pose_ros.header.seq;
+			pose.header.frame_id = pose_ros.header.frame_id;
+			pose.header.stamp.sec = pose_ros.header.stamp.sec;
+			pose.header.stamp.nsec = pose_ros.header.stamp.nsec;
+			pose.pose.position.x = pose_ros.pose.position.x;
+			pose.pose.position.y = pose_ros.pose.position.y;
+			pose.pose.position.z = pose_ros.pose.position.z;
+
+			pose.pose.orientation.x = pose_ros.pose.orientation.x;
+			pose.pose.orientation.y = pose_ros.pose.orientation.y;	
+			pose.pose.orientation.z = pose_ros.pose.orientation.z;
+			pose.pose.orientation.w = pose_ros.pose.orientation.w;
+		    
+		    return pose;
 		  }
 		  else
 		  {
+		    return pose;
 		    ROS_ERROR("Failed to call service getRobotPose"); 
 		  }
 
 
 	}
-	bool NavigationImpl::setGlobalPose(geometry_msgs::Pose pose){
+	bool NavigationImpl::setGlobalPose(rapp::object::Pose pose){
 		client_setGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
-		  rapp_ros_naoqi_wrappings::SetGlobalPose srv;
-  		  srv.request.pose = pose;
+		rapp_ros_naoqi_wrappings::SetGlobalPose srv;
+
+		geometry_msgs::Pose pose_ros;
+		pose_ros.position.x = pose.position.x;
+		pose_ros.position.y = pose.position.y;
+		pose_ros.position.z = pose.position.z; 
+		pose_ros.orientation.x = pose.orientation.x; 
+		pose_ros.orientation.y = pose.orientation.y; 
+		pose_ros.orientation.z = pose.orientation.z; 
+		pose_ros.orientation.w = pose.orientation.w; 
+
+
+  		  srv.request.pose = pose_ros;
 		  if (client_setGlobalPose.call(srv))
 		  {
-		    return srv.response.status;
 	  	  	ROS_INFO("Nao is localized");
+		    return srv.response.status;
 		  }
 		  else
 		  {
+		    return false;
 		    ROS_ERROR("Failed to call service setGlobalPose"); 
 		  }
 
