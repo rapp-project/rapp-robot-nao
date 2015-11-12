@@ -172,10 +172,10 @@ class MoveNaoModule(ALModule):
 
 			# print "[MoveVel server] - Nao init position = ", InitRobotPosition
 			self.proxy_motion.moveTo(req.x, req.y, req.theta)
-			status = 0
+			status = True
 		except Exception, ex:
 			print "[MoveTo server] - Exception %s" % str(ex)
-			status = 1
+			status = False
 		return MoveToResponse(status)	
 
 	
@@ -213,9 +213,9 @@ class MoveNaoModule(ALModule):
 			
 			self.proxy_motion.move(X, Y, Theta)
 
-			status = 0
+			status = True
 		except Exception, ex:
-			status = 1
+			status = False
 			print "[Execution server] - Exception %s" % str(ex)
 		return MoveVelResponse(status)	
 
@@ -224,9 +224,9 @@ class MoveNaoModule(ALModule):
 			self.StiffnessOn(req.joint_name)
 
 			self.proxy_motion.angleInterpolationWithSpeed(req.joint_name,req.joint_angle,req.speeds)
-			status = 0
+			status = True
 		except Exception, ex:
-			status = 1
+			status = False
 			print "[Execution server] - Exception %s" % str(ex)
 		return MoveJointResponse(status)
 
@@ -237,9 +237,9 @@ class MoveNaoModule(ALModule):
 				self.StiffnessOn(pNames)
 			else:
 				self.StiffnessOff(pNames)
-			status = 0
+			status = True
 		except Exception, ex:
-			status = 1
+			status = False
 			print "[Execution server] - Exception %s" % str(ex)
 		return TriggerStiffnessResponse(status)	
 
@@ -249,17 +249,17 @@ class MoveNaoModule(ALModule):
 
 	def handle_takePredefinedPosture(self,req):
 		try:
-			status = 0
+			status = True
 
 			self.StiffnessOn("Body")
 		except Exception, ex:
-			status = 1
+			status = False
 			print "[Execution server] - Exception %s" % str(ex)
 		try:	
-			status = 0
+			status = True
 			self.proxy_RobotPosture.goToPosture(req.pose,req.speed)
 		except Exception, e:
-			status = 1
+			status = False
 			print "[Execution server] - Exception %s" % str(e)	
 		print "[Execution server] - Actual Nao pose : %s" % str(req.pose)
 		return TakePredefinedPostureResponse(status)	
