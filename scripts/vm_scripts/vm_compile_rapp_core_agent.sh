@@ -18,9 +18,6 @@ WS_ROS_ADDITIONAL_PACKAGES_ISOLATED=$WS_ROS_ADDITIONAL_PACKAGES_DIR"/install_iso
 
 # Rapp - ws_rapp_nao - core agent packages
 WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao"
-
-# Rapp - ws_rapp_nao - core agent packages
-WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao"
 WS_RAPP_NAO_ISOLATED=$WS_RAPP_NAO_DIR"/install_isolated"
 
 cd $WS_RAPP_NAO_DIR/src
