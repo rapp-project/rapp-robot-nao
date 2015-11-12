@@ -11,8 +11,8 @@ __author__ = "Wojciech Dudek"
 # Importing services
 from rapp_ros_naoqi_wrappings.srv import *
 from rapp_ros_naoqi_wrappings.msg import obstacleData
-from rapp_api.objects import * 
-from navfn.srv import *
+#from rapp_api.objects import * 
+#from navfn.srv import *
 
 # Importing core system functionality
 import signal
@@ -198,28 +198,28 @@ class MoveNaoModule(ALModule):
 	def rapp_move_vel_interface(self,x,y,theta):
 		moveVel = rospy.ServiceProxy('moveVel', MoveVel)
 		resp1 = moveVel(x,y,theta)
-		return resp1
+		return resp1.status
 	def rapp_move_to_interface(self,x,y,theta):
 		moveTo = rospy.ServiceProxy('moveTo', MoveTo)
 		resp1 = moveTo(x,y,theta)
-		return resp1
+		return resp1.status
 
 	def rapp_take_predefined_posture_interface(self,pose,speed):
 		takePosture = rospy.ServiceProxy('takePredefinedPosture', TakePredefinedPosture)
 		resp1 = takePosture(pose,speed)
-		return resp1
+		return resp1.status
 
 	def rapp_move_joint_interface(self,joints, angles, speed):
-		self.unsubscribeToObstacle()
+		#self.unsubscribeToObstacle()
 		moveJoint = rospy.ServiceProxy('moveJoint', MoveJoint)
 		resp1 = moveJoint(joints, angles, speed)
-		return resp1
+		return resp1.status
 
 	def rapp_stiffness_interface(self,joint,trigger):
 		self.unsubscribeToObstacle()
 		triggerStiffness = rospy.ServiceProxy('triggerStiffness', TriggerStiffness)
 		resp1 = triggerStiffness(joint, trigger)
-		return resp1
+		return resp1.status
 #
 #
 #   Interfaces to virtual receptor ---- TO DO
@@ -553,15 +553,15 @@ class MoveNaoModule(ALModule):
 
 	def handle_rapp_moveJoint(self,req):
 		try:
-			status = rapp_move_joint_interface(req.joint_name,req.joint_angle,req.speeds)
+			status = self.rapp_move_joint_interface(req.joint_name,req.joint_angle,req.speeds)
 		except Exception, ex:
 			print "[Move server] - Exception in rapp_moveJoint service handling: \n %s" % str(ex)
 			status = False
 		return MoveJointResponse(status)
 
-	def handle_rapp_rest(self):
+	def handle_rapp_rest(self,req):
 		try:
-			status = self.rapp_take_predefined_pose_interface("Crouch")
+			status = self.rapp_take_predefined_posture_interface(req.posture,0.3)
 			status = self.rapp_stiffness_interface("Body", False)
 		except Exception, ex:
 			print "[Move server] - Exception in rapp_rest service handling: \n %s" % str(ex)
