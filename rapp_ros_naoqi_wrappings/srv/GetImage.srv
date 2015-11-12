@@ -1,4 +1,4 @@
-string request
+uint32 request
 uint32 resolution
 ---
 sensor_msgs/Image frame

@@ -51,7 +51,7 @@
 
 	//#########################################################################
 	//#########################################################################
-	cv::Mat NaoVision::captureImage(std::string cameraId, int cameraResolution) {
+	cv::Mat NaoVision::captureImage(int cameraId, int cameraResolution) {
 		if (!client_captureImage) {
 			ROS_DEBUG("Invalid service client, creating new one...");
 			double secs = ros::Time::now().toSec();

@@ -107,6 +107,7 @@ class CameraModule(ALModule):
 			rospy.loginfo("[Camera server] - service - [rapp_capture_image]")
 			self.service_rdqr = rospy.Service('rapp_capture_image', GetImage, self.handle_rapp_capture_image)
 			self.service_rscp = rospy.Service('rapp_set_camera_parameter', SetCameraParam, self.handle_rapp_set_camera_parameter)
+			self.service_rscps = rospy.Service('rapp_set_camera_parameters', SetCameraParams, self.handle_rapp_set_camera_parameters)
 		except Exception, ex:
 			rospy.logerr("[Camera server] - Exception (services) %s", str(ex))
 
@@ -127,23 +128,27 @@ class CameraModule(ALModule):
 		try:
 			#Modifying camera parameters
 			#kCameraSelectID = 18
-			kCameraExposureAlgorithmID = 22
+			#kCameraExposureAlgorithmID = 22
 			#kCameraResolutionID = 14
 			
 			## Changes camera parameters
 			if (req.resolution in [0,1,2,3]):
-				self.resolution = req.resolution;
-				self.colorSpace = 13;	## kBGRColorSpace
-				self.fps = 29;# maximum value for the highest camera resolution
+				self.resolution = req.resolution;#self.prox_camera.getParam(14);
 			else:
 				self.resolution = 2;
-				self.colorSpace = 13;	## kBGRColorSpace
-				self.fps = 29;# maximum value for the highest camera resolution
 
-			if (req.request.find("bottom") != -1):
-				self.selectedCamera=1; #bottom
-			else:
-				self.selectedCamera=0; #top
+			#if (req.request.find("bottom") != -1):
+			#	self.selectedCamera=1; #bottom
+			#else:
+			#	self.selectedCamera=0; #top
+
+			self.selectedCamera = req.request; #get camera ID
+			self.colorSpace = 13;	## kBGRColorSpace
+			#self.fps = 29;# maximum value for the highest camera resolution
+			#self.colorSpace = req.colorSpace;#self.prox_camera.getColorSpace(req.request); #get color space
+			## is self.colorSpace != 9 ?
+			self.fps = self.prox_camera.getParameter(req.request,15);# get frame rate
+			#self.resolution = self.prox_camera.getParameter(req.request,14); # get camera resolution
 
 
 			## Subscribe to the camera
@@ -163,6 +168,13 @@ class CameraModule(ALModule):
 				self.frame_img= np.array(self.frame_img)##For NAO #conversion from tuple to numpy array
 				#self.frame_img= cv2.cv.fromarray(self.frame_img[:,:])##from numpy array to CvMat
 				self.image_message = self.bridge.cv2_to_imgmsg(self.frame_img,"bgr8")#, encoding="rbg") # form numpy.array to imgmsg for ROS communication
+				'''mono8: CV_8UC1, grayscale image
+				mono16: CV_16UC1, 16-bit grayscale image
+				bgr8: CV_8UC3, color image with blue-green-red color order
+				rgb8: CV_8UC3, color image with red-green-blue color order
+				bgra8: CV_8UC4, BGR color image with an alpha channel
+				rgba8: CV_8UC4, RGB color image with an alpha channel
+				'''
 				#self.cv_image = self.bridge.imgmsg_to_cv2(self.image_message,"rgb8")
 				self.prox_camera.unsubscribe(self.nameId);
 				return self.image_message
@@ -198,6 +210,21 @@ class CameraModule(ALModule):
 			print "[Camera server - SetCameraParam] - Unnamed exception = %s" % str(ex)
 
 		return isSet
+###########################
+	def handle_rapp_set_camera_parameters(self,req):
+		#print "[Camera server - SetCameraParams receives]: Camera ID -%d;\tParameter ID - %d;\tParameter value - %d;" % (req.cameraId, req.cameraParameterIds, req.newValues)
+		try:
+			isSetList=[]
+			for i in range(len(req.cameraParameterIds)):
+				isSet = self.prox_camera.setParameter(req.cameraId, req.cameraParameterId[i], req.newValue[i]) #Modifies camera internal parameter.
+				isSetList.append(isSet);
+
+		except AttributeError, ex:
+			print "[Camera server - SetCameraParams] - Exception AtrributeError = %s" % str(ex)
+		except Exception, ex:
+			print "[Camera server - SetCameraParams] - Unnamed exception = %s" % str(ex)
+
+		return isSetList#isSet
 	
 # Testng SIGINT signal handler
 def signal_handler(signal, frame):

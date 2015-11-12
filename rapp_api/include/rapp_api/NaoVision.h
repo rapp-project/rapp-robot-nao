@@ -73,7 +73,7 @@ public:
 
 	void init(int argc, char **argv);
 
-	cv::Mat captureImage(std::string cameraId, int cameraResolution);	 // For frame capture from selected camera; with the desired camera resolution: 3->4VGA,2->VGA,1->QVGA
+	cv::Mat captureImage(int cameraId, int cameraResolution);	 // For frame capture from selected camera; with the desired camera resolution: 3->4VGA,2->VGA,1->QVGA
     /*
     ##############################################################################
     PUBLISHING image to topic - add this function to the target library NaoVision

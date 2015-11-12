@@ -1,0 +1,5 @@
+uint32 cameraId 				#index to the camera whose module wants image (see Camera Indexes)
+uint32[] cameraParameterIds 	#Vector of Ids of the camera parameters (see Camera parameters)
+uint32[] newValues 				#Parameter’s new values.
+---
+bool[] isSetList
