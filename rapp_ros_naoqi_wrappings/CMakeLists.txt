@@ -29,7 +29,8 @@ find_package(catkin REQUIRED COMPONENTS
    #DetectQRcodes.srv
    #DetectHazardByQRcodes.srv
    GetImage.srv
-  SetCameraParam.srv
+	SetCameraParam.srv
+	SetCameraParams.srv
    GetTransform.srv
 	FaceDetect.srv
    #PhotoCapture.srv

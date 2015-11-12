@@ -14,14 +14,20 @@ Vision::~Vision() {
 	delete pimpl;
 }
 
-rapp::object::picture Vision::captureImage(std::string cameraId, int cameraResolution){
-	rapp::object::picture Image = pimpl->captureImage(cameraId, cameraResolution);
+rapp::object::picture Vision::captureImage(int camera_id, int camera_resolution, const std::string & encoding){
+	rapp::object::picture Image = pimpl->captureImage(camera_id, camera_resolution, encoding);
 	return Image;
 }
 
-bool Vision::setCameraParams(int cameraId, int cameraParameterId, int newValue ){
+bool Vision::setCameraParam(int camera_id, int camera_parameter_id, int new_value){
 	bool isDone;
-	isDone = pimpl->setCameraParams(cameraId, cameraParameterId, newValue);
+	isDone = pimpl->setCameraParam(camera_id,camera_parameter_id,new_value);
+	return isDone;
+}
+
+std::vector<uint8_t> Vision::setCameraParams(int camera_id, std::vector<uint32_t> camera_parameter_ids, std::vector<uint32_t> new_values){
+	std::vector<uint8_t> isDone;
+	isDone = pimpl->setCameraParams(camera_id,camera_parameter_ids, new_values);
 	return isDone;
 }
 

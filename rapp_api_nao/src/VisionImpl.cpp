@@ -11,7 +11,8 @@ VisionImpl::VisionImpl(int argc,char **argv) {
 VisionImpl::~VisionImpl() {
 }
 
-rapp::object::picture VisionImpl::captureImage(std::string cameraId, int cameraResolution) {
+rapp::object::picture VisionImpl::captureImage(int camera_id, int camera_resolution, const std::string & encoding)
+{
 	if (!client_captureImage) {
 		ROS_DEBUG("Invalid service client, creating new one...");
 		double secs = ros::Time::now().toSec();
@@ -23,8 +24,8 @@ rapp::object::picture VisionImpl::captureImage(std::string cameraId, int cameraR
 	}
 
 	rapp_ros_naoqi_wrappings::GetImage srv;
-	srv.request.request = cameraId;
-	srv.request.resolution = cameraResolution;
+	srv.request.request = camera_id;
+	srv.request.resolution = camera_resolution;
 	sensor_msgs::Image img;
 			
 	if (client_captureImage.call(srv)) {
@@ -51,13 +52,13 @@ rapp::object::picture VisionImpl::captureImage(std::string cameraId, int cameraR
 }
 
 
-bool VisionImpl::setCameraParams(int cameraId, int cameraParameterId, int newValue )
+bool VisionImpl::setCameraParam(int camera_id, int camera_parameter_id, int new_value)
 {
 	client_setCameraParam = n->serviceClient<rapp_ros_naoqi_wrappings::SetCameraParam>("rapp_set_camera_parameter");
 	rapp_ros_naoqi_wrappings::SetCameraParam srv;
-	srv.request.cameraId = cameraId;
-	srv.request.cameraParameterId = cameraParameterId;
-	srv.request.newValue = newValue;
+	srv.request.cameraId = camera_id;
+	srv.request.cameraParameterId = camera_parameter_id;
+	srv.request.newValue = new_value;
 	bool isSet=false;
 			
 	if (client_setCameraParam.call(srv))
@@ -76,6 +77,34 @@ bool VisionImpl::setCameraParams(int cameraId, int cameraParameterId, int newVal
 	return isSet;
 }
 
+std::vector<uint8_t> VisionImpl::setCameraParams(int camera_id, std::vector<uint32_t> camera_parameter_ids, std::vector<uint32_t> new_values)
+{
+	client_setCameraParams = n->serviceClient<rapp_ros_naoqi_wrappings::SetCameraParams>("rapp_set_camera_parameters");
+	rapp_ros_naoqi_wrappings::SetCameraParams srv;
+	srv.request.cameraId = camera_id;
+	srv.request.cameraParameterIds = camera_parameter_ids;
+	srv.request.newValues = new_values;
+	std::vector<uint8_t> isSetList;
+	if (camera_parameter_ids.size() == new_values.size()){
+	if (client_setCameraParams.call(srv))
+	{
+		isSetList = srv.response.isSetList;
+		for (int i=0;i<camera_parameter_ids.size();i++)
+			if (isSetList[i] == true)
+				ROS_INFO("[Rapp Set Camera Parameters] - New parameter value was set");
+			else
+				ROS_INFO("[Rapp Set Camera Parameters] - New parameter value wasn't set");
+	}
+	else
+	{
+		//Failed to call service rapp_set_camera_parameter
+		ROS_ERROR("[Rapp Set Camera Parameters] - Error calling service rapp_set_camera_parameter");
+	}
+	}
+	else
+		ROS_INFO("[Rapp Set Camera Parameters] - different size of vectors"); //camera_parameter_ids.size()!=new_values.size() 
+	return isSetList;
+}
 
 rapp::object::Matrix2D VisionImpl::getTransform(std::string chainName, int space)
 {
