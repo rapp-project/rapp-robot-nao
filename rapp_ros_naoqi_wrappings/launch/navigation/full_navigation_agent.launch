@@ -1,5 +1,5 @@
 <launch>
-
+ <!--   -->
 <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0.066 1.7 0.54 0.49999984  0.49960184  0.49999984  0.50039816 map Wall 100" />
 <node pkg="tf" type="static_transform_publisher" name="link2_broadcaster" args="0.0727 1.963 0.555 0.49999984  0.49960184  0.49999984  0.50039816 map Door 100" />
 <node pkg="tf" type="static_transform_publisher" name="link3_broadcaster" args="2.5097 0.44 0.825 5.62863772e-04   7.06824957e-01   7.07388045e-01   5.63312174e-04 map Microwave 100" />
@@ -11,19 +11,20 @@
   <node pkg="map_server" name="map_server" type="map_server" args="$(find map_server)/523_m.yaml" output="screen"/>  -->
  <!--  <node pkg="rapp_map" name="rapp_setup_tf" type="rapp_setup_tf.py" output="screen"/>  -->
 
-  <!-- Core agent vision nodes -->
+  <!-- Core agent vision nodes --> 
   <node pkg="rapp_ros_naoqi_wrappings" name="acore_camera_server" type="acore_camera_server.py" output="screen"/>
   <node pkg="rapp_ros_naoqi_wrappings" name="acore_transform_server" type="acore_transform_server.py" output="screen"/>
-  <node pkg="rapp_ros_naoqi_wrappings" name="acore_adyn_qrcode_server" type="adyn_qrcode_server_navigation.py" output="screen"/>    <!-- QR code detection server-->
+  <node pkg="rapp_ros_naoqi_wrappings" name="acore_adyn_qrcode_server" type="adyn_qrcode_server_navigation.py" output="screen"/>   <!-- QR code detection server-->
 
   <!-- Core agent move node -->
   <node pkg="rapp_ros_naoqi_wrappings" name="acore_move_server" type="acore_move_server.py" output="screen"/>
  
-  <!-- Core agent navigation node -->
+  <!-- Core agent navigation node  -->
    <node pkg="rapp_ros_naoqi_wrappings" name="acore_estimator_server" type="acore_estimator_server.py" output="screen"/>
 
-  <!-- Kalman filter node -->
-  <include  file="$(find robot_localization)/nao_ekf.launch" /> 
+  <!-- Kalman filter node  -->
+
+  <include  file="/home/nao/ws_rapp_nao/install_isolated/share/rapp_ros_naoqi_wrappings/launch/navigation/nao_ekf.launch" />
   <!-- global planner node 
   <include  file="$(find global_planner)/planner_launch.launch" />    -->
 
