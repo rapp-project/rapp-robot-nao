@@ -49,7 +49,7 @@ find_package(catkin REQUIRED COMPONENTS
    TakePredefinedPosture.srv
    LookAtPoint.srv
 DetectQRcodes.srv
-
+TriggerStiffness.srv
 MoveAlongPath.srv
 PlannPath.srv
  )

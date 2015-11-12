@@ -58,7 +58,7 @@ class MoveNaoModule(ALModule):
 		
 		# Initialization of Naoqi modules and ROS services
 		self.initALModule()
-		self.setVariables()
+		# self.setVariables()
 		#self.subscribeToEvents()
 		self.openServices()
 
@@ -90,11 +90,11 @@ class MoveNaoModule(ALModule):
 		# 	rospy.logerr("[Execution server] - Could not get a proxy to ALVisualCompass")
 		# 	exit(1)
 	# Setting variables
-	def setVariables(self):
-		print "[Execution server] - Setting variables"
-		self.MoveIsFailed = False
-		self.GP_seq = -1
-		self.tl = tf.TransformListener(True, rospy.Duration(5.0))
+	# def setVariables(self):
+	# 	print "[Execution server] - Setting variables"
+	# 	self.MoveIsFailed = False
+	# 	self.GP_seq = -1
+	# 	self.tl = tf.TransformListener(True, rospy.Duration(5.0))
 
 	def openServices(self):
 		try:
@@ -241,7 +241,7 @@ class MoveNaoModule(ALModule):
 		except Exception, ex:
 			status = 1
 			print "[Execution server] - Exception %s" % str(ex)
-		return RemoveStiffnessResponse(status)	
+		return TriggerStiffnessResponse(status)	
 
 	def handle_moveStop(self):
 		self.proxy_motion.move(0, 0, 0)
