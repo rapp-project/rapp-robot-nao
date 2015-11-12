@@ -13,6 +13,9 @@ if [ "$#" -ne 1 ]; then
 	exit 1
 fi
 
+echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_rapp_api on Nao"
+rsync -az --rsync-path="mkdir -p /home/nao/ws_rapp_api && rsync" /home/nao/ws_rapp_api/install nao@$1:/home/nao/ws_rapp_api/
+
 echo -e "$COL_GREEN[OK]$COL_RESET - Synchronization of ws_rapp_nao on Nao"
 rsync -az --rsync-path="mkdir -p /home/nao/ws_rapp_nao && rsync" /home/nao/ws_rapp_nao/install_isolated nao@$1:/home/nao/ws_rapp_nao/
 
