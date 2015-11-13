@@ -15,8 +15,8 @@ import motion
 from rapp_ros_naoqi_wrappings.srv import GetImage
 from rapp_ros_naoqi_wrappings.srv import DetectQRcodes
 from rapp_ros_naoqi_wrappings.srv import GetTransform
-from rapp_ros_naoqi_wrappings.srv import VisOdom,VisOdomResponse
-from rapp_ros_naoqi_wrappings.srv import MoveHead
+from rapp_ros_naoqi_wrappings.srv import GetRobotPose,GetRobotPoseResponse
+from rapp_ros_naoqi_wrappings.srv import SetGlobalPose, SetGlobalPoseResponse 
 from rapp_ros_naoqi_wrappings.srv import MoveVel,TakePredefinedPosture, MoveVelRequest
 import threading 
 
@@ -103,8 +103,41 @@ class NaoEstimator(ALModule):
 		# self.torsoOdom_EKF.pose.pose.orientation.y = 0
 		# self.torsoOdom_EKF.pose.pose.orientation.z = 0
 		# self.torsoOdom_EKF.pose.pose.orientation.w = 0
+	def handle_getRobotPose(self,req):
+		try:
+			if self.tl.canTransform("map","base_link",rospy.Time()):
+				ekf_pose = self.tl.lookupTransform("map","base_link",rospy.Time())
+				actual_pose = PoseStamped()
+				actual_pose.pose.position.x = ekf_pose[0][0]
+				actual_pose.pose.position.y = ekf_pose[0][1]
+				actual_pose.pose.position.z = ekf_pose[0][2]
+				actual_pose.pose.orientation.x = ekf_pose[1][0]
+				actual_pose.pose.orientation.y = ekf_pose[1][1]
+				actual_pose.pose.orientation.z = ekf_pose[1][2]
+				actual_pose.pose.orientation.w = ekf_pose[1][3]
 
-
+				actual_pose.header.seq = 1
+				actual_pose.header.stamp= rospy.Time.now()
+				actual_pose.header.frame_id = "map"
+			else:
+				status = False
+			status = True
+		except Exception, ex:
+			print "[Estimator server] - Exception %s" % str(ex)
+			status = False
+		print "STATUS = ", status
+		return GetRobotPoseResponse(actual_pose)
+	def handle_setGlobalPose(self,req):
+		try:
+			self.SubCall(req)
+			#
+			# check if actual state equals to request, define status
+			#
+			status = True
+		except Exception, ex:
+			print "[Estimator server] - Exception %s" % str(ex)
+			status = False
+		return SetGlobalPoseResponse(status)
 	def startSubscribers(self):
 		rospy.Subscriber("/initialpose", PoseWithCovarianceStamped, self.SubCall)
 		rospy.Subscriber("/odometry/filtered", Odometry, self.publishEKFframe)
@@ -210,27 +243,32 @@ class NaoEstimator(ALModule):
 		                          0, 0, 0, 0, 0, 1e-9]
 	def openServices(self):
 		try:
-			print "[Estimator server] - checking required services"
-			print "[Estimator server] - waiting for service 'rapp_moveHead' from acore_move_server.py"
-			rospy.wait_for_service('rapp_moveHead', timeout=None)
-			print "[Estimator server] - service 'rapp_moveHead' is enabled"
-			print "[Estimator server] - waiting for service 'rapp_capture_image' from core_agent_camera_server.launch"
-			rospy.wait_for_service('rapp_capture_image', timeout=None)
-			print "[Estimator server] - service 'rapp_capture_Image' is enabled"
-			print "[Estimator server] - waiting for service 'getTransform' from core_agent_camera_server.launch"
-			rospy.wait_for_service('rapp_get_transform', timeout=None)
-			print "[Estimator server] - service 'getTransform' is enabled"
-			print "[Estimator server] - waiting for service 'rapp_detect_qrcodes' from dyn_agent_qrcode_server.launch"
-			rospy.wait_for_service('rapp_detect_qrcodes', timeout=None)
-			print "[Estimator server] - service 'rapp_detect_qrcodes' is enabled"
-			print "[Estimator server] - setting services"
-			print "[Estimator server] - service - [rapp_VisOdom]"
-			self.service_get = rospy.Service('rapp_VisOdom', VisOdom, self.handle_rapp_VisOdom)
-		except Exception, ex_mt:
+			# print "[Estimator server] - checking required services"
+			# print "[Estimator server] - waiting for service 'rapp_moveHead' from acore_move_server.py"
+			# rospy.wait_for_service('rapp_moveHead', timeout=None)
+			# print "[Estimator server] - service 'rapp_moveHead' is enabled"
+			# print "[Estimator server] - waiting for service 'rapp_capture_image' from core_agent_camera_server.launch"
+			# rospy.wait_for_service('rapp_capture_image', timeout=None)
+			# print "[Estimator server] - service 'rapp_capture_Image' is enabled"
+			# print "[Estimator server] - waiting for service 'getTransform' from core_agent_camera_server.launch"
+			# rospy.wait_for_service('rapp_get_transform', timeout=None)
+			# print "[Estimator server] - service 'getTransform' is enabled"
+			# print "[Estimator server] - waiting for service 'rapp_detect_qrcodes' from dyn_agent_qrcode_server.launch"
+			# rospy.wait_for_service('rapp_detect_qrcodes', timeout=None)
+			# print "[Estimator server] - service 'rapp_detect_qrcodes' is enabled"
+			# print "[Estimator server] - setting services"
+			# print "[Estimator server] - service - [rapp_VisOdom]"
+			self.service_set = rospy.Service('rapp_setGlobalPose', SetGlobalPose, self.handle_setGlobalPose)
+		except Exception, ex:
 			print "[Estimator server] - Exception %s" % str(ex)
-	def rapp_take_predefined_pose_interface(self,pose):
-		takePosture = rospy.ServiceProxy('rapp_takePredefinedPosture', TakePredefinedPosture)
-		resp1 = takePosture(pose)
+		try:
+			self.service_get = rospy.Service('rapp_getRobotPose', GetRobotPose, self.handle_getRobotPose)
+		except Exception, ex:
+			print "[Estimator server] - Exception %s" % str(ex)
+	# def rapp_take_predefined_pose_interface(self,pose):
+	# 	takePosture = rospy.ServiceProxy('rapp_takePredefinedPosture', TakePredefinedPosture)
+	# 	resp1 = takePosture(pose)
+
 	def rapp_move_vel_interface(self,v_x,v_y,v_theta):
 		move = rospy.ServiceProxy('rapp_moveVel', MoveVel)
 		speeds = MoveVelRequest()
@@ -238,13 +276,13 @@ class NaoEstimator(ALModule):
 		speeds.velocity_y = v_y
 		speeds.velocity_theta = v_theta
 		resp1 = move(speeds)
-	def handle_rapp_VisOdom(self,req):
-		#transform = self.locateMarkers()
-		self.rapp_take_predefined_pose_interface("Stand")
-		decomposed_robot_in_QR = self.estimateNaoPosition()
-		self.moveOdom(decomposed_robot_in_QR)
-		feedback = True
-		return VisOdomResponse(feedback)
+	# def handle_rapp_VisOdom(self,req):
+	# 	#transform = self.locateMarkers()
+	# 	self.rapp_take_predefined_pose_interface("Stand")
+	# 	decomposed_robot_in_QR = self.estimateNaoPosition()
+	# 	self.moveOdom(decomposed_robot_in_QR)
+	# 	feedback = True
+	# 	return VisOdomResponse(feedback)
 
 	# def locateMarkers(self):
 	# 	# Find closest marker to "base_link" frame
@@ -449,8 +487,6 @@ class NaoEstimator(ALModule):
 		return (decomposed_matrix)
 	def run(self):
 		
-		#print "run",not rospy.is_shutdown()
-		
 		self.timestamp = rospy.Time.now()
 		###
 		#   Get data from NaoQi Driver
@@ -458,32 +494,15 @@ class NaoEstimator(ALModule):
 		try:
 			# imu data:
 			self.memData = self.memProxy.getListData(self.dataNamesList)
-			# t = rospy.Time.now().to_sec()
 
 			# odometry data:
 			self.odomData = self.motionProxy.getPosition('Torso', motion.SPACE_WORLD, True)
-			# t1 = rospy.Time.now().to_sec()
 
-			# d_t = t1 -t
-			# if d_t> 0.005:
-			# 	print "naoqi",d_t
-
-			# FSR data
-			#self.FSRData = self.memProxy.getListData(self.FSRdataList)
-			#positionData = self.motionProxy.getAngles('Body', True)
-				
 		except RuntimeError, e:
 			print "Error accesnp.sing ALMemory, exiting...\n"
 			print e
 			rospy.signal_shutdown("No NaoQI available anymore")
 
-		# print "FSR:"
-		# print "left: ", (self.FSRData[0]+self.FSRData[1]+self.FSRData[2]+self.FSRData[3])/4
-		# print "right: ", (self.FSRData[4]+self.FSRData[5]+self.FSRData[6]+self.FSRData[7])/4
-		#NaoStandStable = bool((self.FSRData[0]+self.FSRData[1]+self.FSRData[2]+self.FSRData[3])/4 > 0.2 and (self.FSRData[4]+self.FSRData[5]+self.FSRData[6]+self.FSRData[7])/4 >0.2)
-		# print  NaoStandStable
-
-			
 		###
 		#  Fill msgs data
 		###
@@ -515,17 +534,6 @@ class NaoEstimator(ALModule):
 		self.torsoOdom_EKF.pose.pose.position.z = self.torsoOdom_EKF.pose.pose.position.z+ self.odomData[2]
 		self.q_odom = transformations.quaternion_from_euler(self.odomData[3], self.odomData[4], self.odomData[5])
 		self.torsoOdom_EKF.pose.pose.orientation.x =self.q_odom[0]# +  self.torsoOdom_EKF.pose.pose.orientation.x
-		# self.torsoOdom_EKF.pose.pose.orientation.y = self.q_odom[1]# +  self.torsoOdom_EKF.pose.pose.orientation.x
-		# self.torsoOdom_EKF.pose.pose.orientation.z = self.q_odom[2]# +  self.torsoOdom_EKF.pose.pose.orientation.x
-		# self.torsoOdom_EKF.pose.pose.orientation.w = self.q_odom[3]# +  self.torsoOdom_EKF.pose.pose.orientation.x
-		# #print "orientation odom: z: \n",self.odomData[5]
-		# ODOM_POSE_COVARIANCE = [1e-4, 0, 0, 0, 0, 0, 
-		#                         0, 1e-4, 0, 0, 0, 0,
-		#                         0, 0, 1e-3, 0, 0, 0,
-		#                         0, 0, 0, 1e6, 0, 0,
-		#                         0, 0, 0, 0, 1e6, 0,
-		#                         0, 0, 0, 0, 0, 1e-2]
-		# self.torsoOdom_EKF.pose.covariance =  ODOM_POSE_COVARIANCE
 
 
 		# /imu_data
@@ -577,59 +585,11 @@ class NaoEstimator(ALModule):
 														0,1e2,0,
 														0,0,1e2]
 
-		# if self.tl.canTransform("Nao_T_odom","base_link" ,rospy.Time.now()):
-		# 	print "can transform"
-		# else:
-		# 	print "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-			#transform_QR_map = self.tl.lookupTransform("Nao_T_odom","base_link", time)
-		###
-		#  Set required frames IDs
-		###
-		# self.tf_br.sendTransform((0,0,0), (0,0,0,1),
-  #                                        self.timestamp, "map", "World")	
-		# self.tf_br.sendTransform(self.odom_transformation.position, self.odom_transformation.orientation,
-  #                                        self.timestamp, "odom", "map")	
-			# self.tf_br.sendTransform(self.odom_combined_transformation.position, self.odom_combined_transformation.orientation,
-	  #                                        self.timestamp, "odom_combined", "map")
-		# self.tf_br.sendTransform((self.torsoOdom.pose.pose.position.x,self.torsoOdom.pose.pose.position.y,self.odomData[2]), self.q_odom,
-	                                       # self.timestamp, "Nao_T_odom", "odom")
 		self.camera_To_Torso_Position = self.motionProxy.getPosition('CameraTop', 0, True)
 		self.quaternion_cameta_to_torso = tf.transformations.quaternion_from_euler(self.camera_To_Torso_Position[3],self.camera_To_Torso_Position[4],self.camera_To_Torso_Position[5])
 		self.start_publishingOdom = True	
-		# t2 = rospy.Time.now().to_sec()
 
-		# d_t = t2-t1
-		# if d_t> 0.005:
-		# 	print "camera_nao",d_t
-		# self.tf_br.sendTransform((self.camera_To_Torso_Position[0],self.camera_To_Torso_Position[1],self.camera_To_Torso_Position[2]), self.quaternion_cameta_to_torso,
-	 #                                       self.timestamp, "cameraTop", "base_link_nao")
-		# 	#self.tf_br.sendTransform((self.torsoOdom.pose.pose.position.x,self.torsoOdom.pose.pose.position.y,self.odomData[2]), self.q_odom,
-	 #      #                               self.timestamp, "Nao_T_odom", "odom")	
 
-		# 	#
-		# 	#  publishing msgs 
-		# 	#
-		# 	#/odom
-		# self.torsoOdomPub.publish(self.torsoOdom)		
-		# 	#/imu_data
-		# self.torsoIMUPub.publish(self.torsoIMU)
-		# # if abs(-self.memData[3])< 3.14:
-		# 	print "euler Z_IMU: \n",-self.memData[3]*180/np.pi
-		# else:
-		# 	print "euler Z_IMU: \n",(3.14+self.memData[3])*180/np.pi			
-		#iterations_between_EKF_publish = iterations_between_EKF_publish+1
-			#print iterations_between_EKF_publish
-		# if NaoStandStable:
-		# 	self.torsoOdom_EKF.pose.pose.position.x =self.torsoOdom_EKF.pose.pose.position.x/iterations_between_EKF_publish
-		# 	self.torsoOdom_EKF.pose.pose.position.y =self.torsoOdom_EKF.pose.pose.position.y/iterations_between_EKF_publish
-		# 	self.torsoOdom_EKF.pose.pose.position.z =self.torsoOdom_EKF.pose.pose.position.z/iterations_between_EKF_publish
-		# 	# self.torsoOdom_EKF.pose.pose.orientation.x =self.torsoOdom_EKF.pose.pose.orientation.x/iterations_between_EKF_publish
-		# 		# self.torsoOdom_EKF.pose.pose.orientation.y =self.torsoOdom_EKF.pose.pose.orientation.y/iterations_between_EKF_publish
-		# 		# self.torsoOdom_EKF.pose.pose.orientation.z =self.torsoOdom_EKF.pose.pose.orientation.z/iterations_between_EKF_publish
-		# 		# self.torsoOdom_EKF.pose.pose.orientation.w =self.torsoOdom_EKF.pose.pose.orientation.w/iterations_between_EKF_publish
-		# 	self.torsoIMU_EKF_Pub.publish(self.torsoIMU)
-		# 	self.torsoOdom_EKF_Pub.publish(self.torsoOdom_EKF)
-		# 	iterations_between_EKF_publish = 1
 		self.tf_br.sendTransform((0,0,0), (0,0,0,1),
                                         self.timestamp, "map", "World")	
 		self.tf_br.sendTransform(self.odom_transformation.position, self.odom_transformation.orientation,
@@ -639,91 +599,10 @@ class NaoEstimator(ALModule):
 		self.tf_br.sendTransform((self.torsoOdom.pose.pose.position.x,self.torsoOdom.pose.pose.position.y,self.odomData[2]), self.q_odom,
                                        self.timestamp, "Nao_T_odom", "odom")
 		
-		#print "start",rospy.Time.now()
+
 		self.torsoOdomPub.publish(self.torsoOdom)		
 		#/imu_data
 		self.torsoIMUPub.publish(self.torsoIMU)
-		#print "stop",rospy.Time.now()
-		# t3 = rospy.Time.now().to_sec()
-
-		# d_t = t3-t2
-		# if d_t > 0.005:
-		# 	print "publish",d_t	
-
-		# print "total", t3-t
-
-	
-
-	# def publishOdom(self):
-	# 	while not rospy.is_shutdown()  and not self.start_publishingOdom:
-	# 		rospy.sleep(1)
-	# 		print "sleeping"
-
-	# 	while not rospy.is_shutdown() and not self.kill_publishOdom:
-	# 		self.tf_br.sendTransform((0,0,0), (0,0,0,1),
- #                                         self.timestamp, "map", "World")	
-	# 		self.tf_br.sendTransform(self.odom_transformation.position, self.odom_transformation.orientation,
-	#                                          rospy.Time.now(), "odom", "map")
-	# 		self.tf_br.sendTransform((self.camera_To_Torso_Position[0],self.camera_To_Torso_Position[1],self.camera_To_Torso_Position[2]), self.quaternion_cameta_to_torso,
-	#                                        self.timestamp, "cameraTop", "base_link_nao")
-	# 		self.tf_br.sendTransform((self.torsoOdom.pose.pose.position.x,self.torsoOdom.pose.pose.position.y,self.odomData[2]), self.q_odom,
-	#                                        self.timestamp, "Nao_T_odom", "odom")
-	# 		self.torsoOdomPub.publish(self.torsoOdom)		
-	# 			#/imu_data
-	# 		self.torsoIMUPub.publish(self.torsoIMU)
-	# 		#print "publishing"
-	# 		rospy.sleep(0.1)
-	# def killall(self):
-	# 	self.kill_publishOdom = True
-	# 	rospy.sleep(1)
-def handle_markers_tf():
-	return
-	# br = tf.TransformBroadcaster()
-	# time = rospy.Time.now()
-	
-	# br.sendTransform((0.066,1.7, 0.54),
- #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2),
- #                     time,
- #                     "Wall",
- #                     "map")
-	# print "Wall",  tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2)
-	# br.sendTransform((0.256,0.534, 0.32),
- #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
- #                     time,
- #                     "Wardrobe",
- #                     "map")
-	# print "Wardrobe",                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14)
-
-
-	# br.sendTransform((2.5097,0.44, 0.825),
- #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
- #                     time,
- #                     "Microwave",
- #                     "map")
-	# print "Microwave",                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14)
-
-
-	# br.sendTransform((3.306,0.6173, 0.75),
- #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
- #                     time,
- #                     "Fridge",
- #                     "map")
-	# print "Fridge",                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14)
-
-	# br.sendTransform((4.04,0.697, 0.505),
- #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14),
- #                     time,
- #                     "Stable object",
- #                     "map")
-	# print "Stable object",                      tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14)
-
-
-	# br.sendTransform((0.0727,1.963, 0.555),
- #                     tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2),
- #                     time,
- #                     "Door",
- #                     "map")
-	# print "Door",                       tf.transformations.quaternion_from_euler(3.14/2, 0, 3.14/2)
 
 def signal_handler(signal, frame):
 	print "[Estimator server] - signal SIGINT caught"

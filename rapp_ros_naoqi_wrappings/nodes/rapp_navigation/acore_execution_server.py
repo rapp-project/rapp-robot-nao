@@ -124,7 +124,11 @@ class MoveNaoModule(ALModule):
 			self.service_mh = rospy.Service('takePredefinedPosture', TakePredefinedPosture, self.handle_takePredefinedPosture)
 		except Exception, ex_mh:
 			print "[Execution server] - Exception %s" % str(ex_mh)
-
+		try:
+			print "[Execution server] - service - [takePredefinedPosture]"
+			self.service_mh = rospy.Service('moveStop', MoveStop, self.handle_moveStop)
+		except Exception, ex_mh:
+			print "[Execution server] - Exception %s" % str(ex_mh)
 	def getch(self):
 		import sys, tty, termios
 		fd = sys.stdin.fileno()
@@ -137,6 +141,14 @@ class MoveNaoModule(ALModule):
 	####
 	##  SERVECE HANDLERS
 	####
+	def handle_moveStop(self,req):
+		try:
+			self.proxy_motion.stopMove()
+			status = True
+		except Exception, ex:
+			print "[MoveTo server] - Exception %s" % str(ex)
+			status = False
+		return MoveStopResponse(status)
 
 	def handle_moveHead(self,req):
 		head_yaw = req.yaw 
@@ -243,9 +255,6 @@ class MoveNaoModule(ALModule):
 			print "[Execution server] - Exception %s" % str(ex)
 		return TriggerStiffnessResponse(status)	
 
-	def handle_moveStop(self):
-		self.proxy_motion.move(0, 0, 0)
-		return MoveStopResponse(True)
 
 	def handle_takePredefinedPosture(self,req):
 		try:

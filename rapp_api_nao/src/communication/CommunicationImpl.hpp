@@ -9,9 +9,9 @@
 #include "rapp_ros_naoqi_wrappings/MicrophoneEnergy.h"
 #include "rapp_ros_naoqi_wrappings/RecordWithSoundDetection.h"
 
-#include <rapp/robot/Communication.hpp>
+#include <rapp/robot/communication/communication.hpp>
 
-typedef rapp::robot::Communication::Language Language;
+typedef rapp::robot::communication::Language Language;
 
 namespace rapp {
 namespace robot {

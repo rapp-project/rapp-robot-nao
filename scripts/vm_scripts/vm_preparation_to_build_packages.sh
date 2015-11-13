@@ -55,7 +55,7 @@ git clone -b master https://github.com/rapp-project/rapp-robot-nao.git || { echo
 cd $GIT_WS_RAPP_APPLICATIONS_DIR
 echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_APPLICATIONS_DIR"
 echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
-git clone -b maser https://github.com/rapp-project/rapp-applications-nao.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
+git clone -b master https://github.com/rapp-project/rapp-applications-nao.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
 
 # Clonning rapp-api repository to $GIT_WS_RAPP_API_DIR
 cd $GIT_WS_RAPP_API_DIR

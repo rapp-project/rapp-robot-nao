@@ -54,7 +54,7 @@ public:
 	bool rest(std::string posture);
 	bool moveAlongPath(rapp::object::Path path);
 	rapp::object::PoseStamped getRobotPose();
-	bool setGlobalPose(rapp::object::Pose pose);
+	bool setGlobalPose(rapp::object::PoseStamped rapp_pose);
 	// rapp::objects::Path pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map);
  //    rapp::objects::Pose qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap);
 	

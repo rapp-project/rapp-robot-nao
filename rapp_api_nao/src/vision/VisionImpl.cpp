@@ -66,10 +66,13 @@ rapp::object::picture::Ptr VisionImpl::captureImage(int camera_id, int camera_re
 		ROS_ERROR("[Vision] cv_bridge exception: %s", e.what());
 		return std::make_shared<rapp::object::picture>("");
 	}
-	
-	int size = cv_ptr->image.total() * cv_ptr->image.elemSize();
-	std::vector<rapp::types::byte> bytes(cv_ptr->image.data, cv_ptr->image.data+size * sizeof(rapp::types::byte));
-	return std::make_shared<rapp::object::picture>(bytes, true);
+
+
+	std::vector<unsigned char> bytes;
+	std::vector<rapp::types::byte> rapp_bytes;
+	cv::imencode(std::string(".") + encoding, cv_ptr->image, bytes);
+	for (auto b : bytes) rapp_bytes.push_back(b);
+	return std::make_shared<rapp::object::picture>(rapp_bytes, true);
 }
 
 

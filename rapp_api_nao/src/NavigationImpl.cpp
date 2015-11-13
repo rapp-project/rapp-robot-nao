@@ -292,18 +292,23 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	bool NavigationImpl::setGlobalPose(rapp::object::Pose pose){
+	bool NavigationImpl::setGlobalPose(rapp::object::PoseStamped rapp_pose){
 		client_setGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
 		rapp_ros_naoqi_wrappings::SetGlobalPose srv;
 
-		geometry_msgs::Pose pose_ros;
-		pose_ros.position.x = pose.position.x;
-		pose_ros.position.y = pose.position.y;
-		pose_ros.position.z = pose.position.z; 
-		pose_ros.orientation.x = pose.orientation.x; 
-		pose_ros.orientation.y = pose.orientation.y; 
-		pose_ros.orientation.z = pose.orientation.z; 
-		pose_ros.orientation.w = pose.orientation.w; 
+		geometry_msgs::PoseStamped pose_ros;
+		pose_ros.pose.position.x = rapp_pose.pose.position.x;
+		pose_ros.pose.position.y = rapp_pose.pose.position.y;
+		pose_ros.pose.position.z = rapp_pose.pose.position.z; 
+		pose_ros.pose.orientation.x = rapp_pose.pose.orientation.x; 
+		pose_ros.pose.orientation.y = rapp_pose.pose.orientation.y; 
+		pose_ros.pose.orientation.z = rapp_pose.pose.orientation.z; 
+		pose_ros.pose.orientation.w = rapp_pose.pose.orientation.w; 
+		
+		pose_ros.header.seq = rapp_pose.header.seq;
+		pose_ros.header.stamp.sec = rapp_pose.header.stamp.sec;
+		pose_ros.header.stamp.nsec = rapp_pose.header.stamp.nsec;
+		pose_ros.header.frame_id = rapp_pose.header.frame_id;
 
 
   		  srv.request.pose = pose_ros;

@@ -1,2 +1,2 @@
-byte RightBumper
-byte LeftBumper
+int8 RightBumper
+int8 LeftBumper

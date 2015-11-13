@@ -106,7 +106,7 @@ class MoveNaoModule(ALModule):
 		self.MoveIsFailed = False
 		self.GP_seq = -1
 		self.tl = tf.TransformListener(True, rospy.Duration(5.0))
-		globalPosePublisher = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=10)
+		#globalPosePublisher = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=10)
 	def subscribeToObstacle(self):
 		global sub_obstacle
 		sub_obstacle = rospy.Subscriber("/obstacleDetectorState", obstacleData , self.detectObstacle)
@@ -171,16 +171,16 @@ class MoveNaoModule(ALModule):
 			self.service_lookAt = rospy.Service('rapp_lookAtPoint', LookAtPoint, self.handle_rapp_lookAtPoint)
 		except Exception, ex_lookAt:
 			print "[Move server] - Exception %s" % str(ex_lookAt)
-		try:
-			print "[Move server] - service - [rapp_getRobotPose]"
-			self.service_getPosition = rospy.Service('rapp_getRobotPose', GetRobotPose, self.handle_rapp_getRobotPose)
-		except Exception, ex_getPosition:
-			print "[Move server] - Exception %s" % str(ex_getPosition)
-		try:
-			print "[Move server] - service - [rapp_setGlobalPose]"
-			self.service_getPosition = rospy.Service('rapp_setGlobalPose', SetGlobalPose, self.handle_rapp_setGlobalPose)
-		except Exception, ex_getPosition:
-			print "[Move server] - Exception %s" % str(ex_getPosition)
+		# try:
+		# 	print "[Move server] - service - [rapp_getRobotPose]"
+		# 	self.service_getPosition = rospy.Service('rapp_getRobotPose', GetRobotPose, self.handle_rapp_getRobotPose)
+		# except Exception, ex_getPosition:
+		# 	print "[Move server] - Exception %s" % str(ex_getPosition)
+		# try:
+		# 	print "[Move server] - service - [rapp_setGlobalPose]"
+		# 	self.service_getPosition = rospy.Service('rapp_setGlobalPose', SetGlobalPose, self.handle_rapp_setGlobalPose)
+		# except Exception, ex_getPosition:
+		# 	print "[Move server] - Exception %s" % str(ex_getPosition)
 	def getch(self):
 		import sys, tty, termios
 		fd = sys.stdin.fileno()
@@ -220,6 +220,11 @@ class MoveNaoModule(ALModule):
 		triggerStiffness = rospy.ServiceProxy('triggerStiffness', TriggerStiffness)
 		resp1 = triggerStiffness(joint, trigger)
 		return resp1.status
+	def rapp_stop_move_interface(self):
+		self.unsubscribeToObstacle()
+		moveStop = rospy.ServiceProxy('moveStop', MoveStop)
+		resp1 = moveStop()
+		return resp1.status
 #
 #
 #   Interfaces to virtual receptor ---- TO DO
@@ -228,17 +233,17 @@ class MoveNaoModule(ALModule):
 	####
 	##  SERVECE HANDLERS
 	####
-	def handle_rapp_setGlobalPose(self,req):
-		try:
-			data_to_publish = PoseWithCovarianceStamped()
-			data_to_publish.pose.pose = req.pose
-			data_to_publish.header.seq = 0
-			data_to_publish.header.stamp = rospy.Time.now()
-			data_to_publish.header.frame_id = "/map"
-			globalPosePublisher.publish(data_to_publish)
-		except Exception, ex_setPosition:
-			print "[Move server] - Exception %s" % str(ex_setPosition)
-		return SetGlobalPoseResponse(status)
+	# def handle_rapp_setGlobalPose(self,req):
+	# 	try:
+	# 		data_to_publish = PoseWithCovarianceStamped()
+	# 		data_to_publish.pose.pose = req.pose
+	# 		data_to_publish.header.seq = 0
+	# 		data_to_publish.header.stamp = rospy.Time.now()
+	# 		data_to_publish.header.frame_id = "/map"
+	# 		globalPosePublisher.publish(data_to_publish)
+	# 	except Exception, ex_setPosition:
+	# 		print "[Move server] - Exception %s" % str(ex_setPosition)
+	# 	return SetGlobalPoseResponse(status)
 
 	def handle_rapp_getRobotPose(self,req):
 		try:
@@ -342,17 +347,24 @@ class MoveNaoModule(ALModule):
 	def detectObstacle(self,msg):
 		# while (self.path_is_finished != True): 
 		# sonar data = [right_dist, left_dist]
-		print "[detectObstacle] new scan"
-
 		sum_data = 0
 		i = 0
 
-		if (msg.RightBumper == 1 )or ( msg.LeftBumper==1):
-			print "msg: \n",msg
-			
+		if (msg.RightBumper == 1):
+			self.unsubscribeToObstacle()
 			self.obstacle_detected = True
 			self.kill_thread_followPath = True
-			self.rapp_move_vel_interface(0,0,0)
+			self.rapp_stop_move_interface()
+
+			print "Obstacle detected by RIGHT BUMPER " 
+		elif ( msg.LeftBumper==1):
+			self.unsubscribeToObstacle()
+			self.obstacle_detected = True
+			self.kill_thread_followPath = True
+			self.rapp_stop_move_interface()
+			print "Obstacle detected by RIGHT BUMPER " 
+
+
 
 	def plannPath(self,req):
 		naoCurrentPosition = [req.start_x,req.start_y,req.start_theta]#self.getNaoCurrentPosition()
