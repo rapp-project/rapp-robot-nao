@@ -291,7 +291,7 @@ export LIBRARY_PATH=$ROS_ADDITIONAL_PACKAGES_ISOLATED/lib
 
 # Hop
 cd $PROGRAMS_DIRECTORY
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Hop"
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from hop repository "
 git clone https://github.com/manuel-serrano/hop.git
 cd hop
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --bigloo=$ROS_ADDITIONAL_PACKAGES_ISOLATED/bin/bigloo --bigloo-unistring=no
@@ -299,4 +299,12 @@ make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exi
 sudo make install
 make clean
 
-
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from bson repository "
+git clone https://github.com/py-bson/bson.git
+cd bson
+sudo python setup.py install
+cd $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
+cp -r /usr/lib/python2.7/site-packages/six-1.10.0-py2.7.egg .
+cp -r /usr/lib/python2.7/site-packages/pytz-2015.7-py2.7.egg .
+cp -r /usr/lib/python2.7/site-packages/bson-0.4.1-py2.7.egg .
