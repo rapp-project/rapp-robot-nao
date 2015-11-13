@@ -64,16 +64,21 @@ std::vector< std::vector <float> > VisionDyn::faceDetect(rapp::object::picture i
 
 rapp::object::QRCode3D VisionDyn::qrCodeDetection(rapp::object::picture image, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize){
 	rapp::object::QRCode3D QRCodeStruct;
-	cv::Mat tmpMat;
-	/*std::vector<float> tmpRows;
-	std::vector<std::vector<float>> tmpMat;
-	for(int i=0;i<4;i++){
-		tmpRows.clear();
-		for(int j=0;j<4;j++)
-		tmpRows.push_back(robotToCameraMatrix.matrix4x4.at(0)[i][j]);
-		tmpMat.push_back(tmpRows);
-	}//*/
-	QRCodeStruct = pimpl->qrCodeDetection(image, tmpMat,landmarkTheoreticalSize);//robotToCameraMatrix.matrix4x4.at(0)
+	try{
+		QRCodeStruct = pimpl->qrCodeDetection(image, robotToCameraMatrix,landmarkTheoreticalSize);//robotToCameraMatrix.matrix4x4.at(0)
+	}
+	catch(const std::runtime_error& re)
+	{
+		// speciffic handling for runtime_error
+		std::cerr << "Runtime error: " << re.what() << std::endl;
+	}catch(const std::exception& ex)
+	{
+		// speciffic handling for all exceptions extending std::exception, except
+		// std::runtime_error which is handled explicitly
+		std::cerr << "Error occurred: " << ex.what() << std::endl;
+	}catch(...){
+		std::cerr << "Unknown failure occured. Possible memory corruption" << std::endl;
+	}
 	return QRCodeStruct;
 }
 

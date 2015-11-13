@@ -36,6 +36,34 @@ std::map<int, bool> vision::setCameraParams(int camera_id, const std::map<int, i
 	return isDone;
 }
 
+//######################################################################
+std::vector< std::vector <float> > VisionDyn::faceDetect(rapp::object::picture image, int camera_id, int camera_resolution){
+	std::vector< std::vector<float> > MatrixOfFaces;
+	MatrixOfFaces = pimpl->faceDetect(image, camera_id, camera_resolution);
+	return MatrixOfFaces;
+}
+
+
+rapp::object::QRCode3D VisionDyn::qrCodeDetection(rapp::object::picture image, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize){
+	rapp::object::QRCode3D QRCodeStruct;
+	try{
+		QRCodeStruct = pimpl->qrCodeDetection(image, robotToCameraMatrix,landmarkTheoreticalSize);//robotToCameraMatrix.matrix4x4.at(0)
+	}
+	catch(const std::runtime_error& re)
+	{
+		// speciffic handling for runtime_error
+		std::cerr << "Runtime error: " << re.what() << std::endl;
+	}catch(const std::exception& ex)
+	{
+		// speciffic handling for all exceptions extending std::exception, except
+		// std::runtime_error which is handled explicitly
+		std::cerr << "Error occurred: " << ex.what() << std::endl;
+	}catch(...){
+		std::cerr << "Unknown failure occured. Possible memory corruption" << std::endl;
+	}
+	return QRCodeStruct;
+}
+
 } // namespace robot
 } // namespace rapp
 
