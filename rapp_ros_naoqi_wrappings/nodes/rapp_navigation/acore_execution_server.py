@@ -12,7 +12,7 @@ __author__ = "Wojciech Dudek"
 from rapp_ros_naoqi_wrappings.srv import *
 from rapp_ros_naoqi_wrappings.msg import obstacleData
 
-from navfn.srv import *
+#from navfn.srv import *
 
 # Importing core system functionality
 import signal
@@ -99,7 +99,7 @@ class MoveNaoModule(ALModule):
 	def openServices(self):
 		try:
 			print "[Execution server] - setting services"
-			print "[Execution server] - service - [MoveTo]"
+			print "[Execution server] - service - [moveTo]"
 			self.service_mt = rospy.Service('moveTo', MoveTo, self.handle_moveTo)
 		except Exception, ex_mt:
 			print "[Execution server] - Exception %s" % str(ex_mt)
