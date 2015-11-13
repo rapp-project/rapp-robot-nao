@@ -89,7 +89,7 @@ std::vector<uint8_t> VisionImpl::setCameraParams(int camera_id, std::vector<uint
 	if (client_setCameraParams.call(srv))
 	{
 		isSetList = srv.response.isSetList;
-		for (int i=0;i<camera_parameter_ids.size();i++)
+		for (unsigned int i=0;i<camera_parameter_ids.size();i++)
 			if (isSetList[i] == true)
 				ROS_INFO("[Rapp Set Camera Parameters] - New parameter value was set");
 			else
