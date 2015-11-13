@@ -11,7 +11,7 @@
 
 #include <rapp/robot/communication/communication.hpp>
 
-typedef rapp::robot::Communication::Language Language;
+typedef rapp::robot::communication::Language Language;
 
 namespace rapp {
 namespace robot {
