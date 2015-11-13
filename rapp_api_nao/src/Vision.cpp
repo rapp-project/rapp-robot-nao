@@ -55,9 +55,9 @@ VisionDyn::~VisionDyn() {
 	delete pimpl;
 }
 
-std::vector< std::vector <float> > VisionDyn::faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution){
+std::vector< std::vector <float> > VisionDyn::faceDetect(rapp::object::picture image, int camera_id, int camera_resolution){
 	std::vector< std::vector<float> > MatrixOfFaces;
-	MatrixOfFaces = pimpl->faceDetect(image, cameraId, cameraResolution);
+	MatrixOfFaces = pimpl->faceDetect(image, camera_id, camera_resolution);
 	return MatrixOfFaces;
 }
 

@@ -201,7 +201,7 @@ VisionDynImpl::~VisionDynImpl() {
 
 
 //enum cameraID{'TopCamera', 'BottomCamera', '0','1'};
-std::vector< std::vector <float> > VisionDynImpl::faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution) {
+std::vector< std::vector <float> > VisionDynImpl::faceDetect(rapp::object::picture image, int camera_id, int camera_resolution) {
 
 	if(!client_faceDetect){
 		ROS_DEBUG("Invalid service client, creating new one...");
@@ -222,12 +222,12 @@ std::vector< std::vector <float> > VisionDynImpl::faceDetect(rapp::object::pictu
 	
 	rapp_ros_naoqi_wrappings::FaceDetect srv;
 	//srv.request.image = img;
-	if(cameraId=="top camera" || cameraId=="TopCamera" || cameraId=="0" || cameraId=="Top Camera" || cameraId=="topCamera" || cameraId=="top_camera" || cameraId=="TOP_CAMERA")
+	if(camera_id==0) //cameraId=="top camera" || cameraId=="TopCamera" || cameraId=="0" || cameraId=="Top Camera" || cameraId=="topCamera" || cameraId=="top_camera" || cameraId=="TOP_CAMERA")
 		srv.request.cameraId=0; //top camera
 	else
 		srv.request.cameraId=1; //bottom camera
 	//srv.request.cameraId = cameraId;
-	srv.request.resolution = cameraResolution;
+	srv.request.resolution = camera_resolution;
 	//sensor_msgs::Image img;
 			
 	if (client_captureImage.call(srv)) {

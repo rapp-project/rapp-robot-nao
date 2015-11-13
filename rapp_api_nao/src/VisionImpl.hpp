@@ -117,7 +117,7 @@ public:
 	double camera_top_matrix_1[3][3]; // camera intinsic matrix
 	const float landmarkTheoreticalSize=0.16; //# QRcode real size in meters
 
-	std::vector< std::vector <float> > faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution); // Description: Given an RGB image, camera identifier and camera resolution. It detects human faces in the image. Provides a detection of all visible faces. As the output, for each detected face, the position of the center of the face is given and the face size in relation to the image.
+	std::vector< std::vector <float> > faceDetect(rapp::object::picture image, int camera_id, int camera_resolution); // Description: Given an RGB image, camera identifier and camera resolution. It detects human faces in the image. Provides a detection of all visible faces. As the output, for each detected face, the position of the center of the face is given and the face size in relation to the image.
 	
 	//rapp::object::QRCode3D qrCodeDetection(rapp::object::picture image_, rapp::object::Matrix4x4 robotToCameraMatrix, float landmarkTheoreticalSize = 0.16f);
 	rapp::object::QRCode3D qrCodeDetection(rapp::object::picture imgFrame, cv::Mat robotToCameraMatrix, float landmarkTheoreticalSize = 0.16f);
