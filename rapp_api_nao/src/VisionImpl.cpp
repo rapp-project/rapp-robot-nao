@@ -89,11 +89,14 @@ std::vector<uint8_t> VisionImpl::setCameraParams(int camera_id, std::vector<uint
 	if (client_setCameraParams.call(srv))
 	{
 		isSetList = srv.response.isSetList;
-		for (unsigned int i=0;i<camera_parameter_ids.size();i++)
-			if (isSetList[i] == true)
+		for (unsigned int i=0;i<camera_parameter_ids.size();i++){
+			if (isSetList[i] == true){
 				ROS_INFO("[Rapp Set Camera Parameters] - New parameter value was set");
-			else
+			}
+			else{
 				ROS_INFO("[Rapp Set Camera Parameters] - New parameter value wasn't set");
+			}
+		}
 	}
 	else
 	{
@@ -201,7 +204,7 @@ VisionDynImpl::~VisionDynImpl() {
 
 
 //enum cameraID{'TopCamera', 'BottomCamera', '0','1'};
-std::vector< std::vector <float> > VisionDynImpl::faceDetect(rapp::object::picture image, std::string cameraId, int cameraResolution) {
+std::vector< std::vector <float> > VisionDynImpl::faceDetect(rapp::object::picture image, int camera_id, int camera_resolution) {
 
 	if(!client_faceDetect){
 		ROS_DEBUG("Invalid service client, creating new one...");
@@ -222,12 +225,12 @@ std::vector< std::vector <float> > VisionDynImpl::faceDetect(rapp::object::pictu
 	
 	rapp_ros_naoqi_wrappings::FaceDetect srv;
 	//srv.request.image = img;
-	if(cameraId=="top camera" || cameraId=="TopCamera" || cameraId=="0" || cameraId=="Top Camera" || cameraId=="topCamera" || cameraId=="top_camera" || cameraId=="TOP_CAMERA")
+	if(camera_id==0) //cameraId=="top camera" || cameraId=="TopCamera" || cameraId=="0" || cameraId=="Top Camera" || cameraId=="topCamera" || cameraId=="top_camera" || cameraId=="TOP_CAMERA")
 		srv.request.cameraId=0; //top camera
 	else
 		srv.request.cameraId=1; //bottom camera
 	//srv.request.cameraId = cameraId;
-	srv.request.resolution = cameraResolution;
+	srv.request.resolution = camera_resolution;
 	//sensor_msgs::Image img;
 			
 	if (client_captureImage.call(srv)) {
@@ -295,11 +298,14 @@ rapp::types::byte * matToBytes(cv::Mat image)
 
 //rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture image_, rapp::object::Matrix4x4 robotToCameraMatrix, float landmarkTheoreticalSize)
 //rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture imgFrame, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize)
-rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture imgFrame, cv::Mat robotToCameraMatrix, float landmarkTheoreticalSize)
+rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture imgFrame, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize)
 {
 	zbar::ImageScanner set_zbar;
 
 	//landmarkTheoreticalSize=0.16f;
+	
+	//robotToCameraMatrix -- std::vector<std::vector<float>> -> cv::Mat
+	//to do
 	
 	// initializing the structure QRcodeDetectionStruct -- set to default
 	rapp::object::QRCode3D QRcodeDetectionStruct;
@@ -385,9 +391,27 @@ rapp::object::QRCode3D VisionDynImpl::qrCodeDetection(rapp::object::picture imgF
 		cv::Mat Rotx_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
 		cv::Mat Rotz_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
 		cv::Mat Mat_I = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
-		cv::Mat robotToCameraMat;// = cv::Mat(4, 4, cv::CV_32FC1, robotToCameraMatrix);//initialization from the given data
+		cv::Mat robotToCameraMat = cv::Mat(4, 4, cv::DataType<float>::type);//cv::CV_32FC1, robotToCameraMatrix);//initialization from the given data
 		//cv::Mat robotToCameraMat = cv::Mat::zeros(4, 4, cv::DataType<float>::type);
-		robotToCameraMat = robotToCameraMatrix;
+		//robotToCameraMat = robotToCameraMatrix;
+		try{
+			for(unsigned int i=0;i<4;i++)
+			for(unsigned int j=0;j<4;j++)
+			robotToCameraMat.at<float>(i,j)=robotToCameraMatrix[i][j]; //copying the given data from robotToCameraMatrix to robotToCameraMat
+			
+		}catch(const std::runtime_error& re)
+		{
+			// speciffic handling for runtime_error
+			std::cerr << "Runtime error: " << re.what() << std::endl;
+		}catch(const std::exception& ex)
+		{
+			// speciffic handling for all exceptions extending std::exception, except
+			// std::runtime_error which is handled explicitly
+			std::cerr << "Error occurred: " << ex.what() << std::endl;
+		}catch(...){
+			std::cerr << "Unknown failure occured. Possible memory corruption" << std::endl;
+			return QRcodeDetectionStruct;
+		}
 
 		//initialization from the given data
 		//for(int i=0;i<4;i++)
