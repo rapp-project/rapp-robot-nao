@@ -44,10 +44,11 @@ rapp::object::picture::Ptr VisionImpl::captureImage(int camera_id, int camera_re
 		return std::make_shared<rapp::object::picture>("");
 	}
 
+
 	std::vector<unsigned char> bytes;
 	std::vector<rapp::types::byte> rapp_bytes;
-	cv::imencode(encoding, cv_ptr->image, bytes);
-	std::copy(bytes.begin(), bytes.end(), rapp_bytes.begin());
+	cv::imencode(std::string(".") + encoding, cv_ptr->image, bytes);
+	for (auto b : bytes) rapp_bytes.push_back(b);
 	return std::make_shared<rapp::object::picture>(rapp_bytes, true);
 }
 
