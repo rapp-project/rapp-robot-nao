@@ -72,10 +72,10 @@ Navigation::~Navigation() {
 		return pose;
 
 	}
-	bool Navigation::setGlobalPose(rapp::object::Pose pose){
+	bool Navigation::setGlobalPose(rapp::object::PoseStamped rapp_pose){
 
 		bool status;
-		status = pimpl->setGlobalPose(pose);
+		status = pimpl->setGlobalPose(rapp_pose);
 		return status;
 	}
 

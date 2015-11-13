@@ -106,7 +106,7 @@ class MoveNaoModule(ALModule):
 		self.MoveIsFailed = False
 		self.GP_seq = -1
 		self.tl = tf.TransformListener(True, rospy.Duration(5.0))
-		globalPosePublisher = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=10)
+		#globalPosePublisher = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=10)
 	def subscribeToObstacle(self):
 		global sub_obstacle
 		sub_obstacle = rospy.Subscriber("/obstacleDetectorState", obstacleData , self.detectObstacle)
@@ -171,16 +171,16 @@ class MoveNaoModule(ALModule):
 			self.service_lookAt = rospy.Service('rapp_lookAtPoint', LookAtPoint, self.handle_rapp_lookAtPoint)
 		except Exception, ex_lookAt:
 			print "[Move server] - Exception %s" % str(ex_lookAt)
-		try:
-			print "[Move server] - service - [rapp_getRobotPose]"
-			self.service_getPosition = rospy.Service('rapp_getRobotPose', GetRobotPose, self.handle_rapp_getRobotPose)
-		except Exception, ex_getPosition:
-			print "[Move server] - Exception %s" % str(ex_getPosition)
-		try:
-			print "[Move server] - service - [rapp_setGlobalPose]"
-			self.service_getPosition = rospy.Service('rapp_setGlobalPose', SetGlobalPose, self.handle_rapp_setGlobalPose)
-		except Exception, ex_getPosition:
-			print "[Move server] - Exception %s" % str(ex_getPosition)
+		# try:
+		# 	print "[Move server] - service - [rapp_getRobotPose]"
+		# 	self.service_getPosition = rospy.Service('rapp_getRobotPose', GetRobotPose, self.handle_rapp_getRobotPose)
+		# except Exception, ex_getPosition:
+		# 	print "[Move server] - Exception %s" % str(ex_getPosition)
+		# try:
+		# 	print "[Move server] - service - [rapp_setGlobalPose]"
+		# 	self.service_getPosition = rospy.Service('rapp_setGlobalPose', SetGlobalPose, self.handle_rapp_setGlobalPose)
+		# except Exception, ex_getPosition:
+		# 	print "[Move server] - Exception %s" % str(ex_getPosition)
 	def getch(self):
 		import sys, tty, termios
 		fd = sys.stdin.fileno()
@@ -233,17 +233,17 @@ class MoveNaoModule(ALModule):
 	####
 	##  SERVECE HANDLERS
 	####
-	def handle_rapp_setGlobalPose(self,req):
-		try:
-			data_to_publish = PoseWithCovarianceStamped()
-			data_to_publish.pose.pose = req.pose
-			data_to_publish.header.seq = 0
-			data_to_publish.header.stamp = rospy.Time.now()
-			data_to_publish.header.frame_id = "/map"
-			globalPosePublisher.publish(data_to_publish)
-		except Exception, ex_setPosition:
-			print "[Move server] - Exception %s" % str(ex_setPosition)
-		return SetGlobalPoseResponse(status)
+	# def handle_rapp_setGlobalPose(self,req):
+	# 	try:
+	# 		data_to_publish = PoseWithCovarianceStamped()
+	# 		data_to_publish.pose.pose = req.pose
+	# 		data_to_publish.header.seq = 0
+	# 		data_to_publish.header.stamp = rospy.Time.now()
+	# 		data_to_publish.header.frame_id = "/map"
+	# 		globalPosePublisher.publish(data_to_publish)
+	# 	except Exception, ex_setPosition:
+	# 		print "[Move server] - Exception %s" % str(ex_setPosition)
+	# 	return SetGlobalPoseResponse(status)
 
 	def handle_rapp_getRobotPose(self,req):
 		try:
