@@ -119,7 +119,7 @@ link_directories(
 
 ## Declare a cpp library
 add_library(${COMMUNICATION_LIB}
-  src/Communication.cpp src/CommunicationImpl.cpp
+  src/communication/communication.cpp src/communication/CommunicationImpl.cpp
 )
 
 add_library(${VISION_LIB}_old

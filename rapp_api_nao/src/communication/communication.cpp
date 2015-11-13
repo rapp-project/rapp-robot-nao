@@ -1,4 +1,4 @@
-#include <rapp/robot/Communication.hpp>
+#include <rapp/robot/communication/communication.hpp>
 #include "CommunicationImpl.hpp"
 
 namespace rapp {
