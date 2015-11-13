@@ -36,7 +36,7 @@ public:
 
 	ros::NodeHandle *n;
 	
-	rapp::object::picture captureImage(int camera_id, int camera_resolution, const std::string & encoding); /*
+	rapp::object::picture::Ptr captureImage(int camera_id, int camera_resolution, const std::string & encoding); /*
 	Input: 
 		cameraId: camera identifier,
 		cameraResolution: camera resolution.
@@ -77,7 +77,7 @@ public:
 	
 	*/
 	
-	std::map<int, bool> setCameraParams(int camera_id, std::vector<int> camera_parameter_ids, std::vector<int> new_values );
+	std::map<int, bool> setCameraParams(int camera_id, std::vector<unsigned int> camera_parameter_ids, std::vector<unsigned int> new_values );
 	
 };	
 	

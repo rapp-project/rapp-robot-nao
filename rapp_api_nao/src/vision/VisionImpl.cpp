@@ -41,12 +41,12 @@ rapp::object::picture::Ptr VisionImpl::captureImage(int camera_id, int camera_re
 		cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
 	} catch (cv_bridge::Exception e) {
 		ROS_ERROR("[Vision] cv_bridge exception: %s", e.what());
-		return rapp::object::picture("");
+		return std::make_shared<rapp::object::picture>("");
 	}
 	
 	int size = cv_ptr->image.total() * cv_ptr->image.elemSize();
 	std::vector<rapp::types::byte> bytes(cv_ptr->image.data, cv_ptr->image.data+size * sizeof(rapp::types::byte));
-	return std::make_shared<rapp::object::picture>(bytes);
+	return std::make_shared<rapp::object::picture>(bytes, true);
 }
 
 
@@ -76,7 +76,7 @@ bool VisionImpl::setCameraParam(int camera_id, int camera_parameter_id, int new_
 	return isSet;
 }
 
-std::map<int, bool> VisionImpl::setCameraParams(int camera_id, std::vector<int> camera_parameter_ids, std::vector<int> new_values)
+std::map<int, bool> VisionImpl::setCameraParams(int camera_id, std::vector<unsigned int> camera_parameter_ids, std::vector<unsigned int> new_values)
 {
 	client_setCameraParams = n->serviceClient<rapp_ros_naoqi_wrappings::SetCameraParams>("rapp_set_camera_parameters");
 	rapp_ros_naoqi_wrappings::SetCameraParams srv;

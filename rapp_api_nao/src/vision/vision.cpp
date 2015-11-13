@@ -18,18 +18,18 @@ rapp::object::picture::Ptr vision::captureImage (int camera_id, int camera_resol
 	return image;
 }
 
-bool Vision::setCameraParam(int camera_id, int camera_parameter_id, int new_value){
+bool vision::setCameraParam(int camera_id, int camera_parameter_id, int new_value){
 	bool isDone;
 	isDone = pimpl->setCameraParam(camera_id,camera_parameter_id,new_value);
 	return isDone;
 }
 
-std::map<int, bool> Vision::setCameraParams(int camera_id, const std::map<int, int> & params){
+std::map<int, bool> vision::setCameraParams(int camera_id, const std::map<int, int> & params){
 	std::map<int, bool> isDone;
-	std::vector<int> par;
-	std::vector<int> val;
+	std::vector<unsigned int> par;
+	std::vector<unsigned int> val;
 	for(auto p: params) {
-		par.push_pack(p.first);
+		par.push_back(p.first);
 		val.push_back(p.second);
 	}
 	isDone = pimpl->setCameraParams(camera_id, par, val);

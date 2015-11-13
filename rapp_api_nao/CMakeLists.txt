@@ -123,8 +123,13 @@ add_library(${COMMUNICATION_LIB}
 )
 
 add_library(${VISION_LIB}
+  src/Vision.cpp src/VisionImpl.cpp
+)
+
+adD_library(${VISION_LIB}_new
   src/vision/vision.cpp src/vision/VisionImpl.cpp
 )
+
 add_library(${NAVIGATION_LIB}
   src/Navigation.cpp src/NavigationImpl.cpp
 )
