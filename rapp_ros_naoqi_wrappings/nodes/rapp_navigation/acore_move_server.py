@@ -220,6 +220,11 @@ class MoveNaoModule(ALModule):
 		triggerStiffness = rospy.ServiceProxy('triggerStiffness', TriggerStiffness)
 		resp1 = triggerStiffness(joint, trigger)
 		return resp1.status
+	def rapp_stop_move_interface(self):
+		self.unsubscribeToObstacle()
+		moveStop = rospy.ServiceProxy('moveStop', MoveStop)
+		resp1 = moveStop()
+		return resp1.status
 #
 #
 #   Interfaces to virtual receptor ---- TO DO
@@ -342,17 +347,24 @@ class MoveNaoModule(ALModule):
 	def detectObstacle(self,msg):
 		# while (self.path_is_finished != True): 
 		# sonar data = [right_dist, left_dist]
-		print "[detectObstacle] new scan"
-
 		sum_data = 0
 		i = 0
 
-		if (msg.RightBumper == 1 )or ( msg.LeftBumper==1):
-			print "msg: \n",msg
-			
+		if (msg.RightBumper == 1):
+			self.unsubscribeToObstacle()
 			self.obstacle_detected = True
 			self.kill_thread_followPath = True
-			self.rapp_move_vel_interface(0,0,0)
+			self.rapp_stop_move_interface()
+
+			print "Obstacle detected by RIGHT BUMPER " 
+		elif ( msg.LeftBumper==1):
+			self.unsubscribeToObstacle()
+			self.obstacle_detected = True
+			self.kill_thread_followPath = True
+			self.rapp_stop_move_interface()
+			print "Obstacle detected by RIGHT BUMPER " 
+
+
 
 	def plannPath(self,req):
 		naoCurrentPosition = [req.start_x,req.start_y,req.start_theta]#self.getNaoCurrentPosition()
