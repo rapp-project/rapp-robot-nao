@@ -37,17 +37,17 @@ std::map<int, bool> vision::setCameraParams(int camera_id, const std::map<int, i
 }
 
 //######################################################################
-std::vector< std::vector <float> > VisionDyn::faceDetect(rapp::object::picture image, int camera_id, int camera_resolution){
+std::vector< std::vector <float> > vision::faceDetect(rapp::object::picture image, int camera_id, int camera_resolution){
 	std::vector< std::vector<float> > MatrixOfFaces;
 	MatrixOfFaces = pimpl->faceDetect(image, camera_id, camera_resolution);
 	return MatrixOfFaces;
 }
 
 
-rapp::object::QRCode3D VisionDyn::qrCodeDetection(rapp::object::picture image, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize){
+rapp::object::QRCode3D vision::qrCodeDetection(rapp::object::picture image, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize, double & camera_matrix[3][3]){
 	rapp::object::QRCode3D QRCodeStruct;
 	try{
-		QRCodeStruct = pimpl->qrCodeDetection(image, robotToCameraMatrix,landmarkTheoreticalSize);//robotToCameraMatrix.matrix4x4.at(0)
+		QRCodeStruct = pimpl->qrCodeDetection(image, robotToCameraMatrix,landmarkTheoreticalSize, camera_matrix);//robotToCameraMatrix.matrix4x4.at(0)
 	}
 	catch(const std::runtime_error& re)
 	{
