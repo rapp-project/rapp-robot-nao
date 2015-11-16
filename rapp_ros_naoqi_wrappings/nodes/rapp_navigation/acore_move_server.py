@@ -701,8 +701,8 @@ class MoveNaoModule(ALModule):
 
 			# Nao can reach head_yaw and head_pitch
 		if (head_pitch > head_pitch_min and head_pitch < head_pitch_max and canLookAtPoint_yaw):
-			print "HeadPitch: \n",head_pitch, "HeadYaw: \n",head_yaw	
-			self.rapp_move_joint_interface("Head",[head_yaw,head_pitch],0.2)
+
+			self.rapp_move_joint_interface(["Head"],[head_yaw,head_pitch],0.2)
 			status = True
 
 			# Nao will rotate to be ahead the point in yaw direction, then he will look at it
@@ -716,9 +716,8 @@ class MoveNaoModule(ALModule):
 			turnHeadAngles = self.compute_turn_head_angles([pointX,pointY,pointZ])	
 			head_yaw = turnHeadAngles[0]
 			head_pitch = turnHeadAngles[1]
-			print "HeadPitch: \n",head_pitch, "HeadYaw: \n",head_yaw	
 
-			self.rapp_move_joint_interface("Head",[head_yaw,head_pitch],0.2)
+			self.rapp_move_joint_interface(["Head"],[head_yaw,head_pitch],0.2)
 			status = True	
 
 		return LookAtPointResponse(status)	
