@@ -227,6 +227,7 @@ rapp::object::QRCode3D VisionImpl::qrCodeDetection(rapp::object::picture imgFram
 	int counter = 0;
 	
 	// Camera Intrinsic Matrix -- from Camera calibration
+	/*
 //	double camera_matrix[3][3];
 	if (width == 1280 && height == 960){
 		for(int i=0;i<3;i++)
@@ -251,7 +252,7 @@ rapp::object::QRCode3D VisionImpl::qrCodeDetection(rapp::object::picture imgFram
 		camera_matrix[i][j] = camera_top_matrix_2[i][j];
 		//cameraIntrinsicMatrix = cv::Mat(3, 3, cv::DataType<double>::type, rapp::robot::VisionImpl::camera_top_matrix_2);
 	}
-	
+	*/
 
 	for (zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
 		std::vector<cv::Point3f> object_points;
