@@ -189,7 +189,7 @@ std::vector< std::vector <float> > VisionImpl::faceDetect(rapp::object::picture 
 	return FaceDetectVector;
 }
 
-rapp::object::QRCode3D VisionImpl::qrCodeDetection(rapp::object::picture imgFrame, std::vector<std::vector<float>> robotToCameraMatrix, float landmarkTheoreticalSize)
+rapp::object::QRCode3D VisionImpl::qrCodeDetection(rapp::object::picture imgFrame, std::vector<std::vector<float>> robotToCameraMatrix, double camera_matrix[][3], float landmarkTheoreticalSize)
 {
 	zbar::ImageScanner set_zbar;
 
@@ -227,7 +227,7 @@ rapp::object::QRCode3D VisionImpl::qrCodeDetection(rapp::object::picture imgFram
 	int counter = 0;
 	
 	// Camera Intrinsic Matrix -- from Camera calibration
-	double camera_matrix[3][3];
+//	double camera_matrix[3][3];
 	if (width == 1280 && height == 960){
 		for(int i=0;i<3;i++)
 		for(int j=0;j<3;j++)
