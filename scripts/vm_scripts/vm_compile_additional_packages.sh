@@ -24,7 +24,7 @@ SCRIPTS_DIR="/home/nao/ws_rapp_nao"
 # export 
 export CC=/usr/bin/cc
 export CXX=/usr/bin/c++
-if 0; then
+
 # Creates $ROS_ADDITIONAL_PACKAGES_SRC_DIR
 if [ -d $ROS_ADDITIONAL_PACKAGES_SRC_DIR ]; then #If directory exists
 	echo "Workspace $ROS_ADDITIONAL_PACKAGES_SRC_DIR exists"
@@ -273,7 +273,7 @@ cd libunistring-0.9.6/
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - unistring make failed with $?"; exit 1; }
 sudo make install
 make clean
-fi
+
 # Bigloo
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
