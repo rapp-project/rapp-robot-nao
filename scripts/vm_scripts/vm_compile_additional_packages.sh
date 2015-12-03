@@ -102,6 +102,16 @@ cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_
 make install
 make clean
 
+# tinyXML2
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of Eigen"
+https://github.com/leethomason/tinyxml2
+cd tinyxml2
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release
+make install
+make clean
 
 # # FLANN
 # cd $PROGRAMS_DIRECTORY
@@ -215,6 +225,8 @@ git clone https://github.com/ros/geometry_experimental.git
 cd geometry_experimental
 rm -R tf2_bullet
 cd ..
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from geometry repository for rapp_api_nao pkg"
+git clone https://github.com/ros/geometry.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from diagnostics repository for robot_localization pkg"
 git clone  https://github.com/ros/diagnostics.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from robot_localization repository"
