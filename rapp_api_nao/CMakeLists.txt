@@ -13,12 +13,13 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   rapp_ros_naoqi_wrappings
   rapp_core_agent
+eigen_conversions
 )
 
 ## System dependencies are found with CMake's conventions
 find_package(Rapp REQUIRED)
 find_package(OpenCV REQUIRED)
-
+##find_package(Eigen REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -81,7 +82,11 @@ SET(COMMUNICATION_LIB rapp_robot_communication)
 SET(VISION_LIB rapp_robot_vision)
 SET(NAVIGATION_LIB rapp_robot_navigation)
 SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAPP_CXX_FLAGS})
-
+#SET( EIGEN3_INCLUDE_DIR "$ENV{EIGEN3_INCLUDE_DIR}" )
+#IF( NOT EIGEN3_INCLUDE_DIR )
+#    MESSAGE( FATAL_ERROR "Please point the environment variable EIGEN3_INCLUDE_DIR to the include directory of your Eigen3 installation.")
+#ENDIF()
+#INCLUDE_DIRECTORIES ( "${EIGEN3_INCLUDE_DIR}" )
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -143,7 +148,11 @@ target_link_libraries(${VISION_LIB}
   ${OpenCV_LIBRARIES}
   ${RAPP_LIBRARIES_STATIC}
 )
-
+target_link_libraries(${NAVIGATION_LIB}
+	${VISION_LIB}
+  ${catkin_LIBRARIES}
+  ${RAPP_LIBRARIES_STATIC}
+)
 add_dependencies(${COMMUNICATION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${VISION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${NAVIGATION_LIB} ${catkin_EXPORTED_TARGETS})

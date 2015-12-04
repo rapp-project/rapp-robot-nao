@@ -518,8 +518,8 @@ class NaoEstimator(ALModule):
 		self.torsoOdom.pose.pose.orientation.z = self.q_odom[2]
 		self.torsoOdom.pose.pose.orientation.w = self.q_odom[3]
 		#print "orientation odom: z: \n",self.odomData[5]
-		ODOM_POSE_COVARIANCE = [1e-2, 0, 0, 0, 0, 0, 
-		                        0, 1e-2, 0, 0, 0, 0,
+		ODOM_POSE_COVARIANCE = [1e-3, 0, 0, 0, 0, 0, 
+		                        0, 1e-3, 0, 0, 0, 0,
 		                        0, 0, 1e-3, 0, 0, 0,
 		                        0, 0, 0, 1e6, 0, 0,
 	                        0, 0, 0, 0, 1e6, 0,
@@ -553,12 +553,12 @@ class NaoEstimator(ALModule):
 		# cf http://www.ros.org/doc/api/sensor_msgs/html/msg/Imu.html
 		self.torsoIMU.orientation_covariance = [1e-5,0,0,
 													0,1e-5,0,
-													0,0,1e-3]
+													0,0,1e-2]
 		self.torsoIMU.angular_velocity_covariance= [1e-3,0,0,
 														0,1e-3,0,
-														0,0,1e-4]
-		self.torsoIMU.linear_acceleration_covariance = [1e-3,0,0,
-															0,1e2,0,
+														0,0,1e-2]
+		self.torsoIMU.linear_acceleration_covariance = [1e-1,0,0,
+															0,1e-1,0,
 															0,0,1e2]
 
 					# /imu_data_EKF
@@ -582,8 +582,8 @@ class NaoEstimator(ALModule):
 													0,1e-3,0,
 													0,0,1e-4]
 		self.torsoIMU_EKF.linear_acceleration_covariance = [1e-3,0,0,
-														0,1e2,0,
-														0,0,1e2]
+														0,1e-2,0,
+														0,0,1e-2]
 
 		self.camera_To_Torso_Position = self.motionProxy.getPosition('CameraTop', 0, True)
 		self.quaternion_cameta_to_torso = tf.transformations.quaternion_from_euler(self.camera_To_Torso_Position[3],self.camera_To_Torso_Position[4],self.camera_To_Torso_Position[5])

@@ -1,13 +1,17 @@
-//#####################
-// written by Wojciech Dudek
-//#####################
+/**
+ * @class Navigation
+ * @brief Class which defines the interface for Robot navigation capabilities (movement, localization)
+ * @date 10-August-2015
+ * @author Wojciech Dudek <wojciechsbox@gmail.com>
+ * @note This class uses pimpl pattern to make ABI as stable as possible when deploying new library versions
+ */
+
 #include "NavigationImpl.hpp"
 
-//#include "string.h"
 namespace rapp {
 namespace robot {
 
-NavigationImpl::NavigationImpl(int argc,char **argv){
+NavigationImpl::NavigationImpl(int argc, char ** argv ){
 		ros::init(argc, argv,"NavigationImpl_library");
 		n = new ros::NodeHandle();
 
@@ -90,7 +94,7 @@ NavigationImpl::~NavigationImpl() {
 	// 	    ROS_ERROR("Failed to call service moveHead"); 
 	// 	  }
 	// }
-	bool NavigationImpl::moveJoint(std::vector<std::string> joint, std::vector<float> angle){
+	bool NavigationImpl::moveJoint(std::vector<std::string> joint, std::vector<float> angle, float speed){
 		client_moveJoint = n->serviceClient<rapp_ros_naoqi_wrappings::MoveJoint>("rapp_moveJoint");
 
 		rapp_ros_naoqi_wrappings::MoveJoint srv;
@@ -98,6 +102,7 @@ NavigationImpl::~NavigationImpl() {
 		//memcpy(&srv.request.joint_angle, &angle, sizeof(angle));
 		srv.request.joint_name = joint;
 		srv.request.joint_angle = angle;
+		srv.request.speeds = speed;
 
 	 	if (client_moveJoint.call(srv))
 	 	  {
@@ -327,15 +332,6 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	// rapp::objects::Path NavigationImpl::pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map){
-
-
-
-	// }
- //    rapp::objects::Pose NavigationImpl::qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap){
-
-
- //    }
-
 } // namespace robot
 } // namespace rapp
+
