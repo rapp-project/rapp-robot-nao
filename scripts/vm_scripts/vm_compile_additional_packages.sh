@@ -316,6 +316,9 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from bson repository
 git clone https://github.com/py-bson/bson.git
 cd bson
 sudo python setup.py install
+if [ ! -d $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/ ]; then
+	mkdir -p $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
+fi
 cd $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
 cp -r /usr/lib/python2.7/site-packages/six-1.10.0-py2.7.egg .
 cp -r /usr/lib/python2.7/site-packages/pytz-2015.7-py2.7.egg .
