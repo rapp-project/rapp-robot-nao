@@ -196,8 +196,8 @@ namespace dynamic {
 			next_element->FirstChildElement("position")->QueryDoubleAttribute("z",&pos_z);
 
 			Pose.position.x = pos_x;
-			Pose.position.y = pos_x;
-			Pose.position.z = pos_x;
+			Pose.position.y = pos_y;
+			Pose.position.z = pos_z;
 
 			next_element->FirstChildElement("orientation")->QueryDoubleAttribute("x",&orient_x);
 			next_element->FirstChildElement("orientation")->QueryDoubleAttribute("y",&orient_y);
