@@ -136,7 +136,7 @@ adD_library(${VISION_LIB}
 )
 
 add_library(${NAVIGATION_LIB}
-  src/Navigation.cpp src/NavigationImpl.cpp
+  src/navigation/navigation.cpp src/navigation/NavigationImpl.cpp
 )
 target_link_libraries(${COMMUNICATION_LIB}
   ${catkin_LIBRARIES}

@@ -35,8 +35,7 @@
 #include <rapp/objects/poseStamped/poseStamped.hpp>
  #include <rapp/objects/qrCodeMap/qrCodeMap.hpp>
  #include <rapp/objects/qrCodeMap/qrCodeMap.hpp>
-// include vision library to detect QR-codes
-#include <rapp/robot/vision/vision.hpp>
+
 
 namespace rapp {
 namespace robot {
