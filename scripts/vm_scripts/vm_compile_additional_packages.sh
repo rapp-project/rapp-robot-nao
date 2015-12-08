@@ -47,7 +47,7 @@ if [ -d $ROS_INSTALL_ISOLATED ]; then #If directory ROS_INSTALL_ISOLATED exists
 else
 	cd $ROS_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_DIR"
-	src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+	src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - Build of ROS core packages failed with $?"; exit 1; }
 	
 	echo -e "$COL_GREEN[OK]$COL_RESET - Copies ROS core dependencies"
 	cp /usr/lib/liblog4cxx* install_isolated/lib/
@@ -89,7 +89,7 @@ tar zxvf yaml-cpp_0.5.1.orig.tar.gz
 cd yaml-cpp-0.5.1
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - yaml-cpp make failed with $?"; exit 1; }
 make install
 # Eigen
 cd $PROGRAMS_DIRECTORY
@@ -98,18 +98,18 @@ wget http://bitbucket.org/eigen/eigen/get/3.2.5.tar.gz
 tar zxvf 3.2.5.tar.gz
 mkdir eigen-eigen-bdd17ee3b1b3/build_dir
 cd eigen-eigen-bdd17ee3b1b3/build_dir
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - eigen make failed with $?"; exit 1; }
 make install
 make clean
 
 # tinyXML2
 cd $PROGRAMS_DIRECTORY
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of Eigen"
-https://github.com/leethomason/tinyxml2
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of tinyXML2"
+git clone https://github.com/leethomason/tinyxml2
 cd tinyxml2
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release || { echo -e >&2 "$COL_RED[Error]$COL_RESET - tinyXML2 make failed with $?"; exit 1; }
 make install
 make clean
 
@@ -215,9 +215,9 @@ git clone https://github.com/ros-geographic-info/unique_identifier.git
 # for robot_localization
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
 git clone https://github.com/ros/ros_comm.git
-	# common msgs
-	echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
-	git clone https://github.com/ros/common_msgs.git
+# common msgs
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
+git clone https://github.com/ros/common_msgs.git
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from geographic_msgs repository for robot_localization pkg"
 git clone https://github.com/ros-geographic-info/geographic_info.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from tf2 repository for robot_localization pkg"
@@ -234,9 +234,9 @@ git clone https://github.com/cra-ros-pkg/robot_localization.git
 cd ..
 # compilation
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
-catkin_make_isolated --install --pkg bond cv_bridge -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/gcc -j1 -l1 -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+catkin_make_isolated --install --pkg actionlib_msgs bond cv_bridge -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/gcc -j1 -l1 -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - Build of workspace: $ROS_ADDITIONAL_PACKAGES_DIR failed with $?"; exit 1; }
 
-catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - Build of workspace: $ROS_ADDITIONAL_PACKAGES_DIR failed with $?"; exit 1; }
 
 # Gsasl
 cd $PROGRAMS_DIRECTORY
@@ -267,9 +267,9 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Sourcing ws_ros_additional_packages workspac
 # Openssl
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Openssl"
-wget ftp://www.openssl.org/source/openssl-1.0.2d.tar.gz
-tar zxvf openssl-1.0.2d.tar.gz
-cd openssl-1.0.2d
+wget ftp://www.openssl.org/source/openssl-1.0.2e.tar.gz
+tar zxvf openssl-1.0.2e.tar.gz
+cd openssl-1.0.2e
 ./config --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --openssldir=$ROS_ADDITIONAL_PACKAGES_ISOLATED/#openssl
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - openssl make failed with $?"; exit 1; }
 sudo make install
@@ -289,8 +289,8 @@ make clean
 # Bigloo
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
-wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2c-beta04Nov15.tar.gz
-tar zxvf bigloo4.2c-beta04Nov15.tar.gz
+wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2c-beta08Dec15.tar.gz
+tar zxvf bigloo4.2c-beta08Dec15.tar.gz
 cd bigloo4.2c
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - bigloo make failed with $?"; exit 1; }
@@ -316,7 +316,19 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from bson repository
 git clone https://github.com/py-bson/bson.git
 cd bson
 sudo python setup.py install
+if [ ! -d $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/ ]; then
+	mkdir -p $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
+fi
 cd $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
 cp -r /usr/lib/python2.7/site-packages/six-1.10.0-py2.7.egg .
 cp -r /usr/lib/python2.7/site-packages/pytz-2015.7-py2.7.egg .
 cp -r /usr/lib/python2.7/site-packages/bson-0.4.1-py2.7.egg .
+
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from twisted repository "
+wget http://twistedmatrix.com/Releases/Twisted/15.5/Twisted-15.5.0.tar.bz2
+tar -xjf Twisted-15.5.0.tar.bz2
+cd Twisted-15.5.0
+sudo python setup.py install
+cd $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
+cp -r /usr/lib/python2.7/site-packages/zope.interface-4.1.3-py2.7-linux-i686.egg .
