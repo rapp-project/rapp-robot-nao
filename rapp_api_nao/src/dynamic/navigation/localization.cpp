@@ -196,8 +196,8 @@ namespace dynamic {
 			next_element->FirstChildElement("position")->QueryDoubleAttribute("z",&pos_z);
 
 			Pose.position.x = pos_x;
-			Pose.position.x = pos_x;
-			Pose.position.x = pos_x;
+			Pose.position.y = pos_x;
+			Pose.position.z = pos_x;
 
 			next_element->FirstChildElement("orientation")->QueryDoubleAttribute("x",&orient_x);
 			next_element->FirstChildElement("orientation")->QueryDoubleAttribute("y",&orient_y);
@@ -205,9 +205,9 @@ namespace dynamic {
 			next_element->FirstChildElement("orientation")->QueryDoubleAttribute("w",&orient_w);
 
 			Pose.orientation.x = orient_x;
-			Pose.orientation.x = orient_y;
-			Pose.orientation.x = orient_z;
-			Pose.orientation.x = orient_w;
+			Pose.orientation.y = orient_y;
+			Pose.orientation.z = orient_z;
+			Pose.orientation.w = orient_w;
 
 			qr_label = next_element->Attribute("label");
 
