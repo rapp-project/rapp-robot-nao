@@ -47,7 +47,7 @@ if [ -d $ROS_INSTALL_ISOLATED ]; then #If directory ROS_INSTALL_ISOLATED exists
 else
 	cd $ROS_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_DIR"
-	src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
+	src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - Build of ROS core packages failed with $?"; exit 1; }
 	
 	echo -e "$COL_GREEN[OK]$COL_RESET - Copies ROS core dependencies"
 	cp /usr/lib/liblog4cxx* install_isolated/lib/
@@ -89,7 +89,7 @@ tar zxvf yaml-cpp_0.5.1.orig.tar.gz
 cd yaml-cpp-0.5.1
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - yaml-cpp make failed with $?"; exit 1; }
 make install
 # Eigen
 cd $PROGRAMS_DIRECTORY
@@ -98,7 +98,7 @@ wget http://bitbucket.org/eigen/eigen/get/3.2.5.tar.gz
 tar zxvf 3.2.5.tar.gz
 mkdir eigen-eigen-bdd17ee3b1b3/build_dir
 cd eigen-eigen-bdd17ee3b1b3/build_dir
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - eigen make failed with $?"; exit 1; }
 make install
 make clean
 
@@ -109,7 +109,7 @@ https://github.com/leethomason/tinyxml2
 cd tinyxml2
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release || { echo -e >&2 "$COL_RED[Error]$COL_RESET - tinyXML2 make failed with $?"; exit 1; }
 make install
 make clean
 
@@ -215,9 +215,9 @@ git clone https://github.com/ros-geographic-info/unique_identifier.git
 # for robot_localization
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
 git clone https://github.com/ros/ros_comm.git
-	# common msgs
-	echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
-	git clone https://github.com/ros/common_msgs.git
+# common msgs
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
+git clone https://github.com/ros/common_msgs.git
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from geographic_msgs repository for robot_localization pkg"
 git clone https://github.com/ros-geographic-info/geographic_info.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from tf2 repository for robot_localization pkg"
@@ -234,9 +234,9 @@ git clone https://github.com/cra-ros-pkg/robot_localization.git
 cd ..
 # compilation
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
-catkin_make_isolated --install --pkg bond cv_bridge -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/gcc -j1 -l1 -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
+catkin_make_isolated --install --pkg bond cv_bridge -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/gcc -j1 -l1 -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - Build of workspace: $ROS_ADDITIONAL_PACKAGES_DIR failed with $?"; exit 1; }
 
-catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
+catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - Build of workspace: $ROS_ADDITIONAL_PACKAGES_DIR failed with $?"; exit 1; }
 
 # Gsasl
 cd $PROGRAMS_DIRECTORY
