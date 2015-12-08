@@ -104,8 +104,8 @@ make clean
 
 # tinyXML2
 cd $PROGRAMS_DIRECTORY
-echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of Eigen"
-https://github.com/leethomason/tinyxml2
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of tinyXML2"
+git clone https://github.com/leethomason/tinyxml2
 cd tinyxml2
 mkdir build
 cd build
