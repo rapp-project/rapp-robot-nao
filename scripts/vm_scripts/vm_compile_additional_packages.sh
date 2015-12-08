@@ -332,3 +332,4 @@ cd Twisted-15.5.0
 sudo python setup.py install
 cd $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
 cp -r /usr/lib/python2.7/site-packages/zope.interface-4.1.3-py2.7-linux-i686.egg .
+cp -r /usr/lib/python2.7/site-packages/Twisted-15.5.0-py2.7-linux-i686.egg .
