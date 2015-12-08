@@ -223,12 +223,6 @@ namespace dynamic {
 		rapp::object::QRcodeMap QRmap;
 		QRmap.labels = vec_Labels;
 		QRmap.poses = vec_Pose;
-		printf("position(0) %f\n",QRmap.poses.at(0).position.z);
-                printf("position(1) %f\n",QRmap.poses.at(1).orientation.w);
-                printf("orientation(0) %f\n",QRmap.poses.at(0).orientation.x);
-
-
-
 		return QRmap;
 	}
 		rapp::object::Pose localization::qrCodeLocalization(rapp::object::QRCode3D QRcodes, const char* MapPath){
