@@ -47,7 +47,7 @@ if [ -d $ROS_INSTALL_ISOLATED ]; then #If directory ROS_INSTALL_ISOLATED exists
 else
 	cd $ROS_DIR
 	echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_DIR"
-	src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+	src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
 	
 	echo -e "$COL_GREEN[OK]$COL_RESET - Copies ROS core dependencies"
 	cp /usr/lib/liblog4cxx* install_isolated/lib/
@@ -234,9 +234,9 @@ git clone https://github.com/cra-ros-pkg/robot_localization.git
 cd ..
 # compilation
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $ROS_ADDITIONAL_PACKAGES_DIR"
-catkin_make_isolated --install --pkg bond cv_bridge -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/gcc -j1 -l1 -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+catkin_make_isolated --install --pkg bond cv_bridge -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/gcc -j1 -l1 -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
 
-catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++
+catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=/home/nao/ws_ros_additional_packages/programs/eigen-eigen-bdd17ee3b1b3/cmake -DCMAKE_CC_COMPILER=/usr/bin/cc -DCMAKE_CXX_COMPILER=/usr/bin/c++ || { echo -e >&2 "$COL_RED[Error]$COL_RESET - hop make failed with $?"; exit 1; }
 
 # Gsasl
 cd $PROGRAMS_DIRECTORY
@@ -323,3 +323,12 @@ cd $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
 cp -r /usr/lib/python2.7/site-packages/six-1.10.0-py2.7.egg .
 cp -r /usr/lib/python2.7/site-packages/pytz-2015.7-py2.7.egg .
 cp -r /usr/lib/python2.7/site-packages/bson-0.4.1-py2.7.egg .
+
+cd $PROGRAMS_DIRECTORY
+echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from twisted repository "
+wget http://twistedmatrix.com/Releases/Twisted/15.5/Twisted-15.5.0.tar.bz2
+tar -xjf Twisted-15.5.0.tar.bz2
+cd Twisted-15.5.0
+sudo python setup.py install
+cd $ROS_ADDITIONAL_PACKAGES_ISOLATED/lib/python2.7/site-packages/
+cp -r /usr/lib/python2.7/site-packages/zope.interface-4.1.3-py2.7-linux-i686.egg .
