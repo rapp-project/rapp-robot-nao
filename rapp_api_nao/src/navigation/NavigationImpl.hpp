@@ -75,7 +75,7 @@ public:
 	bool rest(std::string posture);
 	bool moveAlongPath(rapp::object::Path path);
 	rapp::object::PoseStamped getRobotPose();
-	bool setGlobalPose(rapp::object::PoseStamped rapp_pose);
+	bool setGlobalPose(rapp::object::Pose rapp_pose);
 	
 	std::vector<std::vector<float>> getTransform(std::string chainName, int space);/*
 	Input:
