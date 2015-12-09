@@ -55,6 +55,8 @@ navigation::~navigation() {
 			    {
 			        std::cout << " " << joints_map.at(i) << ", ";
 			    }
+			        std::cout << "\n";
+
 	    		status = false;
 	    		break;
 		 	}
@@ -143,10 +145,10 @@ navigation::~navigation() {
 	 		if (std::binary_search (chainNames.begin(), chainNames.end(), chainName)){
 				MatStruct = pimpl->getTransform(chainName, space);
 		 	}else{
-	    		std::cout << "Input chainName is not defined!\nAvailabre chainNames are:\n Head LArm RArm LLeg RLeg Torso CameraTop CameraBottom MicroFront MicroRear MicroLeft MicroRight Accelerometer Gyrometer Laser LFsrFR LFsrFL LFsrRR LFsrRL RFsrFR RFsrFL RFsrRR RFsrRL USSensor1 USSensor2 USSensor3 USSensor4";
+	    		std::cout << "Input chainName is not defined!\nAvailabre chainNames are:\n Head LArm RArm LLeg RLeg Torso CameraTop CameraBottom MicroFront MicroRear MicroLeft MicroRight Accelerometer Gyrometer Laser LFsrFR LFsrFL LFsrRR LFsrRL RFsrFR RFsrFL RFsrRR RFsrRL USSensor1 USSensor2 USSensor3 USSensor4\n";
 		 	}
 		}else{
-	    	std::cout << "Input space not exist!, \n space: Task frame {FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2}";
+	    	std::cout << "Input space not exist!, \n space: Task frame {FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2}\n";
 
 		}
 	return MatStruct;
