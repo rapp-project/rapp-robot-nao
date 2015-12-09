@@ -42,15 +42,46 @@ navigation::~navigation() {
 	}
 	bool navigation::moveJoint(std::vector<std::string> joint, std::vector<float> angle, float speed){
 		bool status;
-		status = pimpl->moveJoint(joint, angle, speed);			
+
+		static const std::string arr[] = { "Body","Head","LArm","LLeg","RLeg","RArm","HeadYaw","LShoulderPitch","LHipYawPitch","RHipYawPitch","RShoulderPitch", "HeadPitch","LShoulderRoll","LHipRoll","RHipRoll","RShoulderRoll", "LElbowYaw","LHipPitch","RHipPitch","RElbowYaw", "LElbowRoll","LKneePitch","RKneePitch","RElbowRoll", "LWristYaw","LAnklePitch","RAnklePitch","RWristYaw", "LHand","RAnkleRoll","LAnkleRoll","RHand"};
+		std::vector<std::string> joints_map(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+		std::sort (joints_map.begin(), joints_map.end());
+		for (unsigned int i; i<joint.size();i++){
+			if (std::binary_search (joints_map.begin(), joints_map.end(), joint.at(i))){
+				status = pimpl->moveJoint(joint, angle, speed);			
+		 	}else{
+	    		std::cout << "\nInput joint/jointChain does not exist!\nAvaliable joints/jointChains are:\n";
+			    for (unsigned int i = 0; i < joints_map.size(); i++)
+			    {
+			        std::cout << " " << joints_map.at(i) << ", ";
+			    }
+	    		status = false;
+	    		break;
+		 	}
+		}
 		return status;	
 	}
 	// bool navigation::removeStiffness(std::string joint){
 	// 	pimpl->removeStiffness(joint);		
 	// }
 	bool navigation::takePredefinedPosture(std::string posture, float speed){
+
+		static const std::string arr[] = { "Crouch","Sit","SitRelax","LyingBelly","LyingBack","Stand","StandInit","StandZero"};
+		std::vector<std::string> take_posture_map(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+		std::sort (take_posture_map.begin(), take_posture_map.end());
 		bool status;
-		status = pimpl->takePredefinedPosture(posture, speed);			
+
+ 		if (std::binary_search (take_posture_map.begin(), take_posture_map.end(), posture)){
+			status = pimpl->takePredefinedPosture(posture, speed);		
+	 	}else{
+    		std::cout << "\nInput posture is not defnined!\nDefined postures are:\n";
+		    for (unsigned int i = 0; i < take_posture_map.size(); i++)
+		    {
+		        std::cout << " " << take_posture_map.at(i) << "\n";
+		    }
+    		status = false;
+	 	}
+		
 		return status;	
 	}
 	// bool navigation::visOdom(){
@@ -62,10 +93,27 @@ navigation::~navigation() {
 		return status;	
 	}
 	bool navigation::rest(std::string posture){
+
+		static const std::string arr[] = { "Crouch","Sit","SitRelax","LyingBelly","LyingBack"};
+		std::vector<std::string> rest_posture_map(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+
+		std::sort (rest_posture_map.begin(), rest_posture_map.end());
 		bool status;
-		status = pimpl->rest(posture);		
+
+ 		if (std::binary_search (rest_posture_map.begin(), rest_posture_map.end(), posture)){
+			status = pimpl->rest(posture);		
+	 	}else{
+    		std::cout << "\nInput posture is not safe!\nSafe postures are:\n";
+		    for (unsigned int i = 0; i < rest_posture_map.size(); i++)
+		    {
+		        std::cout << " " << rest_posture_map.at(i) << "\n";
+		    }
+    		status = false;
+	 	}
+
 		return status;
 	}
+
 	bool navigation::moveAlongPath(rapp::object::Path path){
 		bool status;
 		status = pimpl->moveAlongPath(path);
@@ -77,16 +125,30 @@ navigation::~navigation() {
 		return pose;
 
 	}
-	bool navigation::setGlobalPose(rapp::object::PoseStamped rapp_pose){
+	bool navigation::setGlobalPose(rapp::object::Pose rapp_pose){
 
 		bool status;
 		status = pimpl->setGlobalPose(rapp_pose);
 		return status;
 	}
-std::vector<std::vector<float>> navigation::getTransform(std::string chainName, int space){
-	std::vector<std::vector<float>> MatStruct;
-	MatStruct.clear();
-	MatStruct = pimpl->getTransform(chainName, space);
+	std::vector<std::vector<float>> navigation::getTransform(std::string chainName, int space){
+		std::vector<std::vector<float>> MatStruct;
+		MatStruct.clear();
+		if (space == 0 ||space == 1 || space == 2){
+			static const std::string arr[] = { "Head","LArm","RArm","LLeg","RLeg","Torso","CameraTop","CameraBottom","MicroFront","MicroRear","MicroLeft","MicroRight","Accelerometer","Gyrometer","Laser","LFsrFR","LFsrFL","LFsrRR","LFsrRL","RFsrFR","RFsrFL","RFsrRR", "RFsrRL", "USSensor1", "USSensor2", "USSensor3", "USSensor4"};
+			std::vector<std::string> chainNames (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+			
+			std::sort (chainNames.begin(), chainNames.end());
+
+	 		if (std::binary_search (chainNames.begin(), chainNames.end(), chainName)){
+				MatStruct = pimpl->getTransform(chainName, space);
+		 	}else{
+	    		std::cout << "Input chainName is not defined!\nAvailabre chainNames are:\n Head LArm RArm LLeg RLeg Torso CameraTop CameraBottom MicroFront MicroRear MicroLeft MicroRight Accelerometer Gyrometer Laser LFsrFR LFsrFL LFsrRR LFsrRL RFsrFR RFsrFL RFsrRR RFsrRL USSensor1 USSensor2 USSensor3 USSensor4";
+		 	}
+		}else{
+	    	std::cout << "Input space not exist!, \n space: Task frame {FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2}";
+
+		}
 	return MatStruct;
 }
 } // namespace rapp
