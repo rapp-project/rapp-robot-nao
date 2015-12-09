@@ -19,10 +19,10 @@ WS_ROS_ADDITIONAL_PACKAGES_ISOLATED=$WS_ROS_ADDITIONAL_PACKAGES_DIR"/install_iso
 # Rapp - ws_rapp_nao - core agent packages
 WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao"
 WS_RAPP_NAO_ISOLATED=$WS_RAPP_NAO_DIR"/install_isolated"
-
+source $WS_ROS_DIR/install_isolated/setup.bash
 cd $WS_RAPP_NAO_DIR/src
 if [ ! -f $WS_RAPP_NAO_DIR/src/CMakeLists.txt ]; then
-	$WS_ROS_SRC_DIR/catkin/bin/catkin_init_workspace
+	catkin_init_workspace
 fi
 
 cd $WS_RAPP_NAO_DIR
