@@ -164,6 +164,7 @@ target_link_libraries(${VISION_LIB}
 )
 target_link_libraries(${NAVIGATION_LIB}
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
   ${RAPP_LIBRARIES_STATIC}
 )
 add_dependencies(${DYNAMIC_NAV_LIB} ${catkin_EXPORTED_TARGETS})

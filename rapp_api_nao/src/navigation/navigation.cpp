@@ -10,9 +10,7 @@
 #include <rapp/robot/navigation/navigation.hpp>
 
 #include "NavigationImpl.hpp"
-#include <rapp/objects/path/path.hpp>
-#include <rapp/objects/pose/pose.hpp>
-#include <rapp/objects/poseStamped/poseStamped.hpp>
+
 namespace rapp {
 namespace robot {
 
@@ -85,6 +83,11 @@ navigation::~navigation() {
 		status = pimpl->setGlobalPose(rapp_pose);
 		return status;
 	}
-
+std::vector<std::vector<float>> navigation::getTransform(std::string chainName, int space){
+	std::vector<std::vector<float>> MatStruct;
+	MatStruct.clear();
+	MatStruct = pimpl->getTransform(chainName, space);
+	return MatStruct;
+}
 } // namespace rapp
 } // namespace robot

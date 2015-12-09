@@ -29,13 +29,15 @@
 #include "rapp_ros_naoqi_wrappings/MoveAlongPath.h"
 #include "rapp_ros_naoqi_wrappings/TakePredefinedPosture.h"
 #include "rapp_ros_naoqi_wrappings/LookAtPoint.h"
+#include "rapp_ros_naoqi_wrappings/GetTransform.h"
 //include rapp-api objects
 #include <rapp/objects/path/path.hpp>
 #include <rapp/objects/pose/pose.hpp>
 #include <rapp/objects/poseStamped/poseStamped.hpp>
  #include <rapp/objects/qrCodeMap/qrCodeMap.hpp>
  #include <rapp/objects/qrCodeMap/qrCodeMap.hpp>
-
+ #include <rapp/objects/matrix2D/matrix2D.hpp>
+#include "opencv2/core/core.hpp"
 
 namespace rapp {
 namespace robot {
@@ -57,7 +59,7 @@ public:
 	ros::ServiceClient client_getRobotPose;
 	ros::ServiceClient client_setGlobalPose;
 	ros::ServiceClient client_moveAlongPath;
-
+	ros::ServiceClient client_getTransform;
 
 	ros::NodeHandle *n;
 	
@@ -74,9 +76,14 @@ public:
 	bool moveAlongPath(rapp::object::Path path);
 	rapp::object::PoseStamped getRobotPose();
 	bool setGlobalPose(rapp::object::PoseStamped rapp_pose);
-	// rapp::objects::Path pathPlanner_2D(rapp::objects::Pose start, rapp::objects::Pose goal, rapp::objects::OccupancyGrid map);
- //    rapp::objects::Pose qrCodeLocalization(cv::Mat image, rapp::objects::QRcodeMap QRmap);
 	
+	std::vector<std::vector<float>> getTransform(std::string chainName, int space);/*
+	Input:
+		chainName: Name of the item. Could be: any joint or chain or sensor.
+		space: Task frame {FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2} 
+	Output: The matrix, which contains homogeneous transform relative to the space (frame). Axis definition: the x axis is positive toward the robot’s front, the y from right to left and the z is vertical.
+	Description. This function computes the transformation matrix from one frame to another (e.g. from camera frame to robot frame).
+	*/
 };	
 } // namespace robot
 } // namespace rapp

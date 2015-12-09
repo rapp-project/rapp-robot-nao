@@ -328,10 +328,59 @@ NavigationImpl::~NavigationImpl() {
 		    ROS_ERROR("Failed to call service setGlobalPose"); 
 		  }
 
-
-
-
+}
+std::vector<std::vector<float>> NavigationImpl::getTransform(std::string chainName, int space){
+	client_getTransform = n->serviceClient<rapp_ros_naoqi_wrappings::GetTransform>("rapp_get_transform");
+	rapp_ros_naoqi_wrappings::GetTransform srv;
+	srv.request.chainName = chainName;
+	srv.request.space = space;
+	cv::Mat transformMatrix = cv::Mat::zeros(4,4,cv::DataType<float>::type);
+	std::vector<float> rows;
+	std::vector<std::vector<float>> end_transform;
+	
+	if (client_getTransform.call(srv)) //
+	{
+		/*
+		transformMatrix[0][0] = srv.response.transformMatrix.r11[0]; transformMatrix[0][1] = srv.response.transformMatrix.r12[0];
+		transformMatrix[0][2] = srv.response.transformMatrix.r13[0]; transformMatrix[0][3] = srv.response.transformMatrix.r14[0];
+		transformMatrix[1][0] = srv.response.transformMatrix.r21[0]; transformMatrix[1][1] = srv.response.transformMatrix.r22[0];
+		transformMatrix[1][2] = srv.response.transformMatrix.r23[0]; transformMatrix[1][3] = srv.response.transformMatrix.r24[0];
+		transformMatrix[2][0] = srv.response.transformMatrix.r31[0]; transformMatrix[2][1] = srv.response.transformMatrix.r32[0];
+		transformMatrix[2][2] = srv.response.transformMatrix.r33[0]; transformMatrix[2][3] = srv.response.transformMatrix.r34[0];
+		transformMatrix[3][0] = srv.response.transformMatrix.r41[0]; transformMatrix[3][1] = srv.response.transformMatrix.r42[0];
+		transformMatrix[3][2] = srv.response.transformMatrix.r43[0]; transformMatrix[3][3] = srv.response.transformMatrix.r44[0];
+		//*/
+		//
+		transformMatrix.at<float>(0,0) = srv.response.transformMatrix.r11[0]; transformMatrix.at<float>(0,1) = srv.response.transformMatrix.r12[0];
+		transformMatrix.at<float>(0,2) = srv.response.transformMatrix.r13[0]; transformMatrix.at<float>(0,3) = srv.response.transformMatrix.r14[0];
+		transformMatrix.at<float>(1,0) = srv.response.transformMatrix.r21[0]; transformMatrix.at<float>(1,1) = srv.response.transformMatrix.r22[0];
+		transformMatrix.at<float>(1,2) = srv.response.transformMatrix.r23[0]; transformMatrix.at<float>(1,3) = srv.response.transformMatrix.r24[0];
+		transformMatrix.at<float>(2,0) = srv.response.transformMatrix.r31[0]; transformMatrix.at<float>(2,1) = srv.response.transformMatrix.r32[0];
+		transformMatrix.at<float>(2,2) = srv.response.transformMatrix.r33[0]; transformMatrix.at<float>(2,3) = srv.response.transformMatrix.r34[0];
+		transformMatrix.at<float>(3,0) = srv.response.transformMatrix.r41[0]; transformMatrix.at<float>(3,1) = srv.response.transformMatrix.r42[0];
+		transformMatrix.at<float>(3,2) = srv.response.transformMatrix.r43[0]; transformMatrix.at<float>(3,3) = srv.response.transformMatrix.r44[0];
+		//*/
+		ROS_INFO("[Rapp get transform] - Transformation matrix computed");
 	}
+	else
+	{
+		//Failed to call service rapp_get_image
+		ROS_ERROR("[Rapp get transform] - Error calling service rapp_get_transform");
+	}
+	
+	end_transform.clear();
+	for (int i=0;i<transformMatrix.rows;i++){
+		rows.clear();
+		for (int j=0;j<transformMatrix.cols;j++){
+			rows.push_back(transformMatrix.at<float>(i,j));
+		}
+		end_transform.push_back(rows);
+	}
+	
+	return end_transform;//tmpVec;
+}
+
+	
 } // namespace robot
 } // namespace rapp
 
