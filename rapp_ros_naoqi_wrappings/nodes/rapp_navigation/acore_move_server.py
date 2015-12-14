@@ -106,12 +106,20 @@ class MoveNaoModule(ALModule):
 		self.MoveIsFailed = False
 		self.GP_seq = -1
 		self.tl = tf.TransformListener(True, rospy.Duration(5.0))
+		self.sub_obstacle = None
 		#globalPosePublisher = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=10)
 	def subscribeToObstacle(self):
-		global sub_obstacle
-		sub_obstacle = rospy.Subscriber("/obstacleDetectorState", obstacleData , self.detectObstacle)
+		self.sub_obstacle = rospy.Subscriber("/obstacleDetectorState", obstacleData , self.detectObstacle)
+
 	def unsubscribeToObstacle(self):
-		sub_obstacle.unregister()
+		self.sub_obstacle.unregister()
+		self.sub_obstacle = None
+
+	def isSubscribedToObstacle(self):
+		if self.sub_obstacle is None:
+			return False
+		else:
+			return True
 	# NAOqi Event subscribtion
 	def subscribeToEvents(self):
 		#self.prox_memory.subscribeToEvent("ALMotion/Safety/MoveFailed", self.moduleName, "MoveCallback")
@@ -216,7 +224,8 @@ class MoveNaoModule(ALModule):
 		return resp1.status
 
 	def rapp_stiffness_interface(self,joint,trigger):
-		self.unsubscribeToObstacle()
+		if self.isSubscribedToObstacle():
+			self.unsubscribeToObstacle()
 		triggerStiffness = rospy.ServiceProxy('triggerStiffness', TriggerStiffness)
 		resp1 = triggerStiffness(joint, trigger)
 		return resp1.status
@@ -272,10 +281,10 @@ class MoveNaoModule(ALModule):
 
 			self.unsubscribeToObstacle()
 
-			status = True
+			status = resp
 		except Exception, ex:
 			print "[MoveTo server] - Exception %s" % str(ex)
-			status = False
+			status = True
 		return MoveToResponse(status)	
 
 	def handle_rapp_MoveAlongPath(self,req):
@@ -328,13 +337,13 @@ class MoveNaoModule(ALModule):
 			#self.kill_thread_detectObstacle = True
 			#thread_detectObstacle.join()
 			#print "destination reached, and obstacle detection is:\n",thread_detectObstacle.isAlive()
-			status = True
+			status = False
 
 		else:
 			#print "OBSTACLE DETECTED, obstacle detection is:\n",thread_detectObstacle.isAlive()
 			#self.followObstaclesBoundary2()
 			print "BUG BUG BUG BUG BUG BUG BUG BUG \n BUG BUG BUG BUG BUG BUG"
-			status = False
+			status = True
 		# if noPathavaliable == True:
 		# 	status = "no path avaliable"
 		# else:
@@ -351,14 +360,14 @@ class MoveNaoModule(ALModule):
 		i = 0
 
 		if (msg.RightBumper == 1):
-			self.unsubscribeToObstacle()
+			#self.unsubscribeToObstacle()
 			self.obstacle_detected = True
 			self.kill_thread_followPath = True
 			self.rapp_stop_move_interface()
 
 			print "Obstacle detected by RIGHT BUMPER " 
 		elif ( msg.LeftBumper==1):
-			self.unsubscribeToObstacle()
+			#self.unsubscribeToObstacle()
 			self.obstacle_detected = True
 			self.kill_thread_followPath = True
 			self.rapp_stop_move_interface()
@@ -733,10 +742,10 @@ class MoveNaoModule(ALModule):
 		self.subscribeToObstacle()
 		try:
 			self.rapp_move_vel_interface(X, Y, Theta)
-			status = True
+			status = False
 		except Exception, ex:
 			print "[Move server] - Exception in rapp_moveVel service handling: \n %s" % str(ex)
-			status = False
+			status = True
 
 		return MoveVelResponse(status)	
 
@@ -746,16 +755,19 @@ class MoveNaoModule(ALModule):
 			status = self.rapp_move_joint_interface(req.joint_name,req.joint_angle,req.speeds)
 		except Exception, ex:
 			print "[Move server] - Exception in rapp_moveJoint service handling: \n %s" % str(ex)
-			status = False
+			status = True
 		return MoveJointResponse(status)
 
 	def handle_rapp_rest(self,req):
 		try:
 			status = self.rapp_take_predefined_posture_interface(req.posture,0.3)
+			print "[rapp_rest service] - take posture status:\n%s" % str(status) 
 			status = self.rapp_stiffness_interface("Body", False)
+			print "[rapp_rest service] - rapp_stiffness_interface status:\n%s" % str(status) 
+
 		except Exception, ex:
 			print "[Move server] - Exception in rapp_rest service handling: \n %s" % str(ex)
-			status = False
+			status = True
 		return RestResponse(status)	
 
 	def handle_rapp_moveStop(self,req):
@@ -764,14 +776,14 @@ class MoveNaoModule(ALModule):
 			self.unsubscribeToObstacle()
 		except Exception, ex:
 			print "[Move server] - Exception in rapp_moveStop service handling: \n %s" % str(ex)
-			status = False
+			status = True
 		return MoveStopResponse(status)
 
 	def handle_rapp_takePredefinedPosture(self,req):
 		try:
 			status = self.rapp_take_predefined_posture_interface(req.pose, req.speed)
 		except Exception, ex:
-			status = False
+			status = True
 			print "[Move server] - Exception %s" % str(ex)
 		return TakePredefinedPostureResponse(status)	
 
@@ -859,7 +871,7 @@ class MoveNaoModule(ALModule):
 		#check if pitch component can be reached by Nao
 		if not(head_pitch > range_matrix[19] and head_pitch < range_matrix[20]):
 			print "Nao cant reach the pitch angle"
-			status = False
+			status = True
 			return LookAtPointResponse(status)	
 		#check if Nao has to turn around to reach the point
 		if abs(head_yaw) < abs(range_matrix[0]):
@@ -881,7 +893,7 @@ class MoveNaoModule(ALModule):
 		if (head_pitch > head_pitch_min and head_pitch < head_pitch_max and canLookAtPoint_yaw):
 
 			self.rapp_move_joint_interface(["Head"],[head_yaw,head_pitch],0.2)
-			status = True
+			status = False
 
 			# Nao will rotate to be ahead the point in yaw direction, then he will look at it
 		else:
@@ -896,7 +908,7 @@ class MoveNaoModule(ALModule):
 			head_pitch = turnHeadAngles[1]
 
 			self.rapp_move_joint_interface(["Head"],[head_yaw,head_pitch],0.2)
-			status = True	
+			status = False	
 
 		return LookAtPointResponse(status)	
 		

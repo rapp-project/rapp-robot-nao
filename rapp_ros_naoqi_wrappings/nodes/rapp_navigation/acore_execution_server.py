@@ -18,7 +18,6 @@ from rapp_ros_naoqi_wrappings.msg import obstacleData
 import signal
 import sys, os
 import rospy
-import almath as m
 import numpy
 #import transformPose
 
@@ -144,10 +143,10 @@ class MoveNaoModule(ALModule):
 	def handle_moveStop(self,req):
 		try:
 			self.proxy_motion.stopMove()
-			status = True
+			status = False
 		except Exception, ex:
 			print "[MoveTo server] - Exception %s" % str(ex)
-			status = False
+			status = True
 		return MoveStopResponse(status)
 
 	def handle_moveHead(self,req):
@@ -167,7 +166,7 @@ class MoveNaoModule(ALModule):
 			#####################
 			## Enable arms control by move algorithm
 			#####################
-			self.proxy_motion.setWalkArmsEnabled(False, False)
+			self.proxy_motion.setWalkArmsEnabled(True, True)
 
 			#####################
 			## FOOT CONTACT PROTECTION
@@ -184,10 +183,10 @@ class MoveNaoModule(ALModule):
 
 			# print "[MoveVel server] - Nao init position = ", InitRobotPosition
 			self.proxy_motion.moveTo(req.x, req.y, req.theta)
-			status = True
+			status = False
 		except Exception, ex:
 			print "[MoveTo server] - Exception %s" % str(ex)
-			status = False
+			status = True
 		return MoveToResponse(status)	
 
 	
@@ -202,7 +201,7 @@ class MoveNaoModule(ALModule):
 			#####################
 			## Enable arms control by move algorithm
 			#####################
-			self.proxy_motion.setWalkArmsEnabled(False, False)
+			self.proxy_motion.setWalkArmsEnabled(True, True)
 
 			#####################
 			## FOOT CONTACT PROTECTION
@@ -225,9 +224,9 @@ class MoveNaoModule(ALModule):
 			
 			self.proxy_motion.move(X, Y, Theta)
 
-			status = True
-		except Exception, ex:
 			status = False
+		except Exception, ex:
+			status = True
 			print "[Execution server] - Exception %s" % str(ex)
 		return MoveVelResponse(status)	
 
@@ -236,9 +235,9 @@ class MoveNaoModule(ALModule):
 			self.StiffnessOn(req.joint_name)
 
 			self.proxy_motion.angleInterpolationWithSpeed(req.joint_name,req.joint_angle,req.speeds)
-			status = True
-		except Exception, ex:
 			status = False
+		except Exception, ex:
+			status = True
 			print "[Execution server] - Exception %s" % str(ex)
 		return MoveJointResponse(status)
 
@@ -249,26 +248,26 @@ class MoveNaoModule(ALModule):
 				self.StiffnessOn(pNames)
 			else:
 				self.StiffnessOff(pNames)
-			status = True
-		except Exception, ex:
 			status = False
+		except Exception, ex:
+			status = True
 			print "[Execution server] - Exception %s" % str(ex)
 		return TriggerStiffnessResponse(status)	
 
 
 	def handle_takePredefinedPosture(self,req):
 		try:
-			status = True
+			status = False
 
 			self.StiffnessOn("Body")
 		except Exception, ex:
-			status = False
+			status = True
 			print "[Execution server] - Exception %s" % str(ex)
 		try:	
-			status = True
+			status = False
 			self.proxy_RobotPosture.goToPosture(req.pose,req.speed)
 		except Exception, e:
-			status = False
+			status = True
 			print "[Execution server] - Exception %s" % str(e)	
 		print "[Execution server] - Actual Nao pose : %s" % str(req.pose)
 		return TakePredefinedPostureResponse(status)	
