@@ -41,12 +41,12 @@ navigation::~navigation() {
 		return status;
 	}
 	bool navigation::moveJoint(std::vector<std::string> joint, std::vector<float> angle, float speed){
-		bool status;
+		bool status = false;
 
 		static const std::string arr[] = { "Body","Head","LArm","LLeg","RLeg","RArm","HeadYaw","LShoulderPitch","LHipYawPitch","RHipYawPitch","RShoulderPitch", "HeadPitch","LShoulderRoll","LHipRoll","RHipRoll","RShoulderRoll", "LElbowYaw","LHipPitch","RHipPitch","RElbowYaw", "LElbowRoll","LKneePitch","RKneePitch","RElbowRoll", "LWristYaw","LAnklePitch","RAnklePitch","RWristYaw", "LHand","RAnkleRoll","LAnkleRoll","RHand"};
 		std::vector<std::string> joints_map(arr, arr + sizeof(arr) / sizeof(arr[0]) );
 		std::sort (joints_map.begin(), joints_map.end());
-		for (unsigned int i; i<joint.size();i++){
+		for (unsigned int i=0; i<joint.size();i++){
 			if (std::binary_search (joints_map.begin(), joints_map.end(), joint.at(i))){
 				status = pimpl->moveJoint(joint, angle, speed);			
 		 	}else{
