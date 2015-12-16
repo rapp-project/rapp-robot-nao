@@ -215,32 +215,29 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	bool NavigationImpl::moveAlongPath(rapp::object::Path path){
+	bool NavigationImpl::moveAlongPath(std::vector<rapp::object::PoseStamped> poses){
 
-			nav_msgs::Path path_ros;
-			path_ros.header.seq = path.header.seq;
-			path_ros.header.frame_id = path.header.frame_id;
-			path_ros.header.stamp.sec = path.header.stamp.sec;
-			path_ros.header.stamp.nsec = path.header.stamp.nsec;
-			for (uint32_t i=0; i < path.poses.size();i++){
+			nav_msgs::Path poses_ros;
 
-				path_ros.poses.at(i).header.seq = path.poses.at(i).header.seq;
-				path_ros.poses.at(i).header.frame_id = path.poses.at(i).header.frame_id;
-				path_ros.poses.at(i).header.stamp.sec = path.poses.at(i).header.stamp.sec;
-				path_ros.poses.at(i).header.stamp.nsec = path.poses.at(i).header.stamp.nsec;
-				path_ros.poses.at(i).pose.position.x = path.poses.at(i).pose.position.x;
-				path_ros.poses.at(i).pose.position.y = path.poses.at(i).pose.position.y;
-				path_ros.poses.at(i).pose.position.z = path.poses.at(i).pose.position.z;
-				path_ros.poses.at(i).pose.orientation.x = path.poses.at(i).pose.orientation.x;
-				path_ros.poses.at(i).pose.orientation.y = path.poses.at(i).pose.orientation.y;
-				path_ros.poses.at(i).pose.orientation.z = path.poses.at(i).pose.orientation.z;
-				path_ros.poses.at(i).pose.orientation.w = path.poses.at(i).pose.orientation.w;
+			for (uint32_t i=0; i < poses.size();i++){
+
+				poses_ros.poses.at(i).header.seq = poses.at(i).header.seq;
+				poses_ros.poses.at(i).header.frame_id = poses.at(i).header.frame_id;
+				poses_ros.poses.at(i).header.stamp.sec = poses.at(i).header.stamp.sec;
+				poses_ros.poses.at(i).header.stamp.nsec = poses.at(i).header.stamp.nsec;
+				poses_ros.poses.at(i).pose.position.x = poses.at(i).pose.position.x;
+				poses_ros.poses.at(i).pose.position.y = poses.at(i).pose.position.y;
+				poses_ros.poses.at(i).pose.position.z = poses.at(i).pose.position.z;
+				poses_ros.poses.at(i).pose.orientation.x = poses.at(i).pose.orientation.x;
+				poses_ros.poses.at(i).pose.orientation.y = poses.at(i).pose.orientation.y;
+				poses_ros.poses.at(i).pose.orientation.z = poses.at(i).pose.orientation.z;
+				poses_ros.poses.at(i).pose.orientation.w = poses.at(i).pose.orientation.w;
 			}
 
 
 		client_moveAlongPath = n->serviceClient<rapp_ros_naoqi_wrappings::MoveAlongPath>("rapp_moveAlongPath");
 		  rapp_ros_naoqi_wrappings::MoveAlongPath srv;
-  		  srv.request.path = path_ros;
+  		  srv.request.poses = poses_ros.poses;
 
 		  if (client_moveAlongPath.call(srv))
 		  {

@@ -326,7 +326,7 @@ class MoveNaoModule(ALModule):
 		
 		self.subscribeToObstacle()
 		
-		pathFollowingStatus = self.followPath(req.path.poses)
+		pathFollowingStatus = self.followPath(req.poses)
 		
 		self.unsubscribeToObstacle()
 
@@ -464,9 +464,9 @@ class MoveNaoModule(ALModule):
 				thetaTime = abs(theta)/0.3
 				resp = self.rapp_move_vel_interface(0,0,0.3*numpy.sign(theta))
 				#self.proxy_motion.move(0,0,0.3*numpy.sign(theta))
-				while not bool(resp):
-					rospy.sleep(0.1)
-					pass
+				
+				#while bool(resp):
+					
 				thetaTime_now = 0
 				while (thetaTime-thetaTime_now)>0:
 					if self.obstacle_detected == True:
@@ -483,9 +483,10 @@ class MoveNaoModule(ALModule):
 			#self.proxy_motion.move(0.03,0,0)
 			if self.obstacle_detected == False:
 				resp = self.rapp_move_vel_interface(0.05,0,0)
-				while not bool(resp):
-				 	rospy.sleep(0.1)
-				 	pass
+				
+				# while not bool(resp):
+				#  	rospy.sleep(0.1)
+				#  	pass
 
 				print "po ruchu"
 
@@ -528,9 +529,9 @@ class MoveNaoModule(ALModule):
 			theta2_Time = abs(theta2)/0.2
 			
 			resp = self.rapp_move_vel_interface(0,0,0.2*numpy.sign(theta2))
-			while not bool(resp):
-				rospy.sleep(0.1)
-				pass			
+			# while not bool(resp):
+			# 	rospy.sleep(0.1)
+			# 	pass			
 			thetaTime_now = 0
 			while (theta2_Time-thetaTime_now)>0:
 				if self.obstacle_detected == True:
@@ -591,12 +592,12 @@ class MoveNaoModule(ALModule):
 			# while not self.tl.canTransform("map","base_link",rospy.Time.now()):
 			# 	rospy.sleep(1)
 			if self.tl.canTransform("map","base_link",self.tl.getLatestCommonTime("map","base_link")):
-				#ekf_position = self.tl.lookupTransform("map","base_link",rospy.Time())
-				#print numpy.dot(ekf_position,nextPose_POSE)
-				#cos.setData(ekf_position*nextPose_POSE)
+				#torso_position = self.tl.lookupTransform("map","base_link",rospy.Time())
+				#print numpy.dot(torso_position,nextPose_POSE)
+				#cos.setData(torso_position*nextPose_POSE)
 
 				#cos = self.tl.transformPose("base_link",nextPose_POSE)
-				#print "cos: ", cos  #"ekfpose_type is: ",type(ekf_position),": \n",ekf_position
+				#print "cos: ", cos  #"ekfpose_type is: ",type(torso_position),": \n",torso_position
 			#print "ekf_orientation_type is: ",type(ekf_rotation),": \n",ekf_rotation
 
 				nextPose_matrix = [[np.cos(nextPoseOrientationZ), np.sin(nextPoseOrientationZ),0,nextPose.pose.position.x],
@@ -709,17 +710,14 @@ class MoveNaoModule(ALModule):
 			status = "finished"
 			return status
 	def getNaoCurrentPosition(self):
-		if self.tl.canTransform("map","base_link",rospy.Time()):
-			ekf_position = self.tl.lookupTransform("map","base_link",rospy.Time())
-			ekf_euler = tf.transformations.euler_from_quaternion(ekf_position[1])
-			torso_position = self.tl.lookupTransform("map","Nao_T_odom",rospy.Time())
+		if self.tl.canTransform("map","Nao_Torso",rospy.Time()):
+			torso_position = self.tl.lookupTransform("map","Nao_Torso",rospy.Time())
 			torso_euler = tf.transformations.euler_from_quaternion(torso_position[1])
 		# ekf_euler - orientation from EKF
 		# torso_euler - orientation from Odometry
-			quaternion_to_publish = tf.transformations.quaternion_from_euler(torso_euler[0],torso_euler[1],ekf_euler[2])
-			nao_position = [[ekf_position[0][0],ekf_position[0][1],torso_position[0][2]],[quaternion_to_publish[0],quaternion_to_publish[1],quaternion_to_publish[2],quaternion_to_publish[3]]] #torso_position[1][0],torso_position[1][1],ekf_position[1][2]]] 
+			quaternion_to_publish = tf.transformations.quaternion_from_euler(torso_euler[0],torso_euler[1],torso_euler[2])
+			nao_position = [[torso_position[0][0],torso_position[0][1],torso_position[0][2]],[quaternion_to_publish[0],quaternion_to_publish[1],quaternion_to_publish[2],quaternion_to_publish[3]]] #torso_position[1][0],torso_position[1][1],torso_position[1][2]]] 
 		#print "nao position",(nao_position)
-			sadasda = nao_position[1][1]
 			return nao_position
 		else:
 			print "can't transform base_blink to map frame" 

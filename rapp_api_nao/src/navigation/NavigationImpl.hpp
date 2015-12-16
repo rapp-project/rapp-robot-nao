@@ -14,6 +14,7 @@
 // ros includes
 #include "ros/ros.h"
 #include <geometry_msgs/Pose.h>
+#include <nav_msgs/Path.h>
 // conversions TF to eigen and eigen to TF
 #include <eigen_conversions/eigen_msg.h>
 #include <tf_conversions/tf_eigen.h>
@@ -31,7 +32,7 @@
 #include "rapp_ros_naoqi_wrappings/LookAtPoint.h"
 #include "rapp_ros_naoqi_wrappings/GetTransform.h"
 //include rapp-api objects
-#include <rapp/objects/path/path.hpp>
+#include <rapp/objects/plannedPath/plannedPath.hpp>
 #include <rapp/objects/pose/pose.hpp>
 #include <rapp/objects/poseStamped/poseStamped.hpp>
  #include <rapp/objects/qrCodeMap/qrCodeMap.hpp>
@@ -73,7 +74,7 @@ public:
 	// bool visOdom();
 	bool lookAtPoint(float x, float y, float z);
 	bool rest(std::string posture);
-	bool moveAlongPath(rapp::object::Path path);
+	bool moveAlongPath(std::vector<rapp::object::PoseStamped> poses);
 	rapp::object::PoseStamped getRobotPose();
 	bool setGlobalPose(rapp::object::Pose rapp_pose);
 	

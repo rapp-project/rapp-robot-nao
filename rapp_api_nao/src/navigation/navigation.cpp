@@ -116,9 +116,9 @@ navigation::~navigation() {
 		return status;
 	}
 
-	bool navigation::moveAlongPath(rapp::object::Path path){
+	bool navigation::moveAlongPath(std::vector<rapp::object::PoseStamped> poses){
 		bool status;
-		status = pimpl->moveAlongPath(path);
+		status = pimpl->moveAlongPath(poses);
 		return status;		
 	}
 	rapp::object::PoseStamped navigation::getRobotPose(){
