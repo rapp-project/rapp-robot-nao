@@ -111,7 +111,7 @@ class NaoEstimator(ALModule):
 		return SetGlobalPoseResponse(status)
 	def startSubscribers(self):
 		rospy.Subscriber("/initialpose", PoseWithCovarianceStamped, self.SubCall)
-		rospy.Subscriber("/odometry/filtered", Odometry, self.publishEKFframe)
+		#rospy.Subscriber("/odometry/filtered", Odometry, self.publishEKFframe)
 
 	def SubCall(self,data):
 
@@ -140,20 +140,7 @@ class NaoEstimator(ALModule):
 												0]
 			self.odom_transformation.orientation = tf.transformations.quaternion_from_euler(0,0,euler_transform_Nao_odom[2]+self.euler_initial[2])#matrix_Nao_odom[0][1]/matrix_Nao_odom[0][0])#+self.euler_initial[2])
 
-	def publishEKFframe(self,data):
-		#set initial data for two rotations taken from odometry
-		ekf_orientation_euler = tf.transformations.euler_from_quaternion((data.pose.pose.orientation.x,data.pose.pose.orientation.y,data.pose.pose.orientation.z,data.pose.pose.orientation.w))
-		ekf_orientation_z_euler = ekf_orientation_euler[2]
-		marged_angles = tf.transformations.quaternion_from_euler(self.odomData[3], self.odomData[4],ekf_orientation_z_euler)
-		 
-		self.tf_br.sendTransform((data.pose.pose.position.x,data.pose.pose.position.y,self.odomData[2]), marged_angles,
-                                      rospy.Time.now(), "base_link_nao", "odom")
-		
-		self.camera_To_Torso_Position = self.motionProxy.getPosition('CameraTop', 0, True)
-		self.quaternion_cameta_to_torso = tf.transformations.quaternion_from_euler(self.camera_To_Torso_Position[3],self.camera_To_Torso_Position[4],self.camera_To_Torso_Position[5])
 
-		self.tf_br.sendTransform((self.camera_To_Torso_Position[0],self.camera_To_Torso_Position[1],self.camera_To_Torso_Position[2]), self.quaternion_cameta_to_torso,
-                                        self.timestamp, "cameraTop", "base_link_nao")
 	def MsgsInit(self):
 		# init. messages:
 		self.torsoOdom = Odometry()

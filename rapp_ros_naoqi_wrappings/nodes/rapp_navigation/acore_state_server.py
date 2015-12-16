@@ -29,7 +29,7 @@ class NaoEstimator(ALModule):
 		rospy.init_node('acore_state_server')
 		self.moduleName = name
 		self.connectNaoQi()
-
+		self.startSubscriber()
 		self.dataNamesList =   ["DCM/Time",
 						"Device/SubDeviceList/InertialSensor/AngleX/Sensor/Value",
 						"Device/SubDeviceList/InertialSensor/AngleY/Sensor/Value",
@@ -61,6 +61,9 @@ class NaoEstimator(ALModule):
 		self.memProxy = ALProxy("ALMemory")
 		if self.motionProxy is None or self.memProxy is None:
 			exit(1)
+
+	def startSubscriber(self):
+		rospy.Subscriber("/odometry/filtered", Odometry, self.publishEKFframe)
 
 	def MsgsInit(self):
 		# init. messages:
@@ -106,7 +109,22 @@ class NaoEstimator(ALModule):
 		                          0, 0, 0, 1e6, 0, 0,
 		                          0, 0, 0, 0, 1e6, 0,
 		                          0, 0, 0, 0, 0, 1e-9]
+	def publishEKFframe(self,data):
+		#set initial data for two rotations taken from odometry
+		ekf_orientation_euler = tf.transformations.euler_from_quaternion((data.pose.pose.orientation.x,data.pose.pose.orientation.y,data.pose.pose.orientation.z,data.pose.pose.orientation.w))
+		ekf_orientation_z_euler = ekf_orientation_euler[2]
+		
+		#### marged_angles needs extra information from virtual efector (state_server) to publish TORSO transform with around X and around Y rotations
+		marged_angles = tf.transformations.quaternion_from_euler(self.odomData[3], self.odomData[4],ekf_orientation_z_euler)
+		#marged_angles = tf.transformations.quaternion_from_euler(0,0,ekf_orientation_z_euler)
+		self.tf_br.sendTransform((data.pose.pose.position.x,data.pose.pose.position.y,self.odomData[2]), marged_angles,
+                                      rospy.Time.now(), "Nao_Torso", "odom")
+		
+		self.camera_To_Torso_Position = self.motionProxy.getPosition('CameraTop', 0, True)
+		self.quaternion_cameta_to_torso = tf.transformations.quaternion_from_euler(self.camera_To_Torso_Position[3],self.camera_To_Torso_Position[4],self.camera_To_Torso_Position[5])
 
+		self.tf_br.sendTransform((self.camera_To_Torso_Position[0],self.camera_To_Torso_Position[1],self.camera_To_Torso_Position[2]), self.quaternion_cameta_to_torso,
+                                        self.timestamp, "cameraTop", "Nao_Torso")
 	def run(self):
 		
 		self.timestamp = rospy.Time.now()
