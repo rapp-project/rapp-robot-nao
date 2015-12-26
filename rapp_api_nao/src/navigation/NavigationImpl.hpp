@@ -32,7 +32,6 @@
 #include "rapp_ros_naoqi_wrappings/LookAtPoint.h"
 #include "rapp_ros_naoqi_wrappings/GetTransform.h"
 //include rapp-api objects
-#include <rapp/objects/plannedPath/plannedPath.hpp>
 #include <rapp/objects/pose/pose.hpp>
 #include <rapp/objects/poseStamped/poseStamped.hpp>
  #include <rapp/objects/qrCodeMap/qrCodeMap.hpp>
