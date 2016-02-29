@@ -189,17 +189,17 @@ std::vector< std::vector <float> > VisionImpl::faceDetect(rapp::object::picture 
 	return FaceDetectVector;
 }
 
-rapp::object::QRCode3D VisionImpl::qrCodeDetection(rapp::object::picture imgFrame, std::vector<std::vector<float>> robotToCameraMatrix, double camera_matrix[][3], float landmarkTheoreticalSize)
+rapp::object::QRCode3D VisionImpl::qrCodeDetection(rapp::object::picture::Ptr imgFrame, std::vector<std::vector<float>> robotToCameraMatrix, double camera_matrix[][3], float landmarkTheoreticalSize)
 {
 	zbar::ImageScanner set_zbar;
 
 	// initializing the structure QRcodeDetectionStruct -- set to default
 	rapp::object::QRCode3D QRcodeDetectionStruct;
-	if (sizeof(imgFrame)<10) return QRcodeDetectionStruct;
+	if (sizeof((*imgFrame))<10) return QRcodeDetectionStruct;
 	QRcodeDetectionStruct.clear();
 
 	////cv::Mat from the std::vector<byte>
-	cv::Mat cv_mat(imgFrame.bytearray(),true);
+	cv::Mat cv_mat((*imgFrame).bytearray(),true);
 	////decoding the image
 	//cv::Mat cv_frame(cv::imdecode(cv_mat,1)); //put 0 if you want greyscale
 	cv::Mat frame_grayscale(cv::imdecode(cv_mat,1));//decoding the image to the gray scale

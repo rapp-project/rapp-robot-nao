@@ -134,9 +134,6 @@ add_library(${COMMUNICATION_LIB}
   src/communication/communication.cpp src/communication/CommunicationImpl.cpp
 )
 
-add_library(${VISION_LIB}_old
-  src/Vision.cpp src/VisionImpl.cpp
-)
 
 adD_library(${VISION_LIB}
   src/vision/vision.cpp src/vision/VisionImpl.cpp
