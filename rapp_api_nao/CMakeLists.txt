@@ -83,6 +83,7 @@ SET(COMMUNICATION_LIB rapp_robot_communication)
 SET(VISION_LIB rapp_robot_vision)
 SET(NAVIGATION_LIB rapp_robot_navigation)
 SET(DYNAMIC_NAV_LIB rapp_dynamic_navigation)
+SET(DYNAMIC_VIS_LIB rapp_dynamic_vision)
 SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAPP_CXX_FLAGS})
 #SET( EIGEN3_INCLUDE_DIR "$ENV{EIGEN3_INCLUDE_DIR}" )
 #IF( NOT EIGEN3_INCLUDE_DIR )
@@ -104,6 +105,7 @@ catkin_package(
   LIBRARIES ${VISION_LIB}
   LIBRARIES ${NAVIGATION_LIB}
   LIBRARIES ${DYNAMIC_NAV_LIB}
+  LIBRARIES ${DYNAMIC_VIS_LIB}
   CATKIN_DEPENDS roscpp rapp_ros_naoqi_wrappings rapp_core_agent
 #  DEPENDS
 )
@@ -130,6 +132,9 @@ link_directories(
 add_library(${DYNAMIC_NAV_LIB}
   src/dynamic/navigation/localization.cpp
 )
+add_library(${DYNAMIC_VIS_LIB}
+  src/dynamic/vision/vision.cpp
+)
 add_library(${COMMUNICATION_LIB}
   src/communication/communication.cpp src/communication/CommunicationImpl.cpp
 )
@@ -149,6 +154,12 @@ target_link_libraries(${DYNAMIC_NAV_LIB}
   ${catkin_LIBRARIES}
   ${RAPP_LIBRARIES_STATIC}
 )
+target_link_libraries(${DYNAMIC_VIS_LIB}
+  ${COMMUNICATION_LIB}
+  ${VISION_LIB}
+  ${catkin_LIBRARIES}
+  ${RAPP_LIBRARIES_STATIC}
+)
 target_link_libraries(${COMMUNICATION_LIB}
   ${catkin_LIBRARIES}
   ${RAPP_LIBRARIES_STATIC}
@@ -165,11 +176,13 @@ target_link_libraries(${NAVIGATION_LIB}
   ${RAPP_LIBRARIES_STATIC}
 )
 add_dependencies(${DYNAMIC_NAV_LIB} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${DYNAMIC_VIS_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${COMMUNICATION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${VISION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${NAVIGATION_LIB} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(${VISION_LIB} /usr/lib/libzbar.so)
+#target_link_libraries(${DYNAMIC_VIS_LIB} /usr/lib/libzbar.so)
 
 #############
 ## Install ##
@@ -186,7 +199,7 @@ target_link_libraries(${VISION_LIB} /usr/lib/libzbar.so)
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS ${COMMUNICATION_LIB} ${VISION_LIB} ${NAVIGATION_LIB} ${DYNAMIC_NAV_LIB}
+install(TARGETS ${COMMUNICATION_LIB} ${VISION_LIB} ${NAVIGATION_LIB} ${DYNAMIC_NAV_LIB} ${DYNAMIC_VIS_LIB}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
