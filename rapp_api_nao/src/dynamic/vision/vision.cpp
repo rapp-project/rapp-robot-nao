@@ -20,7 +20,7 @@ namespace dynamic {
 		cv::Mat cv_mat((*imgFrame).bytearray(),true);
 		////decoding the image
 		//cv::Mat cv_frame(cv::imdecode(cv_mat,1)); //put 0 if you want greyscale
-		cv::Mat frame_grayscale(cv::imdecode(cv_mat,1));//decoding the image to the gray scale
+		cv::Mat frame_grayscale(cv::imdecode(cv_mat,1));//decoding the image to the BGR scale
 		//frame_grayscale = bytesToMat(image_,width,height);
 		
 		//boost::shared_ptr<void const> tracked_object;
@@ -28,6 +28,8 @@ namespace dynamic {
 	
 		// Convert to grayscale
 		//cv::cvtColor(cv_frame, frame_grayscale, CV_BGR2GRAY);
+		cv::cvtColor(frame_grayscale, frame_grayscale, CV_BGR2GRAY);
+
 		
 		// Obtain image data
 		int width = frame_grayscale.cols;
