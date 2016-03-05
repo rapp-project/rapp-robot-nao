@@ -132,16 +132,18 @@ link_directories(
 add_library(${DYNAMIC_NAV_LIB}
   src/dynamic/navigation/localization.cpp
 )
-add_library(${DYNAMIC_VIS_LIB}
-  src/dynamic/vision/vision.cpp
-)
+
 add_library(${COMMUNICATION_LIB}
   src/communication/communication.cpp src/communication/CommunicationImpl.cpp
 )
 
 
-adD_library(${VISION_LIB}
+add_library(${VISION_LIB}
   src/vision/vision.cpp src/vision/VisionImpl.cpp
+)
+
+add_library(${DYNAMIC_VIS_LIB}
+  src/dynamic/vision/vision.cpp
 )
 
 add_library(${NAVIGATION_LIB}
@@ -158,6 +160,7 @@ target_link_libraries(${DYNAMIC_VIS_LIB}
   ${COMMUNICATION_LIB}
   ${VISION_LIB}
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
   ${RAPP_LIBRARIES_STATIC}
 )
 target_link_libraries(${COMMUNICATION_LIB}
@@ -182,7 +185,7 @@ add_dependencies(${VISION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${NAVIGATION_LIB} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(${VISION_LIB} /usr/lib/libzbar.so)
-#target_link_libraries(${DYNAMIC_VIS_LIB} /usr/lib/libzbar.so)
+target_link_libraries(${DYNAMIC_VIS_LIB} /usr/lib/libzbar.so)
 
 #############
 ## Install ##
