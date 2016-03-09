@@ -213,5 +213,59 @@ namespace dynamic {
 		return QRcodeDetectionStruct;
 	}
 
+
+	//enum cameraID{'TopCamera', 'BottomCamera', '0','1'};
+	std::vector< std::vector <float> > vision::faceDetect(rapp::object::picture::Ptr image, int camera_id, int camera_resolution) 
+	{
+
+		if(!client_faceDetect){
+			ROS_DEBUG("Invalid service client, creating new one...");
+			double secs = ros::Time::now().toSec();
+			client_faceDetect = n->serviceClient<rapp_ros_naoqi_wrappings::FaceDetect>("rapp_face_detect");
+			double sec2 = ros::Time::now().toSec();
+			ROS_DEBUG("Creating service client took %lf seconds", sec2-secs);
+		} else {
+			ROS_DEBUG("Service client valid.");
+		}
+		
+		std::vector< std::vector <float> > FaceDetectVector;//The vector containing both the position of the Center of the faces, and the size of faces in relation to the image
+		std::vector< float > CenterOfFace_X;//The position of the center of the face
+		std::vector< float > CenterOfFace_Y;//The position of the center of the face
+		std::vector< float > FaceSize_X; //the face size in relation to the image
+		std::vector< float > FaceSize_Y; //the face size in relation to the image
+		
+		
+		rapp_ros_naoqi_wrappings::FaceDetect srv;
+		
+		if(camera_id==0) //cameraId=="top camera" || cameraId=="TopCamera" || cameraId=="0" || cameraId=="Top Camera" || cameraId=="topCamera" || cameraId=="top_camera" || cameraId=="TOP_CAMERA")
+			srv.request.cameraId=0; //top camera
+		else
+			srv.request.cameraId=1; //bottom camera
+		srv.request.resolution = camera_resolution;
+						
+		if (client_captureImage.call(srv)) {
+			CenterOfFace_X = srv.response.centerOfFace_X;
+			CenterOfFace_Y = srv.response.centerOfFace_Y;
+			FaceSize_X = srv.response.faceSize_X;
+			FaceSize_Y = srv.response.faceSize_Y;
+			
+			if (CenterOfFace_X.size()!=0)
+				ROS_INFO("[Face Detection] - Face was detected");
+				//rectangle(image, cv::Point((int)(CenterOfFace_X[0]-(FaceSize_X[[0]/2)), (int)(CenterOfFace_Y[0]-(FaceSize_Y[0]/2))), cv::Point((int)(CenterOfFace_X[0]+(FaceSize_X[0]/2)), (int)(CenterOfFace_Y[0]+(FaceSize_Y[0]/2))), cv::Scalar(0,255,0), 2); /selecting the first detected face
+			
+		} else {
+			//Failed to call service rapp_get_image
+			ROS_ERROR("[Face detection] - Error calling service rapp_face_detect");
+		}
+		FaceDetectVector.clear();
+		FaceDetectVector.push_back(CenterOfFace_X);
+		FaceDetectVector.push_back(CenterOfFace_Y);
+		FaceDetectVector.push_back(FaceSize_X);
+		FaceDetectVector.push_back(FaceSize_Y);
+		
+		return FaceDetectVector;
+	}
+
+
 } // namespace rapp
 } // namespace dynamic
