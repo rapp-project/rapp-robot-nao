@@ -101,13 +101,13 @@ namespace dynamic {
 			cv::Mat Rotx_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
 			cv::Mat Rotz_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
 			cv::Mat Mat_I = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
-			cv::Mat robotToCameraMat = cv::Mat(4, 4, cv::DataType<float>::type);//cv::CV_32FC1, robotToCameraMatrix);//initialization from the given data
+			cv::Mat robotToCameraMat = cv::Mat(4, 4, cv::DataType<double>::type);//cv::CV_32FC1, robotToCameraMatrix);//initialization from the given data
 			//cv::Mat robotToCameraMat = cv::Mat::zeros(4, 4, cv::DataType<float>::type);
 			//robotToCameraMat = robotToCameraMatrix;
 			try{
 				for(unsigned int i=0;i<4;i++)
 				for(unsigned int j=0;j<4;j++)
-				robotToCameraMat.at<float>(i,j)=robotToCameraMatrix[i][j]; //copying the given data from robotToCameraMatrix to robotToCameraMat
+				robotToCameraMat.at<double>(i,j)=(double)robotToCameraMatrix[i][j]; //copying the given data from robotToCameraMatrix to robotToCameraMat
 				
 			}catch(const std::runtime_error& re)
 			{
@@ -126,7 +126,7 @@ namespace dynamic {
 			//initialization from the given data
 			//for(int i=0;i<4;i++)
 			//for(int j=0;j<4;j++)
-			//robotToCameraMat.at<float>(i,j)=robotToCameraMatrix[i][j];
+			//robotToCameraMat.at<double>(i,j)=(double)robotToCameraMatrix[i][j];
 			
 			//$$$$$$$$$$$$$$$$$$
 			std::vector<double> m00, m01, m02, m10, m12, m20, m21, m22, euler1, euler2, euler3;
