@@ -269,7 +269,7 @@ class MoveNaoModule(ALModule):
 		except Exception, e:
 			status = True
 			print "[Execution server] - Exception %s" % str(e)	
-		print "[Execution server] - Actual Nao pose : %s" % str(req.pose)
+		print "[Execution server] - Current Nao pose : %s" % str(req.pose)
 		return TakePredefinedPostureResponse(status)	
 
 
@@ -302,7 +302,7 @@ class MoveNaoModule(ALModule):
 			self.proxy_RobotPosture.goToPosture(pose, 0.3)
 		except Exception, e:
 				print "[Execution server] - Exception %s" % str(e)	
-		print "[Execution server] - Actual Nao pose : %s" % str(pose)
+		print "[Execution server] - Current Nao pose : %s" % str(pose)
 			# save SONAR data as self.sonar_data[] -> [0] - RIGHT, [1] - LEFT
 
 # Testng SIGINT signal handler

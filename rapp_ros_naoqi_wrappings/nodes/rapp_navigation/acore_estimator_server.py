@@ -14,7 +14,7 @@ from sensor_msgs.msg import Imu
 from rapp_ros_naoqi_wrappings.srv import GetRobotPose,GetRobotPoseResponse
 from rapp_ros_naoqi_wrappings.srv import SetGlobalPose, SetGlobalPoseResponse 
 
-from geometry_msgs.msg import Pose, PoseWithCovarianceStamped
+from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, PoseStamped
 from naoqi import ALModule
 from naoqi import ALBroker
 import numpy as np
@@ -75,10 +75,11 @@ class NaoEstimator(ALModule):
 
 
 	def handle_getRobotPose(self,req):
+
+		actual_pose = PoseStamped()
 		try:
 			if self.tl.canTransform("map","base_link",rospy.Time()):
 				ekf_pose = self.tl.lookupTransform("map","base_link",rospy.Time())
-				actual_pose = PoseStamped()
 				actual_pose.pose.position.x = ekf_pose[0][0]
 				actual_pose.pose.position.y = ekf_pose[0][1]
 				actual_pose.pose.position.z = ekf_pose[0][2]

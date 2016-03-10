@@ -254,25 +254,25 @@ class MoveNaoModule(ALModule):
 	# 		print "[Move server] - Exception %s" % str(ex_setPosition)
 	# 	return SetGlobalPoseResponse(status)
 
-	def handle_rapp_getRobotPose(self,req):
-		try:
-			naoCurrentPosition = self.getNaoCurrentPosition()
-			nao_euler = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])
-			position = PoseStamped()
-			position.header.frame_id = "/map"
-			position.header.seq = 0
-			position.header.stamp = rospy.Time.now()
+	# def handle_rapp_getRobotPose(self,req):
+	# 	try:
+	# 		naoCurrentPosition = self.getNaoCurrentPosition()
+	# 		nao_euler = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])
+	# 		position = PoseStamped()
+	# 		position.header.frame_id = "/map"
+	# 		position.header.seq = 0
+	# 		position.header.stamp = rospy.Time.now()
 
-			position.pose.position.x = naoCurrentPosition
-			position.pose.position.y = naoCurrentPosition[0][1]
-			position.pose.position.z = naoCurrentPosition[0][2]
-			position.pose.orientation.x = naoCurrentPosition[1][0]
-			position.pose.orientation.y = naoCurrentPosition[1][1]
-			position.pose.orientation.z = naoCurrentPosition[1][2]
-			position.pose.orientation.w = naoCurrentPosition[1][3]
-		except Exception, ex_getPosition:
-			print "[Move server] - Exception %s" % str(ex_getPosition)
-		return GetRobotPositionResponse(position)
+	# 		position.pose.position.x = naoCurrentPosition
+	# 		position.pose.position.y = naoCurrentPosition[0][1]
+	# 		position.pose.position.z = naoCurrentPosition[0][2]
+	# 		position.pose.orientation.x = naoCurrentPosition[1][0]
+	# 		position.pose.orientation.y = naoCurrentPosition[1][1]
+	# 		position.pose.orientation.z = naoCurrentPosition[1][2]
+	# 		position.pose.orientation.w = naoCurrentPosition[1][3]
+	# 	except Exception, ex_getPosition:
+	# 		print "[Move server] - Exception %s" % str(ex_getPosition)
+	# 	return GetRobotPositionResponse(position)
 	def handle_rapp_moveTo(self,req):
 		try:
 			self.subscribeToObstacle()
@@ -793,7 +793,7 @@ class MoveNaoModule(ALModule):
 		rospy.sleep(2)
 		nao_position = self.getNaoCurrentPosition()
 		robot_orientation_euler = tf.transformations.euler_from_quaternion(nao_position[1])
-		camera_Nao_position = self.tl.lookupTransform("base_link_nao","cameraTop",rospy.Time())
+		camera_Nao_position = self.tl.lookupTransform("base_link","cameraTop",rospy.Time())
 		camera_Map_position = self.tl.lookupTransform("map","cameraTop",rospy.Time())
 		camera_Map_orientation_euler = tf.transformations.euler_from_quaternion(camera_Map_position[1])
 
