@@ -12,8 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   image_transport
   rapp_ros_naoqi_wrappings
-  rapp_core_agent
-eigen_conversions
+#  rapp_core_agent
+  eigen_conversions
 )
 
 ## System dependencies are found with CMake's conventions
@@ -76,6 +76,8 @@ generate_messages( DEPENDENCIES
   sensor_msgs
 )
 
+ADD_DEFINITIONS("-std=c++11")
+
 ################################
 ## libraries names definition ##
 ################################
@@ -106,7 +108,7 @@ catkin_package(
   LIBRARIES ${NAVIGATION_LIB}
   LIBRARIES ${DYNAMIC_NAV_LIB}
   LIBRARIES ${DYNAMIC_VIS_LIB}
-  CATKIN_DEPENDS roscpp rapp_ros_naoqi_wrappings rapp_core_agent
+  CATKIN_DEPENDS roscpp rapp_ros_naoqi_wrappings #rapp_core_agent
 #  DEPENDS
 )
 
@@ -129,9 +131,9 @@ link_directories(
 )
 
 ## Declare a cpp library
-add_library(${DYNAMIC_NAV_LIB}
-  src/dynamic/navigation/localization.cpp
-)
+#add_library(${DYNAMIC_NAV_LIB}
+#  src/dynamic/navigation/localization.cpp
+#)
 
 add_library(${COMMUNICATION_LIB}
   src/communication/communication.cpp src/communication/CommunicationImpl.cpp
@@ -142,27 +144,27 @@ add_library(${VISION_LIB}
   src/vision/vision.cpp src/vision/VisionImpl.cpp
 )
 
-add_library(${DYNAMIC_VIS_LIB}
-  src/dynamic/vision/vision.cpp
-)
+#add_library(${DYNAMIC_VIS_LIB}
+#  src/dynamic/vision/vision.cpp
+#)
 
 add_library(${NAVIGATION_LIB}
   src/navigation/navigation.cpp src/navigation/NavigationImpl.cpp
 )
-target_link_libraries(${DYNAMIC_NAV_LIB}
-  ${COMMUNICATION_LIB}
-  ${VISION_LIB}
-  ${NAVIGATION_LIB}
-  ${catkin_LIBRARIES}
-  ${RAPP_LIBRARIES_STATIC}
-)
-target_link_libraries(${DYNAMIC_VIS_LIB}
-  ${COMMUNICATION_LIB}
-  ${VISION_LIB}
-  ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}
-  ${RAPP_LIBRARIES_STATIC}
-)
+#target_link_libraries(${DYNAMIC_NAV_LIB}
+#  ${COMMUNICATION_LIB}
+#  ${VISION_LIB}
+#  ${NAVIGATION_LIB}
+#  ${catkin_LIBRARIES}
+#  ${RAPP_LIBRARIES_STATIC}
+#)
+#target_link_libraries(${DYNAMIC_VIS_LIB}
+#  ${COMMUNICATION_LIB}
+#  ${VISION_LIB}
+#  ${catkin_LIBRARIES}
+#  ${OpenCV_LIBRARIES}
+#  ${RAPP_LIBRARIES_STATIC}
+#)
 target_link_libraries(${COMMUNICATION_LIB}
   ${catkin_LIBRARIES}
   ${RAPP_LIBRARIES_STATIC}
@@ -178,14 +180,14 @@ target_link_libraries(${NAVIGATION_LIB}
   ${OpenCV_LIBRARIES}
   ${RAPP_LIBRARIES_STATIC}
 )
-add_dependencies(${DYNAMIC_NAV_LIB} ${catkin_EXPORTED_TARGETS})
-add_dependencies(${DYNAMIC_VIS_LIB} ${catkin_EXPORTED_TARGETS})
+#add_dependencies(${DYNAMIC_NAV_LIB} ${catkin_EXPORTED_TARGETS})
+#add_dependencies(${DYNAMIC_VIS_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${COMMUNICATION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${VISION_LIB} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${NAVIGATION_LIB} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(${VISION_LIB} /usr/lib/libzbar.so)
-target_link_libraries(${DYNAMIC_VIS_LIB} /usr/lib/libzbar.so)
+#target_link_libraries(${DYNAMIC_VIS_LIB} /usr/lib/libzbar.so)
 
 #############
 ## Install ##
@@ -202,7 +204,7 @@ target_link_libraries(${DYNAMIC_VIS_LIB} /usr/lib/libzbar.so)
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS ${COMMUNICATION_LIB} ${VISION_LIB} ${NAVIGATION_LIB} ${DYNAMIC_NAV_LIB} ${DYNAMIC_VIS_LIB}
+install(TARGETS ${COMMUNICATION_LIB} ${VISION_LIB} ${NAVIGATION_LIB} #${DYNAMIC_NAV_LIB} ${DYNAMIC_VIS_LIB}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

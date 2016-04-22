@@ -9,12 +9,13 @@
 #include "rapp_ros_naoqi_wrappings/GetTransform.h"
 #include "rapp_ros_naoqi_wrappings/FaceDetect.h"
 
-#include <rapp/robot/Vision.hpp>
+#include <rapp-robots-api/vision/vision.hpp>
 
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/Image.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
+#include <opencv2/opencv.hpp>
 
 #include <zbar.h> // for QRcode detection - dynamic agent
 //#include "../../../../../objects/QRCode3D/QRCode3D.hpp"

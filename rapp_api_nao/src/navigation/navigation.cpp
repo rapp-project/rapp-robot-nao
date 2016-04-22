@@ -7,7 +7,7 @@
  */
 
 
-#include <rapp/robot/navigation/navigation.hpp>
+#include <rapp-robots-api/navigation/navigation.hpp>
 
 #include "NavigationImpl.hpp"
 

@@ -1,4 +1,4 @@
-#include <rapp/robot/vision/vision.hpp>
+#include <rapp-robots-api/vision/vision.hpp>
 #include "VisionImpl.hpp"
 
 
@@ -13,18 +13,18 @@ vision::~vision() {
 	delete pimpl;
 }
 
-rapp::object::picture::Ptr vision::captureImage (int camera_id, int camera_resolution, const std::string & encoding) {
+rapp::object::picture::Ptr vision::capture_image (int camera_id, int camera_resolution, const std::string & encoding) {
 	rapp::object::picture::Ptr image = pimpl->captureImage(camera_id, camera_resolution, encoding);
 	return image;
 }
 
-bool vision::setCameraParam(int camera_id, int camera_parameter_id, int new_value){
+bool vision::set_camera_param(int camera_id, int camera_parameter_id, int new_value){
 	bool isDone;
 	isDone = pimpl->setCameraParam(camera_id,camera_parameter_id,new_value);
 	return isDone;
 }
 
-std::map<int, bool> vision::setCameraParams(int camera_id, const std::map<int, int> & params){
+std::map<int, bool> vision::set_camera_params(int camera_id, const std::map<int, int> & params){
 	std::map<int, bool> isDone;
 	std::vector<unsigned int> par;
 	std::vector<unsigned int> val;
@@ -37,14 +37,14 @@ std::map<int, bool> vision::setCameraParams(int camera_id, const std::map<int, i
 }
 
 //######################################################################
-std::vector< std::vector <float> > vision::faceDetect(rapp::object::picture image, int camera_id, int camera_resolution){
+std::vector< std::vector <float> > vision::face_detect(rapp::object::picture image, int camera_id, int camera_resolution){
 	std::vector< std::vector<float> > MatrixOfFaces;
 	MatrixOfFaces = pimpl->faceDetect(image, camera_id, camera_resolution);
 	return MatrixOfFaces;
 }
 
 
-rapp::object::QRCode3D vision::qrCodeDetection(rapp::object::picture::Ptr image, std::vector<std::vector<float>> robotToCameraMatrix, double camera_matrix[][3], float landmarkTheoreticalSize){
+rapp::object::QRCode3D vision::qr_code_detection(rapp::object::picture::Ptr image, std::vector<std::vector<float>> robotToCameraMatrix, double camera_matrix[][3], float landmarkTheoreticalSize){
 	rapp::object::QRCode3D QRCodeStruct;
 	try{
 		QRCodeStruct = pimpl->qrCodeDetection(image, robotToCameraMatrix, camera_matrix, landmarkTheoreticalSize);//robotToCameraMatrix.matrix4x4.at(0)
