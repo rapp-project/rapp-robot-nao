@@ -27,6 +27,9 @@
 //#include "rapp_core_agent/Status.h"
 #include "rapp_core_agent/DynamicAgentStatus.h"
 
+#include <boost/foreach.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
 #include <stdio.h>
 #include <ostream>
 #include <iostream>
@@ -114,7 +117,7 @@ public:
 	void runScript(std::string path);
 	
 	// Runs the binary and returns process pid
-	pid_t runBinary(std::string path);
+	pid_t runBinary(const std::string & path, const std::string & file);
 
 	// A callback function. Executes each time a new response
 	// message from HOP arrives.
@@ -455,12 +458,25 @@ bool CoreAgent::state_execute_dynamic_command() {
 bool CoreAgent::state_activate_cpp() {
 	ROS_INFO("State::ActivateCPP");
 	
-	entry_point = "a";
+	std::vector<std::string> bins;
+	using boost::property_tree::ptree;
+  ptree pt;
+  boost::property_tree::json_parser::read_json(app_path + "/manifest.json", pt);
+	
+	BOOST_FOREACH(ptree::value_type &v, pt.get_child("bins"))
+		bins.push_back(v.second.data());
+	
+	if (bins.empty()) {
+		error_msg = "Sorry, I can't run this package.";
+		next_state = Inform;
+	}
+	
+	entry_point = bins[0];
 	// Build the path to the entry point of the application.
-	std::string path = app_path + "/../" + entry_point;
+	std::string path = app_path + "/package/";
 
 	ROS_INFO("Running app from: %s", path.c_str());
-	cpp_pid = runBinary(path);
+	cpp_pid = runBinary(path, entry_point);
 	ROS_INFO("App %d is running", cpp_pid);
 
 	next_state = WaitForCPP;
@@ -518,11 +534,12 @@ void CoreAgent::runScript(std::string path) {
 }
 
 // Runs the script which launches dynamic agent
-pid_t CoreAgent::runBinary(std::string path) {
+pid_t CoreAgent::runBinary(const std::string & path, const std::string & file) {
 	pid_t pid = fork();
 	if (pid == 0) {
 		// child process
-		execl("/home/nao/RAPPCache/a", "a", (char*)0);
+		const std::string & fullpath = path + "/" + file;
+		execl(fullpath.c_str(), file.c_str(), (char*)0);
 		ROS_INFO("Something went wrong");
 		_Exit(EXIT_FAILURE);
 	} else if (pid > 0) {
