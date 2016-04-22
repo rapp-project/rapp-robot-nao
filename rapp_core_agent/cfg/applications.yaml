@@ -1,4 +1,6 @@
 applications: {
-  hi: mitsos,
-  exit: exit
+  hi: "56",
+  exit: "exit",
+  test: "54",
+  test2: "54"
 }

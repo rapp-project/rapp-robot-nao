@@ -1,5 +1,4 @@
 <launch>
 	<rosparam command="load" file="$(find rapp_core_agent)/cfg/applications.yaml"/>
 	<node pkg="rapp_core_agent" name="core_agent" type="core_agent" output="screen"/> 
-  
 </launch>

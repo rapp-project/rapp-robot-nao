@@ -53,5 +53,5 @@ install(DIRECTORY cfg/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/cfg
   PATTERN ".svn" EXCLUDE)
   
-INSTALL(PROGRAMS nodes/fake_store.py
+INSTALL(PROGRAMS nodes/fake_store.py nodes/store_interactions.py nodes/fake_nao_comm.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

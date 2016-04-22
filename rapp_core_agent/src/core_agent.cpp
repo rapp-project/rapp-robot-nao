@@ -154,6 +154,7 @@ protected:
 	State next_state;
 
 	bool finished;
+	bool finish_requested;
 	std::string recognized_word;
 	std::string app_name;
 	std::string app_path;
@@ -169,10 +170,12 @@ protected:
 CoreAgent::CoreAgent() {
 	next_state = Init;
 	finished = false;
+	finish_requested = false;
 }
 
 bool CoreAgent::run() {	
 	while ( (!finished) && (ros::ok()) ) {
+		if (finish_requested) next_state = Unregister;
 		switch(next_state) {
 		case Init:
 			state_init();
@@ -236,7 +239,7 @@ bool CoreAgent::state_init() {
 	ros::service::waitForService(RECOGNIZEDWORD);
 
 	// Getting dictionary from rosparam server
-	nh_.getParam("applications", applications_);
+	ros::param::get("applications", applications_);
 	for (std::map<std::string,std::string>::iterator it=applications_.begin(); it!=applications_.end(); ++it) {
 		words_.push_back(it->first);
 		std::cout << "Known keyword: " << it->first << std::endl;
@@ -282,11 +285,7 @@ bool CoreAgent::state_listen() {
 		ROS_ERROR("Failed to call service rapp_get_recognizes_word");
 		return false;
 	}
-
-	// TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP
-	recognized_word = "hi";
-	// TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP TMP
-
+	
 	if (recognized_word != "Empty") {
 		next_state = Interpret;
 	}
@@ -300,6 +299,7 @@ bool CoreAgent::state_interpret() {
 	} else {
 		// check, whether application for given keyword exists
 		// note: in general, NaoQI should not recognize words 
+		// that are not in provided dictionary
 		if (applications_.count(recognized_word) < 1) {
 			error_msg = "Sorry, I don't know command ";
 			error_msg += recognized_word;
@@ -343,20 +343,20 @@ bool CoreAgent::state_unregister() {
 	ROS_INFO("State::Unregister");
 	
 	rapp_ros_naoqi_wrappings::Say srv;
-	bool successful=false;
+	bool successful = false;
 	//## slower and lower voice
 	std::string sentence;
 	sentence = "\\RSPD=" + std::string("100") + "\\ ";
 	sentence += "\\VCT="+ std::string("100") + "\\ ";
-	sentence += "";
+	sentence += "Bye!";
 	sentence += "\\RST\\ ";
 
 	srv.request.request = sentence;//a message, that will be said
-	srv.request.language = "Spanish";//language selection
+	srv.request.language = "English";//language selection
 
 	client_say_.call(srv);
 	
-	
+	finish_requested = false;
 	next_state = Finish;
 	return true;
 }
@@ -569,7 +569,7 @@ bool CoreAgent::dynamicAgentStatusReceived(rapp_core_agent::DynamicAgentStatus::
 }
 
 void CoreAgent::finish_ros() {
-	next_state = Unregister;
+	finish_requested = true;
 }
 
 
