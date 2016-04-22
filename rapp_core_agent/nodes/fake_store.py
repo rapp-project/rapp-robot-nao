@@ -13,6 +13,8 @@ class fake_store:
 		base_name = data.data.split('-')[0]
 		path = os.path.join(self.base_path, base_name)
 		
+		print path
+		
 		# check, whether required package is available
 		if not os.path.exists(path):
 			path = ""
@@ -30,7 +32,7 @@ class fake_store:
 		rospy.Subscriber('request', String, self.callback)
 		
 		# read base path from parameter server
-		self.base_path = rospy.get_param('weblets_path', '/home/nao/.config/hop/weblets')
+		self.base_path = rospy.get_param('weblets_path', '/tmp/rapps')
 		
 		rospy.spin()
 
