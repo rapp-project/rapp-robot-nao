@@ -480,6 +480,7 @@ bool CoreAgent::state_wait_cpp() {
 	
 	int status;
 	if (!waitpid(cpp_pid, &status, WNOHANG)) {
+		ROS_INFO("Status: %d", status);
 		sleep(1);
 	} else {
 		if (WIFEXITED(status)) ROS_INFO("RApp %d ended", cpp_pid);
@@ -523,7 +524,7 @@ pid_t CoreAgent::runBinary(std::string path) {
 		// child process
 		execl("/home/nao/RAPPCache/a", "a", (char*)0);
 		ROS_INFO("Something went wrong");
-		exit(1);
+		_Exit(EXIT_FAILURE);
 	} else if (pid > 0) {
 		// parent process
 		ROS_INFO("Spawned process: %d", pid);
