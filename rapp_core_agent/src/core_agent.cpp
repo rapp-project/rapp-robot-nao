@@ -15,6 +15,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <utility>
+
 #include "std_msgs/String.h"
 #include "rapp_ros_naoqi_wrappings/RecognizeWord.h"
 #include "rapp_ros_naoqi_wrappings/Say.h"
@@ -114,7 +116,7 @@ public:
 	bool run();
 
 	// Runs the script which launches dynamic agent
-	void runScript(std::string path);
+	pid_t runScript(std::string path);
 	
 	// Runs the binary and returns process pid
 	pid_t runBinary(const std::string & path, const std::string & file);
@@ -174,6 +176,8 @@ CoreAgent::CoreAgent() {
 	next_state = Init;
 	finished = false;
 	finish_requested = false;
+	
+	
 }
 
 bool CoreAgent::run() {	
@@ -238,8 +242,12 @@ bool CoreAgent::run() {
 }
 
 bool CoreAgent::state_init() {
-	// Wait for service rapp_get_recognized_word
-	ros::service::waitForService(RECOGNIZEDWORD);
+	while(!finish_requested && !ros::isShuttingDown() && !ros::service::waitForService(RECOGNIZEDWORD, 1000)) {
+		ros::spinOnce();
+	}
+
+	if (finish_requested)
+		return false;
 
 	// Getting dictionary from rosparam server
 	ros::param::get("applications", applications_);
@@ -407,7 +415,7 @@ bool CoreAgent::state_wait_for_dynamic() {
 		next_state = Inform;
 	} else {
 		// activate DA
-		next_state = ActivateCPP;
+		next_state = ActivateDA;
 		da_finished = false;
 	}
 
@@ -419,13 +427,13 @@ bool CoreAgent::state_activate_dynamic() {
 	
 	// Build the path to the 'run' script of the application.
 	std::string path = app_path;
-	path.append("/run");
+	path.append("/package/run");
 
 	ROS_INFO("Running app from: %s", app_path.c_str());
-	runScript(path);
+	cpp_pid = runScript(path);
 	
 
-	next_state = WaitForDACommand;
+	next_state = WaitForCPP;
 
 	return true;
 }
@@ -517,20 +525,20 @@ bool CoreAgent::state_wait_hop() {
 
 
 // Runs the script which launches dynamic agent
-void CoreAgent::runScript(std::string path) {
+pid_t CoreAgent::runScript(std::string path) {
 	pid_t pid = fork();
 	if (pid == 0) {
 		// child process
 		execl("/bin/bash", "bash", path.c_str(), (char*)0);
+		_Exit(EXIT_FAILURE);
 	} else if (pid > 0) {
 		// parent process
 		ROS_INFO("Spawned process: %d", pid);
 	} else {
 		// fork failed
 		ROS_INFO("fork() failed!");
-		return ;
 	}
-	return;
+	return pid;
 }
 
 // Runs the script which launches dynamic agent
