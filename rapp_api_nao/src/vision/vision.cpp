@@ -44,8 +44,8 @@ std::vector< std::vector <float> > vision::face_detect(rapp::object::picture ima
 }
 
 
-rapp::object::QRCode3D vision::qr_code_detection(rapp::object::picture::Ptr image, std::vector<std::vector<float>> robotToCameraMatrix, double camera_matrix[][3], float landmarkTheoreticalSize){
-	rapp::object::QRCode3D QRCodeStruct;
+rapp::object::qr_code_3d vision::qr_code_detection(rapp::object::picture::Ptr image, std::vector<std::vector<float>> robotToCameraMatrix, double camera_matrix[][3], float landmarkTheoreticalSize){
+	rapp::object::qr_code_3d QRCodeStruct;
 	try{
 		QRCodeStruct = pimpl->qrCodeDetection(image, robotToCameraMatrix, camera_matrix, landmarkTheoreticalSize);//robotToCameraMatrix.matrix4x4.at(0)
 	}
