@@ -116,18 +116,18 @@ navigation::~navigation() {
 		return status;
 	}
 
-	bool navigation::moveAlongPath(std::vector<rapp::object::PoseStamped> poses){
+	bool navigation::moveAlongPath(std::vector<rapp::object::pose_stamped> poses){
 		bool status;
 		status = pimpl->moveAlongPath(poses);
 		return status;		
 	}
-	rapp::object::PoseStamped navigation::getRobotPose(){
-		rapp::object::PoseStamped pose;
+	rapp::object::pose_stamped navigation::getRobotPose(){
+		rapp::object::pose_stamped pose;
 		pose = pimpl->getRobotPose();
 		return pose;
 
 	}
-	bool navigation::setGlobalPose(rapp::object::Pose rapp_pose){
+	bool navigation::setGlobalPose(rapp::object::pose rapp_pose){
 
 		bool status;
 		status = pimpl->setGlobalPose(rapp_pose);

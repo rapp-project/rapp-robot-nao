@@ -110,8 +110,8 @@ catkin_package(
   LIBRARIES ${COMMUNICATION_LIB}
   LIBRARIES ${VISION_LIB}
   LIBRARIES ${NAVIGATION_LIB}
-  LIBRARIES ${DYNAMIC_NAV_LIB}
-  LIBRARIES ${DYNAMIC_VIS_LIB}
+  # LIBRARIES ${DYNAMIC_NAV_LIB}
+  # LIBRARIES ${DYNAMIC_VIS_LIB}
   CATKIN_DEPENDS roscpp rapp_ros_naoqi_wrappings #rapp_core_agent
 #  DEPENDS
 )
@@ -135,9 +135,9 @@ link_directories(
 )
 
 ## Declare a cpp library
-add_library(${DYNAMIC_NAV_LIB}
-  src/dynamic/navigation/localization.cpp
-)
+#add_library(${DYNAMIC_NAV_LIB}
+#  src/dynamic/navigation/localization.cpp
+#)
 
 add_library(${COMMUNICATION_LIB}
   src/communication/communication.cpp src/communication/CommunicationImpl.cpp
@@ -155,13 +155,13 @@ add_library(${VISION_LIB}
 add_library(${NAVIGATION_LIB}
   src/navigation/navigation.cpp src/navigation/NavigationImpl.cpp
 )
-target_link_libraries(${DYNAMIC_NAV_LIB}
-  ${COMMUNICATION_LIB}
-  ${VISION_LIB}
-  ${NAVIGATION_LIB}
-  ${catkin_LIBRARIES}
-  ${RAPP_LIBRARIES_STATIC}
-)
+#target_link_libraries(${DYNAMIC_NAV_LIB}
+#  ${COMMUNICATION_LIB}
+#  ${VISION_LIB}
+#  ${NAVIGATION_LIB}
+#  ${catkin_LIBRARIES}
+#  ${RAPP_LIBRARIES_STATIC}
+#)
 #target_link_libraries(${DYNAMIC_VIS_LIB}
 #  ${COMMUNICATION_LIB}
 #  ${VISION_LIB}
@@ -208,7 +208,7 @@ target_link_libraries(${VISION_LIB} /usr/lib/libzbar.so)
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS ${COMMUNICATION_LIB} ${VISION_LIB} ${NAVIGATION_LIB} ${DYNAMIC_NAV_LIB}# ${DYNAMIC_VIS_LIB}
+install(TARGETS ${COMMUNICATION_LIB} ${VISION_LIB} ${NAVIGATION_LIB} #${DYNAMIC_NAV_LIB}# ${DYNAMIC_VIS_LIB}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

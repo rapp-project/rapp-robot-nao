@@ -215,7 +215,7 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	bool NavigationImpl::moveAlongPath(std::vector<rapp::object::PoseStamped> poses){
+	bool NavigationImpl::moveAlongPath(std::vector<rapp::object::pose_stamped> poses){
 
 			nav_msgs::Path poses_ros;
 
@@ -255,12 +255,12 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	rapp::object::PoseStamped NavigationImpl::getRobotPose(){
+	rapp::object::pose_stamped NavigationImpl::getRobotPose(){
 
 		client_getRobotPose = n->serviceClient<rapp_ros_naoqi_wrappings::GetRobotPose>("rapp_getRobotPose");
 		  rapp_ros_naoqi_wrappings::GetRobotPose srv;
 		  geometry_msgs::PoseStamped pose_ros;
-			rapp::object::PoseStamped pose;
+			rapp::object::pose_stamped pose;
 
 		  	pose_ros = srv.response.pose;
 
@@ -294,7 +294,7 @@ NavigationImpl::~NavigationImpl() {
 
 
 	}
-	bool NavigationImpl::setGlobalPose(rapp::object::Pose rapp_pose){
+	bool NavigationImpl::setGlobalPose(rapp::object::pose rapp_pose){
 		client_setGlobalPose = n->serviceClient<rapp_ros_naoqi_wrappings::SetGlobalPose>("rapp_setGlobalPose");
 		rapp_ros_naoqi_wrappings::SetGlobalPose srv;
 		ros::Time time_now = ros::Time::now();
