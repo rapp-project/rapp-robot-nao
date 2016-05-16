@@ -101,11 +101,11 @@ bool CommunicationImpl::playAudio(std::string file_path, double position, double
 	return successful;
 }
 
-std::string CommunicationImpl::wordSpotting(std::string dictionary[], int size){	
+std::string CommunicationImpl::wordSpotting(const std::vector<std::string>& dictionary){	
 	client_recognizeWord = n->serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>("rapp_get_recognized_word");
 	rapp_ros_naoqi_wrappings::RecognizeWord srv;
 	
-	srv.request.wordsList = copyTable(dictionary,size);
+	srv.request.wordsList = dictionary;//copyTable(dictionary,size);
 	
 	if (client_recognizeWord.call(srv))
 	{

@@ -39,7 +39,7 @@ public:
 	
 	bool playAudio(std::string file_path, double position, double volume, double balance, bool play_in_loop);
 	
-	std::string wordSpotting(std::string dictionary[], int size);
+	std::string wordSpotting(const std::vector<std::string> & dictionary);
 	
 	std::string captureAudio(int time);
 	

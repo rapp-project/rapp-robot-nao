@@ -28,9 +28,9 @@ bool communication::text_to_speech(const std::string & str, Language language) {
 	return success;
 }
 
-std::string communication::word_spotting(std::string dictionary[], int size){
+std::string communication::word_spotting(const std::vector<std::string> & dictionary){
 	std::string word;
-	word = pimpl->wordSpotting(dictionary, size);
+	word = pimpl->wordSpotting(dictionary);
 	return word;
 }
 
