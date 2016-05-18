@@ -9,7 +9,7 @@ COL_RED=$ESC_SEQ"31;01m"
 GIT_WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao/src"
 GIT_WS_RAPP_APPLICATIONS_DIR="/home/nao/ws_rapp_applications"
 GIT_WS_RAPP_API_DIR="/home/nao/ws_rapp_api/src"
-GIT_WS_RAPP_ROBOT_API_DIR="/home/nao/ws_rapp_robot_api/src"
+GIT_WS_RAPP_ROBOTS_API_DIR="/home/nao/ws_rapp_robots_api/src"
 
 
 WS_RAPP_APPLICATIONS_NAO_DIR="/home/nao/ws_rapp_applications_nao"
@@ -46,6 +46,12 @@ if [ ! -d $GIT_WS_RAPP_API_DIR ]; then
 	mkdir -p $GIT_WS_RAPP_API_DIR
 fi
 
+# If folder doesnt exist
+if [ ! -d $GIT_WS_RAPP_ROBOT_API_DIR ]; then
+	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_ROBOT_API_DIR directory."
+	mkdir -p $GIT_WS_RAPP_ROBOT_API_DIR
+fi
+
 # Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR
 cd $GIT_WS_RAPP_NAO_DIR
 echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR"
@@ -65,8 +71,8 @@ echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
 git clone -b wut https://github.com/rapp-project/rapp-api.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
 
 # Clonning rapp-robots-api repository to $GIT_WS_RAPP_ROBOT_API_DIR
-cd $GIT_WS_RAPP_ROBOT_API_DIR
-echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robot-api repository to $GIT_WS_RAPP_ROBOT_API_DIR"
+cd $GIT_WS_RAPP_ROBOTS_API_DIR
+echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robots-api repository to $GIT_WS_RAPP_ROBOTS_API_DIR"
 echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
 git clone -b cpp https://github.com/rapp-project/rapp-robots-api.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
 
