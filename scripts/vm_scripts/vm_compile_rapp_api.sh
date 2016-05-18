@@ -20,4 +20,13 @@ make
 make install
 echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
 
+# rapp-robots-api
+WS_RAPP_ROBOT_API_DIR="/home/nao/ws_rapp_robots_api"
+cd $WS_RAPP_ROBOT_API_DIR
+mkdir -p src/rapp-robots-api/cpp/build/
+WS_RAPP_ROBOTS_API_DIR_BUILD="/home/nao/ws_rapp_robots_api/src/rapp-robots-api/cpp/build/"
+cd $WS_RAPP_ROBOT_API_DIR_BUILD
 
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/nao/ws_rapp_robot_api/install
+make 
+make install
