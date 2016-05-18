@@ -9,24 +9,15 @@ COL_RED=$ESC_SEQ"31;01m"
 
 # Rapp - ws_rapp_nao - core agent packages
 WS_RAPP_API_DIR="/home/nao/ws_rapp_api"
-cd $WS_RAPP_API_DIR
-mkdir -p src/rapp-api/cpp/build/
-WS_RAPP_API_DIR_BUILD="/home/nao/ws_rapp_api/src/rapp-api/cpp/build/"
-cd $WS_RAPP_API_DIR_BUILD
-
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/nao/ws_rapp_api/install
-
+mkdir -p $WS_RAPP_API_DIR/build/rapp-api
+cd $WS_RAPP_API_DIR/build/rapp-api
+cmake $WS_RAPP_API_DIR/rapp-api/src/rapp-api -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/rapp-api/install
 make 
 make install
-echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
 
 # rapp-robots-api
-WS_RAPP_ROBOTS_API_DIR="/home/nao/ws_rapp_robots_api"
-cd $WS_RAPP_ROBOTS_API_DIR
-mkdir -p src/rapp-robots-api/cpp/build/
-WS_RAPP_ROBOTS_API_DIR_BUILD="/home/nao/ws_rapp_robots_api/src/rapp-robots-api/cpp/build/"
-cd $WS_RAPP_ROBOTS_API_DIR_BUILD
-
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/nao/ws_rapp_robots_api/install
-make 
+mkdir -p $WS_RAPP_API_DIR/build/rapp-robots-api
+cd $WS_RAPP_API_DIR/build/rapp-robots-api
+cmake $WS_RAPP_API_DIR/src/rapp-robots-api -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/install -DRapp_DIR=$WS_RAPP_API_DIR/install/share/Rapp -DBUILD_ALL=ON
+make
 make install
