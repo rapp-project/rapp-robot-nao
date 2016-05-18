@@ -47,9 +47,9 @@ if [ ! -d $GIT_WS_RAPP_API_DIR ]; then
 fi
 
 # If folder doesnt exist
-if [ ! -d $GIT_WS_RAPP_ROBOT_API_DIR ]; then
+if [ ! -d $GIT_WS_RAPP_ROBOTS_API_DIR ]; then
 	echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_ROBOT_API_DIR directory."
-	mkdir -p $GIT_WS_RAPP_ROBOT_API_DIR
+	mkdir -p $GIT_WS_RAPP_ROBOTS_API_DIR
 fi
 
 # Clonning rapp-robot-nao repository to $GIT_WS_RAPP_NAO_DIR
