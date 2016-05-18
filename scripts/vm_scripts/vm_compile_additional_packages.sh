@@ -24,7 +24,7 @@ SCRIPTS_DIR="/home/nao/ws_rapp_nao"
 # export 
 export CC=/usr/bin/cc
 export CXX=/usr/bin/c++
-
+'''
 # Creates $ROS_ADDITIONAL_PACKAGES_SRC_DIR
 if [ -d $ROS_ADDITIONAL_PACKAGES_SRC_DIR ]; then #If directory exists
 	echo "Workspace $ROS_ADDITIONAL_PACKAGES_SRC_DIR exists"
@@ -111,7 +111,7 @@ mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$ROS_ADDITIONAL_PACKAGES_ISOLATED -DCMAKE_BUILD_TYPE=Release || { echo -e >&2 "$COL_RED[Error]$COL_RESET - tinyXML2 make failed with $?"; exit 1; }
 make install
-make clean
+make clean'''
 
 # # FLANN
 # cd $PROGRAMS_DIRECTORY
@@ -192,7 +192,7 @@ make clean
 # sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL_image.so /usr/lib/libSDL_image.so
 # sudo ln -s /home/nao/ws_ros_additional_packages/install_isolated/lib/libSDL.so /usr/lib/libSDL.so
 
-
+'''
 cd $ROS_ADDITIONAL_PACKAGES_SRC_DIR
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from bond_core repository"
 git clone https://github.com/ros/bond_core.git
@@ -263,6 +263,7 @@ make clean
 # Sourcing ws_ros_additional_packages workspace
 source $ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash
 echo -e "$COL_GREEN[OK]$COL_RESET - Sourcing ws_ros_additional_packages workspace"
+'''
 
 # Openssl
 cd $PROGRAMS_DIRECTORY
