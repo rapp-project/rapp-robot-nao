@@ -11,7 +11,7 @@ COL_RED=$ESC_SEQ"31;01m"
 WS_RAPP_API_DIR="/home/nao/ws_rapp_api"
 mkdir -p $WS_RAPP_API_DIR/build/rapp-api
 cd $WS_RAPP_API_DIR/build/rapp-api
-cmake $WS_RAPP_API_DIR/rapp-api/src/rapp-api -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/rapp-api/install
+cmake $WS_RAPP_API_DIR/src/rapp-api -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/install
 make 
 make install
 
