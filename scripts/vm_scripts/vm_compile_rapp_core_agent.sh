@@ -26,7 +26,8 @@ if [ ! -f $WS_RAPP_NAO_DIR/src/CMakeLists.txt ]; then
 fi
 
 cd $WS_RAPP_NAO_DIR
-export Rapp_DIR=/home/nao/ws_rapp_api/install/lib/CMake/Rapp
+export Rapp_DIR=/home/nao/ws_rapp_api/install/share/Rapp
+export RappRobots_DIR=/home/nao/ws_rapp_api/install/share/RappRobots
 echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
 source $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash 
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $WS_RAPP_NAO_DIR"
