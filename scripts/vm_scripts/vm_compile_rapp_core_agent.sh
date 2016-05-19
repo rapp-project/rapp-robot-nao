@@ -19,6 +19,8 @@ WS_ROS_ADDITIONAL_PACKAGES_ISOLATED=$WS_ROS_ADDITIONAL_PACKAGES_DIR"/install_iso
 # Rapp - ws_rapp_nao - core agent packages
 WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao"
 WS_RAPP_NAO_ISOLATED=$WS_RAPP_NAO_DIR"/install_isolated"
+WS_RAPP_API_DIR="/home/nao/ws_rapp_api"
+
 source $WS_ROS_DIR/install_isolated/setup.bash
 cd $WS_RAPP_NAO_DIR/src
 if [ ! -f $WS_RAPP_NAO_DIR/src/CMakeLists.txt ]; then
@@ -26,8 +28,8 @@ if [ ! -f $WS_RAPP_NAO_DIR/src/CMakeLists.txt ]; then
 fi
 
 cd $WS_RAPP_NAO_DIR
-export Rapp_DIR=/home/nao/ws_rapp_api/install/share/Rapp
-export RappRobots_DIR=/home/nao/ws_rapp_api/install/share/RappRobots
+export Rapp_DIR=$WS_RAPP_API_DIR/install/share/Rapp
+export RappRobots_DIR=$WS_RAPP_API_DIR/install/share/RappRobots
 echo -e "$COL_GREEN[OK]$COL_RESET - Sources with $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED"
 source $WS_ROS_ADDITIONAL_PACKAGES_ISOLATED/setup.bash 
 echo -e "$COL_GREEN[OK]$COL_RESET - Compiles workspace: $WS_RAPP_NAO_DIR"
