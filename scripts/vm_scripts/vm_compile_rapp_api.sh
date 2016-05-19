@@ -21,3 +21,10 @@ cd $WS_RAPP_API_DIR/build/rapp-robots-api
 cmake $WS_RAPP_API_DIR/src/rapp-robots-api -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/install -DRapp_DIR=$WS_RAPP_API_DIR/install/share/Rapp -DBUILD_ALL=ON
 make
 make install
+
+# rapp-cloud-api
+mkdir -p $WS_RAPP_API_DIR/build/rapp-cloud-api
+cd $WS_RAPP_API_DIR/build/rapp-cloud-api
+cmake $WS_RAPP_API_DIR/src/rapp-cloud-api -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/install
+make
+make install

@@ -67,6 +67,8 @@ git clone -b wut https://github.com/rapp-project/rapp-api.git || { echo -e >&2 "
 echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-robots-api repository to $GIT_WS_RAPP_API_DIR"
 echo -e "$COL_GREEN[OK] - Enter your github login and password $COL_RESET"
 git clone -b cpp https://github.com/rapp-project/rapp-robots-api.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
+echo -e "$COL_GREEN[OK]$COL_RESET - Clonning rapp-cloud-api repository to $GIT_WS_RAPP_API_DIR"
+git clone https://github.com/maciek-slon/rapp-cloud-api.git || { echo -e >&2 "$COL_RED[Error]$COL_RESET - git clone failed with $?"; exit 1; }
 
 # Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/src folder with name src
 echo -e "$COL_GREEN[OK]$COL_RESET - Setting in $WS_RAPP_APPLICATIONS_NAO_DIR a symbolic link to $GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications-nao/nao/src folder with name src"
