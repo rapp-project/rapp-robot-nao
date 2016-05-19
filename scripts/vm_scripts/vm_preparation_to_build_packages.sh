@@ -9,7 +9,6 @@ COL_RED=$ESC_SEQ"31;01m"
 GIT_WS_RAPP_NAO_DIR="/home/nao/ws_rapp_nao/src"
 GIT_WS_RAPP_APPLICATIONS_DIR="/home/nao/ws_rapp_applications"
 GIT_WS_RAPP_API_DIR="/home/nao/ws_rapp_api/src"
-GIT_WS_RAPP_ROBOTS_API_DIR="/home/nao/ws_rapp_robots_api/src"
 
 
 WS_RAPP_APPLICATIONS_NAO_DIR="/home/nao/ws_rapp_applications_nao"
@@ -101,3 +100,13 @@ export PATH=${PATH}:$GIT_WS_RAPP_NAO_DIR/rapp-robot-nao/scripts/vm_scripts
 export PATH=${PATH}:$GIT_WS_RAPP_APPLICATIONS_DIR/rapp-applications/nao/scripts
 EOM
 
+# Just for Hackaton
+
+GIT_WS_RAPP_HACKATON_APPS_DIR="/home/nao/ws_rapp_hacaton_apps"
+# Create folder if it doesnt exist
+if [ ! -d $GIT_WS_RAPP_HACKATON_APPS_DIR ]; then
+  echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_HACKATON_APPS_DIR directory."
+  mkdir -p $GIT_WS_RAPP_HACKATON_APPS_DIR/build/
+fi
+cd $GIT_WS_RAPP_HACKATON_APPS_DIR
+git clone https://github.com/maciek-slon/rapp_sample.git src
