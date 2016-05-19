@@ -18,7 +18,7 @@ else
   export RappRobots_DIR=$WS_RAPP_API_DIR/install/share/RappRobots
   export LD_LIBRARY_PATH=$WS_RAPP_API_DIR/install/lib:$LD_LIBRARY_PATH
 
-  GIT_WS_RAPP_HACKATON_APPS_DIR=RAPP_BASE"/ws_rapp_hacaton_apps"
+  GIT_WS_RAPP_HACKATON_APPS_DIR=$RAPP_BASE"/ws_rapp_hacaton_apps"
   GIT_WS_RAPP_BUILD_HACKATON_APPLICATION_DIR=$GIT_WS_RAPP_HACKATON_APPS_DIR/build/$1
 
   if [ ! -d $GIT_WS_RAPP_BUILD_HACKATON_APPLICATION_DIR ]; then
