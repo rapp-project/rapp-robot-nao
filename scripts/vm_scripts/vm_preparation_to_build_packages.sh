@@ -102,7 +102,7 @@ EOM
 
 # Just for Hackaton
 
-GIT_WS_RAPP_HACKATON_APPS_DIR="/home/nao/ws_rapp_hacaton_apps"
+GIT_WS_RAPP_HACKATON_APPS_DIR="/home/nao/ws_rapp_hackaton_apps"
 # Create folder if it doesnt exist
 if [ ! -d $GIT_WS_RAPP_HACKATON_APPS_DIR ]; then
   echo -e "$COL_GREEN[OK]$COL_RESET - Creating $GIT_WS_RAPP_HACKATON_APPS_DIR directory."
