@@ -7,9 +7,9 @@ COL_GREEN=$ESC_SEQ"32;01m"
 COL_RESET=$ESC_SEQ"39;49;00m"
 COL_RED=$ESC_SEQ"31;01m"
 
-if [ "$1" = "" ]
-then
+if [ "$#" -ne 1 ]; then
   echo "Enter a name of an application"
+  exit 1
 else
   RAPP_BASE="/home/nao"
   WS_RAPP_API_DIR=$RAPP_BASE"/ws_rapp_api"
