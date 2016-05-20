@@ -413,16 +413,17 @@ class CommunicationModule(ALModule):
 			print "[Send Email] - findOutEmail - Value Error - Probably there is the difference in name - capital letter"
 	
 	def countDown(self, message):
-		print "[Send Email] - %s in 3 seconds" % message
-		self.prox_tts.say(message + " in 3 seconds")
-		print "[Send Email] - %s in 2 seconds" % message
-		self.prox_tts.say(message + " in 2 seconds")
-		print "[Send Email] - %s in 1 seconds" % message
-		self.prox_tts.say(message + " in 1 second")
-		# Sleeps a while (1 second)
-		time.sleep(1)
-		print "[Send Email] - GO"
-		self.prox_tts.say("GO")
+		print "[Send Email] - %s in" % message
+		self.prox_tts.say(message + " in")		
+
+		print "[Send Email] - 3"
+		self.prox_tts.say("3")
+		print "[Send Email] - 2"
+		self.prox_tts.say("2")
+		print "[Send Email] - 1"
+		self.prox_tts.say("1")
+		print "[Send Email] - Go"
+		self.prox_tts.say("Go")
 	
 	# Record an email message
 	def recordEmail(self):
