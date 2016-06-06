@@ -20,7 +20,7 @@ import sys, os
 import rospy
 import almath as m
 import numpy 
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, PointStamped
 from geometry_msgs.msg import PolygonStamped, Point32
 
 import tf.transformations
@@ -106,7 +106,9 @@ class MoveNaoModule(ALModule):
 		self.MoveIsFailed = False
 		self.GP_seq = -1
 		self.tl = tf.TransformListener(True, rospy.Duration(5.0))
+		self.tf_br = tf.TransformBroadcaster()
 		self.sub_obstacle = None
+		self.getTransform_interface = rospy.ServiceProxy('rapp_get_transform', GetTransform)
 		#globalPosePublisher = rospy.Publisher('/initialpose', PoseWithCovarianceStamped, queue_size=10)
 	def subscribeToObstacle(self):
 		self.sub_obstacle = rospy.Subscriber("/obstacleDetectorState", obstacleData , self.detectObstacle)
@@ -785,48 +787,168 @@ class MoveNaoModule(ALModule):
 			print "[Move server] - Exception %s" % str(ex)
 		return TakePredefinedPostureResponse(status)	
 
+	def transformPoint(self,target_frame,ps, time):
+		r = PointStamped()
+		self.tl.waitForTransform(target_frame,ps.header.frame_id,time, rospy.Duration(5))
+		point_translation_upper,point_rotation_upper = self.tl.lookupTransform(target_frame,ps.header.frame_id,time)
+		transform_matrix = numpy.dot(tf.transformations.translation_matrix(point_translation_upper), tf.transformations.quaternion_matrix(point_rotation_upper))
+		xyz = tuple(numpy.dot(transform_matrix, numpy.array([ps.point.x, ps.point.y, ps.point.z, 1.0])))[:3] 
+		r.header.stamp = ps.header.stamp 
+		r.header.frame_id = target_frame 
+		r.point = geometry_msgs.msg.Point(*xyz) 	
+		return r	
+
 	def compute_turn_head_angles(self, point):
+
+		now = rospy.Time()
 		pointX = point[0]
 		pointY = point[1]
 		pointZ = point[2]
+		dest_point = PointStamped()
+		dest_point.header.frame_id = "/map"
+		dest_point.header.seq = 0
+		dest_point.header.stamp = now
+		dest_point.point.x = point[0]
+		dest_point.point.y = point[1]
+		dest_point.point.z = point[2]
 
-		rospy.sleep(2)
-		nao_position = self.getNaoCurrentPosition()
-		robot_orientation_euler = tf.transformations.euler_from_quaternion(nao_position[1])
-		camera_Nao_position = self.tl.lookupTransform("base_link","cameraTop",rospy.Time())
-		camera_Map_position = self.tl.lookupTransform("map","cameraTop",rospy.Time())
-		camera_Map_orientation_euler = tf.transformations.euler_from_quaternion(camera_Map_position[1])
+		self.tf_br.sendTransform(point, [0,0,0,1],
+                                         rospy.Time.now(), "POINT", "/map")
 
-		camera_Nao_orientation_euler = tf.transformations.euler_from_quaternion(camera_Nao_position[1])
+		if(self.tl.canTransform("Neck","cameraTop", now) and self.tl.canTransform("HeadPitch","cameraTop", now) and self.tl.canTransform("Neck", "map", now) and self.tl.canTransform("Neck", "cameraTop", now) ):
+			point_in_head_yaw = self.transformPoint("Neck", dest_point,now)
 
-		dist2D = numpy.sqrt((pointX - camera_Map_position[0][0])*(pointX - camera_Map_position[0][0])+(pointY - camera_Map_position[0][1])*(pointY - camera_Map_position[0][1]))
-		#    *  - point
-		#    |  }
-		#    |  }  h = pointZ - NaoCamera
-		#    o    - Nao camera
-		h = pointZ - camera_Map_position[0][2]#camera_position[2]-nao_position[0][2]
+			point_in_head_pitch = self.transformPoint("Neck", dest_point,now)
 
-		#print "= ",robot_orientation_euler[2]
-		#print "torso h",nao_position[0][2]
-		gamma = camera_Map_orientation_euler[2]
-		blabla = camera_Nao_orientation_euler[2]
-		alpha = numpy.arctan2(pointY-camera_Map_position[0][1],pointX-camera_Map_position[0][0])
-		print "gamma = ",gamma, "alpha = ",alpha, "blabla = ",blabla
-		if abs(gamma)> abs(alpha):
-		 	theta = -1*(gamma - alpha)
-		elif abs(gamma)< abs(alpha):
-			theta = (alpha - gamma)
+			###
+			#  compute head pitch angle. Based on MMAR publication
+			###
+			
+			# point_in_head_pitch = self.transformerROS.transformPoint("head_upper_fixed_link_1", dest_point)
+			# print "point_in_head_pitch = ", point_in_head_pitch
+			camera_in_fixed_head_pitch_transform = self.tl.lookupTransform("Neck","cameraTop",now)
+			camera_in_revolute_head_pitch_transform = self.tl.lookupTransform("HeadPitch","cameraTop",now)
+			x_y_len = numpy.sqrt(point_in_head_pitch.point.x*point_in_head_pitch.point.x+point_in_head_pitch.point.y*point_in_head_pitch.point.y)
+			D = numpy.sqrt(camera_in_fixed_head_pitch_transform[0][0]*camera_in_fixed_head_pitch_transform[0][0]+camera_in_fixed_head_pitch_transform[0][2]*camera_in_fixed_head_pitch_transform[0][2]) 
+			# print "D = ", D
+			C = numpy.sqrt(x_y_len*x_y_len + point_in_head_pitch.point.z*point_in_head_pitch.point.z)
+			# print "C = ", C
+			gamma = - numpy.arctan(camera_in_revolute_head_pitch_transform[0][2]/camera_in_revolute_head_pitch_transform[0][0])
+			# print "gamma = ", gamma
+
+			beta = numpy.pi - gamma
+			# print "beta = ", beta
+			sin_sigma = (D/C) * numpy.sin(beta)
+			# print "sin_sigma = ", sin_sigma
+			alpha = numpy.arctan2(point_in_head_pitch.point.z, x_y_len) + numpy.arctan2(sin_sigma,numpy.sqrt(1-sin_sigma*sin_sigma))
+			# print "alpha = ", alpha
+			head_pitch = - alpha #+ beta + gamma - (270*numpy.pi)/180
+			# print "head_pitch = ", head_pitch
+			if (abs(head_pitch) < numpy.pi+0.01 and abs(head_pitch) > numpy.pi-0.01):
+				head_pitch = 0
+
+			###
+			#  compute head yaw angle. Based on MMAR publication
+			###
+
+			head_yaw = numpy.arctan2(point_in_head_yaw.point.y, point_in_head_yaw.point.x)
+			if (abs(head_yaw) < numpy.pi+0.01 and abs(head_yaw) > numpy.pi-0.01):
+				head_yaw = 0
+			if (abs(head_yaw) < 0+0.01 and abs(head_yaw) > 0-0.01):
+				head_yaw = 0
+
+
+			turnHeadAngles = [head_yaw,head_pitch]
+			#print "turnHeadAngles = ", turnHeadAngles
+			return turnHeadAngles
 		else:
-			theta =0
-		if abs(theta) > 3.14:
-			print"\n theta > 3.14\n"
-			theta = theta-(numpy.sign(theta)*2*numpy.pi)
-		print "theta = ", theta
-		head_yaw = theta + camera_Nao_orientation_euler[2]#sign*(2*numpy.pi - (abs(theta) + abs(robot_orientation_euler[2])+abs(camera_orientation_euler[2])))
+			turnHeadAngles = []
+			print "[Cannot calculate turn head angles] - cannot transform frames"
+			return turnHeadAngles
 
-		head_pitch = -numpy.arctan(h/dist2D) - robot_orientation_euler[1]
-		turnHeadAngles = [head_yaw,head_pitch]
-		return turnHeadAngles
+#		now = rospy.Time()
+#		pointX = point[0]
+#		pointY = point[1]
+#		pointZ = point[2]
+#		dest_point = PointStamped()
+#		dest_point.header.frame_id = "/map"
+#		dest_point.header.seq = 0
+#		dest_point.header.stamp = now
+#		dest_point.point.x = point[0]
+#		dest_point.point.y = point[1]
+#		dest_point.point.z = point[2]
+
+#		self.tf_br.sendTransform(point, [0,0,0,1],
+ #                                        rospy.Time.now(), "POINT", "/map")
+#		head_yaw = 0
+#		head_pitch = 0
+#		if(self.tl.canTransform("Neck","cameraTop", now)):
+#			point_in_neck = self.transformPoint("Neck", dest_point,now)
+
+#			camera_neck_position = self.tl.lookupTransform("Neck","cameraTop",rospy.Time())
+#			gamma = - numpy.arctan(camera_neck_position[0][2]/camera_neck_position[0][0])
+#			# print "gamma = ", gamma
+#			x_y_len = numpy.sqrt(point_in_neck.point.x*point_in_neck.point.x+point_in_neck.point.y*point_in_neck.point.y)
+#			D = numpy.sqrt(camera_neck_position[0][0]*camera_neck_position[0][0]+camera_neck_position[0][2]*camera_neck_position[0][2]) 
+#			# print "D = ", D
+#			C = numpy.sqrt(x_y_len*x_y_len + point_in_neck.point.z*point_in_neck.point.z)
+#			beta = numpy.pi - gamma
+#			sin_sigma = (D/C)*numpy.sin(beta)
+
+#			alpha = numpy.arctan2(point_in_neck.point.z,point_in_neck.point.x)+numpy.arctan2(sin_sigma, numpy.sqrt(1-sin_sigma*sin_sigma))
+
+#			head_pitch = -alpha
+#			print "head_pitch = ", head_pitch
+#			head_yaw = numpy.arctan2(point_in_neck.point.y, point_in_neck.point.x)
+#			print "head_yaw = ", head_yaw
+#		turnHeadAngles = [head_yaw,head_pitch]
+#		return turnHeadAngles
+	#	rospy.sleep(2)
+#		nao_position = self.getNaoCurrentPosition()
+#		robot_orientation_euler = tf.transformations.euler_from_quaternion(nao_position[1])
+#		camera_Nao_position = self.tl.lookupTransform("base_link","cameraTop",rospy.Time())
+#		camera_Map_position = self.tl.lookupTransform("map","cameraTop",rospy.Time())
+#		camera_Map_orientation_euler = tf.transformations.euler_from_quaternion(camera_Map_position[1])
+#
+#		camera_Nao_orientation_euler = tf.transformations.euler_from_quaternion(camera_Nao_position[1])
+#
+#
+#
+#		###
+#		#   OLD
+#		###
+#
+#		dist2D = numpy.sqrt((pointX - camera_Map_position[0][0])*(pointX - camera_Map_position[0][0])+(pointY - camera_Map_position[0][1])*(pointY - camera_Map_position[0][1]))
+#		#    *  - point
+#		#    |  }
+#		#    |  }  h = pointZ - NaoCamera
+#		#    o    - Nao camera
+#		h = pointZ - camera_Map_position[0][2]#camera_position[2]-nao_position[0][2]
+#
+#		#print "= ",robot_orientation_euler[2]
+#		#print "torso h",nao_position[0][2]
+#
+#
+
+#		gamma = camera_Map_orientation_euler[2]
+#		blabla = camera_Nao_orientation_euler[2]
+#		alpha = numpy.arctan2(pointY-camera_Map_position[0][1],pointX-camera_Map_position[0][0])
+#		print "gamma = ",gamma, "alpha = ",alpha, "blabla = ",blabla
+#		if abs(gamma)> abs(alpha):
+#		 	theta = -1*(gamma - alpha)
+#		elif abs(gamma)< abs(alpha):
+#			theta = (alpha - gamma)
+#		else:
+#			theta =0
+#		if abs(theta) > 3.14:
+#			print"\n theta > 3.14\n"
+#			theta = theta-(numpy.sign(theta)*2*numpy.pi)
+#		print "theta = ", theta
+#		head_yaw = theta + camera_Nao_orientation_euler[2]#sign*(2*numpy.pi - (abs(theta) + abs(robot_orientation_euler[2])+abs(camera_orientation_euler[2])))
+
+#		head_pitch = -numpy.arctan(h/dist2D) - robot_orientation_euler[1]
+#		turnHeadAngles = [head_yaw,head_pitch]
+#		return turnHeadAngles
 
 	def handle_rapp_lookAtPoint(self,req):
 		pointX = req.pointX

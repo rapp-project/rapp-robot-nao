@@ -122,9 +122,19 @@ class NaoEstimator(ALModule):
 		
 		self.camera_To_Torso_Position = self.motionProxy.getPosition('CameraTop', 0, True)
 		self.quaternion_cameta_to_torso = tf.transformations.quaternion_from_euler(self.camera_To_Torso_Position[3],self.camera_To_Torso_Position[4],self.camera_To_Torso_Position[5])
+		self.HeadPitch_To_Torso_Position = self.motionProxy.getPosition('HeadPitch', 0, True)
+		self.quaternion_HeadPitch_to_torso = tf.transformations.quaternion_from_euler(self.HeadPitch_To_Torso_Position[3],self.HeadPitch_To_Torso_Position[4],self.HeadPitch_To_Torso_Position[5])
+		self.HeadYaw_To_Torso_Position = self.motionProxy.getPosition('HeadYaw', 0, True)
+		self.quaternion_HeadYaw_to_torso = tf.transformations.quaternion_from_euler(self.HeadYaw_To_Torso_Position[3],self.HeadYaw_To_Torso_Position[4],self.HeadYaw_To_Torso_Position[5])
 
+		self.tf_br.sendTransform((self.HeadYaw_To_Torso_Position[0],self.HeadYaw_To_Torso_Position[1],self.HeadYaw_To_Torso_Position[2]), self.quaternion_HeadYaw_to_torso,
+                                        self.timestamp, "HeadYaw", "Nao_Torso")
+		self.tf_br.sendTransform((self.HeadPitch_To_Torso_Position[0],self.HeadPitch_To_Torso_Position[1],self.HeadPitch_To_Torso_Position[2]), self.quaternion_HeadPitch_to_torso,
+                                        self.timestamp, "HeadPitch", "Nao_Torso")
 		self.tf_br.sendTransform((self.camera_To_Torso_Position[0],self.camera_To_Torso_Position[1],self.camera_To_Torso_Position[2]), self.quaternion_cameta_to_torso,
                                         self.timestamp, "cameraTop", "Nao_Torso")
+		self.tf_br.sendTransform((self.HeadPitch_To_Torso_Position[0],self.HeadPitch_To_Torso_Position[1],self.HeadPitch_To_Torso_Position[2]), (0,0,0,1),
+                                        self.timestamp, "Neck", "Nao_Torso")
 	def run(self):
 		
 		self.timestamp = rospy.Time.now()
