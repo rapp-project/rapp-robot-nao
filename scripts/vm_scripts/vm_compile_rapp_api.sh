@@ -18,7 +18,7 @@ make install
 # rapp-robots-api
 mkdir -p $WS_RAPP_API_DIR/build/rapp-robots-api
 cd $WS_RAPP_API_DIR/build/rapp-robots-api
-cmake $WS_RAPP_API_DIR/src/rapp-robots-api -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/install -DRapp_DIR=$WS_RAPP_API_DIR/install/share/Rapp -DBUILD_ALL=ON
+cmake $WS_RAPP_API_DIR/src/rapp-robots-api -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/install -DRapp_DIR=$WS_RAPP_API_DIR/install/share/Rapp -DBUILD_ALL=ON -DROBOT_ARCH_TYPE=Nao
 make
 make install
 
