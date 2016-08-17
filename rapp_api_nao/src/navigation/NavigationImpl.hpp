@@ -35,7 +35,6 @@
 #include <rapp/objects/pose/pose.hpp>
 #include <rapp/objects/pose_stamped/pose_stamped.hpp>
  #include <rapp/objects/qr_code_map/qr_code_map.hpp>
- #include <rapp/objects/matrix_2d/matrix_2d.hpp>
 #include "opencv2/core/core.hpp"
 
 namespace rapp {

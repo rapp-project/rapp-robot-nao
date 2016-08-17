@@ -220,11 +220,10 @@ NavigationImpl::~NavigationImpl() {
 			nav_msgs::Path poses_ros;
 
 			for (uint32_t i=0; i < poses.size();i++){
-
-				poses_ros.poses.at(i).header.seq = poses.at(i).header.seq;
-				poses_ros.poses.at(i).header.frame_id = poses.at(i).header.frame_id;
-				poses_ros.poses.at(i).header.stamp.sec = poses.at(i).header.stamp.sec;
-				poses_ros.poses.at(i).header.stamp.nsec = poses.at(i).header.stamp.nsec;
+				poses_ros.poses.at(i).header.seq = poses.at(i).header.seq_;
+				poses_ros.poses.at(i).header.frame_id = poses.at(i).header.frameid_;
+				poses_ros.poses.at(i).header.stamp.sec = poses.at(i).header.stamp_.sec();
+				poses_ros.poses.at(i).header.stamp.nsec = poses.at(i).header.stamp_.nanosec();
 				poses_ros.poses.at(i).pose.position.x = poses.at(i).pose.position.x;
 				poses_ros.poses.at(i).pose.position.y = poses.at(i).pose.position.y;
 				poses_ros.poses.at(i).pose.position.z = poses.at(i).pose.position.z;
@@ -268,13 +267,13 @@ NavigationImpl::~NavigationImpl() {
 		  {
 	  	  	ROS_INFO("Nao returned his pose");
 		  	
-		  	
-
+			auto sec = std::chrono::seconds(srv.response.pose.header.stamp.sec);
+			auto nsec = std::chrono::nanoseconds(srv.response.pose.header.stamp.nsec);		  	
+		  	std::chrono::nanoseconds ns(sec+nsec);
 			
-			pose.header.seq = pose_ros.header.seq;
-			pose.header.frame_id = pose_ros.header.frame_id;
-			pose.header.stamp.sec = pose_ros.header.stamp.sec;
-			pose.header.stamp.nsec = pose_ros.header.stamp.nsec;
+			pose.header.seq_ = pose_ros.header.seq;
+			pose.header.frameid_ = pose_ros.header.frame_id;
+			pose.header.stamp_=ns;// = srv.response.pose.header.stamp.sec;
 			pose.pose.position.x = pose_ros.pose.position.x;
 			pose.pose.position.y = pose_ros.pose.position.y;
 			pose.pose.position.z = pose_ros.pose.position.z;
