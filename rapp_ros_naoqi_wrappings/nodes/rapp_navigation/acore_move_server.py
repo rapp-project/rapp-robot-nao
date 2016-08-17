@@ -833,16 +833,20 @@ class MoveNaoModule(ALModule):
 			# print "D = ", D
 			C = numpy.sqrt(x_y_len*x_y_len + point_in_head_pitch.point.z*point_in_head_pitch.point.z)
 			# print "C = ", C
-			gamma = - numpy.arctan(camera_in_revolute_head_pitch_transform[0][2]/camera_in_revolute_head_pitch_transform[0][0])
-			# print "gamma = ", gamma
+			gamma = numpy.arctan(camera_in_revolute_head_pitch_transform[0][2]/camera_in_revolute_head_pitch_transform[0][0])
+			##print "gamma = ", gamma
+			#print "camera_in_revoluteZ = ", camera_in_revolute_head_pitch_transform[0][2]
+			#print "camera_in_revoluteX = ", camera_in_revolute_head_pitch_transform[0][0]
 
 			beta = numpy.pi - gamma
 			# print "beta = ", beta
 			sin_sigma = (D/C) * numpy.sin(beta)
 			# print "sin_sigma = ", sin_sigma
-			alpha = numpy.arctan2(point_in_head_pitch.point.z, x_y_len) + numpy.arctan2(sin_sigma,numpy.sqrt(1-sin_sigma*sin_sigma))
-			# print "alpha = ", alpha
-			head_pitch = - alpha #+ beta + gamma - (270*numpy.pi)/180
+			alpha = numpy.arctan2( point_in_head_pitch.point.z,x_y_len) + numpy.arctan2(numpy.sin(beta)*D,numpy.sqrt(1-sin_sigma*sin_sigma)*C)
+			#print "alpha = ", alpha
+			alpha2 = numpy.arctan2(x_y_len, point_in_head_pitch.point.z) + numpy.arctan2(numpy.sin(beta)*D,numpy.sqrt(1-sin_sigma*sin_sigma)*C)
+			#print "alpha2 = ", alpha2
+			head_pitch = alpha2 - (90*numpy.pi)/180#+ beta + gamma 
 			# print "head_pitch = ", head_pitch
 			if (abs(head_pitch) < numpy.pi+0.01 and abs(head_pitch) > numpy.pi-0.01):
 				head_pitch = 0
@@ -994,7 +998,7 @@ class MoveNaoModule(ALModule):
 			status = True
 			return LookAtPointResponse(status)	
 		#check if Nao has to turn around to reach the point
-		if abs(head_yaw) < abs(range_matrix[0]):
+		if ((abs(head_yaw) < abs(range_matrix[0])) or (abs(head_yaw) <= 0.2) ):
 			canLookAtPoint_yaw = True
 		else:
 			canLookAtPoint_yaw = False
@@ -1002,7 +1006,7 @@ class MoveNaoModule(ALModule):
 		i=1
 		#search the matrix for pitch boundaries for the desired head yaw position 
 		while i <= 6 :
-			if abs(head_yaw) > abs(range_matrix[i*3]) and canLookAtPoint_yaw:
+			if abs(head_yaw) >= abs(range_matrix[i*3]) and canLookAtPoint_yaw:
 				head_pitch_max = range_matrix[(i-1)*3+2]
 				head_pitch_min = range_matrix[(i-1)*3+1]
 				break

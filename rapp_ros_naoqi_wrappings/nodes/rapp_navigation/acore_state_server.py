@@ -224,7 +224,7 @@ if __name__ == '__main__':
 		
 		global state_server
 		state_server = NaoEstimator("state_server")
-		state_rate = rospy.Rate(20)
+		state_rate = rospy.Rate(10)
 
 		while not rospy.is_shutdown():
 						

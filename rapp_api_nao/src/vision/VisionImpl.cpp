@@ -199,17 +199,9 @@ rapp::object::qr_code_3d VisionImpl::qrCodeDetection(rapp::object::picture::Ptr 
     if (sizeof((*imgFrame))<10) return QRcodeDetectionStruct;
 
     ////cv::Mat from the std::vector<byte>
-    cv::Mat cv_mat((*imgFrame).bytearray());
+    cv::Mat cv_mat((*imgFrame).bytearray(), true);
     ////decoding the image
-    //cv::Mat cv_frame(cv::imdecode(cv_mat,1)); //put 0 if you want greyscale
-    cv::Mat frame_grayscale(cv::imdecode(cv_mat,1));//decoding the image to the gray scale
-    //frame_grayscale = bytesToMat(image_,width,height);
-    
-    //boost::shared_ptr<void const> tracked_object;
-    //cv_frame = cv_bridge::toCvShare(frame_, tracked_object, frame_.encoding)->image; //conversion from sensor_msgs::Image to cv::Mat
-
-    // Convert to grayscale
-    //cv::cvtColor(cv_frame, frame_grayscale, CV_BGR2GRAY);
+    cv::Mat frame_grayscale(cv::imdecode(cv_mat,0));//decoding the image to the gray scale
     
     // Obtain image data
     int width = frame_grayscale.cols;
@@ -280,13 +272,11 @@ rapp::object::qr_code_3d VisionImpl::qrCodeDetection(rapp::object::picture::Ptr 
         cv::Mat Rotx_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
         cv::Mat Rotz_minus90 = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
         cv::Mat Mat_I = cv::Mat::zeros(4, 4, cv::DataType<double>::type);
-        cv::Mat robotToCameraMat = cv::Mat(4, 4, cv::DataType<float>::type);//cv::CV_32FC1, robotToCameraMatrix);//initialization from the given data
-        //cv::Mat robotToCameraMat = cv::Mat::zeros(4, 4, cv::DataType<float>::type);
-        //robotToCameraMat = robotToCameraMatrix;
+        cv::Mat robotToCameraMat = cv::Mat(4, 4, cv::DataType<double>::type);//cv::CV_32FC1, robotToCameraMatrix);//initialization from the given data
         try{
             for(unsigned int i=0;i<4;i++)
             for(unsigned int j=0;j<4;j++)
-            robotToCameraMat.at<float>(i,j)=robotToCameraMatrix[i][j]; //copying the given data from robotToCameraMatrix to robotToCameraMat
+            robotToCameraMat.at<double>(i,j)=robotToCameraMatrix[i][j]; //copying the given data from robotToCameraMatrix to robotToCameraMat
             
         }catch(const std::runtime_error& re)
         {
@@ -301,12 +291,7 @@ rapp::object::qr_code_3d VisionImpl::qrCodeDetection(rapp::object::picture::Ptr 
             std::cerr << "Unknown failure occured. Possible memory corruption" << std::endl;
             return QRcodeDetectionStruct;
         }
-
-        //initialization from the given data
-        //for(int i=0;i<4;i++)
-        //for(int j=0;j<4;j++)
-        //robotToCameraMat.at<float>(i,j)=robotToCameraMatrix[i][j];
-        
+ 
         //$$$$$$$$$$$$$$$$$$
         std::vector<double> m00, m01, m02, m10, m12, m20, m21, m22, euler1, euler2, euler3;
         //const double PI = 3.14159265359f;
