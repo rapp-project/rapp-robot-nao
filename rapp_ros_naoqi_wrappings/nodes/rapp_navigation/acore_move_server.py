@@ -417,17 +417,17 @@ class MoveNaoModule(ALModule):
 
 	def followPath(self,path):			
 		status = "start"
-		for i in range(int(numpy.ceil(len(path)/(20)))+1):
+		for i in range((len(path)-1)):
 		#int(numpy.floor(len(path.path)/200))+1):
 			print "i= ",i
 			print "liczba punktow: \n", len(path)
 			rospy.sleep(3)
 			naoCurrentPosition = self.getNaoCurrentPosition()
 			robot_orientation_euler = tf.transformations.euler_from_quaternion(naoCurrentPosition[1])
-			if (len(path)-(i+1)*20<0.1):
-				point_number = len(path)-1
-			else:
-				point_number = (i+1)*20
+			# if (i == len(path)+1):
+			# 	point_number = len(path)-1
+			# else:
+			point_number = (i+1)
 
 
 			nextPose = path[point_number]
