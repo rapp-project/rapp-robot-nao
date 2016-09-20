@@ -49,14 +49,14 @@ bool CommunicationImpl::textToSpeech(const std::string & str, Language language)
 	
 	// slower and lower voice
 	std::string sentence;
-	sentence = "\\RSPD=" + std::string("80") + "\\ "; // speed
-	sentence += "\\VCT="+ std::string("43") + "\\ ";  // pitch
-	sentence += std::string(str);
-	sentence += "\\RST\\ ";
+	//sentence = "\\RSPD=" + std::string("80") + "\\ "; // speed
+	//sentence += "\\VCT="+ std::string("43") + "\\ ";  // pitch
+	//sentence += std::string(str);
+	//sentence += "\\RST\\ ";
 	
 	ROS_DEBUG("Final sentence: %s", sentence.c_str());
 
-	srv.request.request = sentence;  
+	srv.request.request = str;  
 	switch(language) {
 		case Language::ENGLISH: srv.request.language = "english"; break;
 		case Language::GREEK: srv.request.language = "greek"; break;
