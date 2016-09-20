@@ -5,6 +5,7 @@
 //
 // Marcin Szlenk <m.szlenk@elka.pw.edu.pl>
 // Maksym Figat <maksym.figat44@gmail.com>
+// Maciej Stefańczyk <m.stefanczyk@elka.pw.edu.pl?
 // Copyright 2014 RAPP
 
 #include "ros/ros.h"
@@ -116,7 +117,7 @@ public:
 	bool run();
 
 	// Runs the script which launches dynamic agent
-	pid_t runScript(std::string path);
+	pid_t runScript(std::string path, std::string script);
 	
 	// Runs the binary and returns process pid
 	pid_t runBinary(const std::string & path, const std::string & file);
@@ -427,10 +428,9 @@ bool CoreAgent::state_activate_dynamic() {
 	
 	// Build the path to the 'run' script of the application.
 	std::string path = app_path;
-	path.append("/package/run");
 
 	ROS_INFO("Running app from: %s", app_path.c_str());
-	cpp_pid = runScript(path);
+	cpp_pid = runScript(path, "run.sh");
 	
 
 	next_state = WaitForCPP;
@@ -525,11 +525,12 @@ bool CoreAgent::state_wait_hop() {
 
 
 // Runs the script which launches dynamic agent
-pid_t CoreAgent::runScript(std::string path) {
+pid_t CoreAgent::runScript(std::string path, std::string script) {
 	pid_t pid = fork();
 	if (pid == 0) {
 		// child process
-		execl("/bin/bash", "bash", path.c_str(), (char*)0);
+		std::string full_path = path + "/" + script;
+		execl("/bin/bash", "bash", full_path.c_str(), path.c_str(), (char*)0);
 		_Exit(EXIT_FAILURE);
 	} else if (pid > 0) {
 		// parent process
