@@ -218,21 +218,25 @@ NavigationImpl::~NavigationImpl() {
 	bool NavigationImpl::moveAlongPath(std::vector<rapp::object::pose_stamped> poses){
 
 			nav_msgs::Path poses_ros;
-
+		  	geometry_msgs::PoseStamped pose_ros;
+		  	poses_ros.poses.clear();
 			for (uint32_t i=0; i < poses.size();i++){
-				poses_ros.poses.at(i).header.seq = poses.at(i).header.seq_;
-				poses_ros.poses.at(i).header.frame_id = poses.at(i).header.frameid_;
-				poses_ros.poses.at(i).header.stamp.sec = poses.at(i).header.stamp_.sec();
-				poses_ros.poses.at(i).header.stamp.nsec = poses.at(i).header.stamp_.nanosec();
-				poses_ros.poses.at(i).pose.position.x = poses.at(i).pose.position.x;
-				poses_ros.poses.at(i).pose.position.y = poses.at(i).pose.position.y;
-				poses_ros.poses.at(i).pose.position.z = poses.at(i).pose.position.z;
-				poses_ros.poses.at(i).pose.orientation.x = poses.at(i).pose.orientation.x;
-				poses_ros.poses.at(i).pose.orientation.y = poses.at(i).pose.orientation.y;
-				poses_ros.poses.at(i).pose.orientation.z = poses.at(i).pose.orientation.z;
-				poses_ros.poses.at(i).pose.orientation.w = poses.at(i).pose.orientation.w;
+				pose_ros.header.seq = poses.at(i).header.seq_;
+				pose_ros.header.frame_id = poses.at(i).header.frameid_;
+				pose_ros.header.stamp.sec = poses.at(i).header.stamp_.sec();
+				pose_ros.header.stamp.nsec = poses.at(i).header.stamp_.nanosec();
+				pose_ros.pose.position.x = poses.at(i).pose.position.x;
+				pose_ros.pose.position.y = poses.at(i).pose.position.y;
+				pose_ros.pose.position.z = poses.at(i).pose.position.z;
+				pose_ros.pose.orientation.x = poses.at(i).pose.orientation.x;
+				pose_ros.pose.orientation.y = poses.at(i).pose.orientation.y;
+				pose_ros.pose.orientation.z = poses.at(i).pose.orientation.z;
+				pose_ros.pose.orientation.w = poses.at(i).pose.orientation.w;
+				poses_ros.poses.push_back(pose_ros);
 			}
+	  	  	ROS_INFO_STREAM("poses: "<< poses.size());
 
+	  	  	ROS_INFO_STREAM("poses_ros: "<< poses_ros.poses.size());
 
 		client_moveAlongPath = n->serviceClient<rapp_ros_naoqi_wrappings::MoveAlongPath>("rapp_moveAlongPath");
 		  rapp_ros_naoqi_wrappings::MoveAlongPath srv;
@@ -271,17 +275,17 @@ NavigationImpl::~NavigationImpl() {
 			auto nsec = std::chrono::nanoseconds(srv.response.pose.header.stamp.nsec);		  	
 		  	std::chrono::nanoseconds ns(sec+nsec);
 			
-			pose.header.seq_ = pose_ros.header.seq;
-			pose.header.frameid_ = pose_ros.header.frame_id;
+			pose.header.seq_ = srv.response.pose.header.seq;
+			pose.header.frameid_ = srv.response.pose.header.frame_id;
 			pose.header.stamp_=ns;// = srv.response.pose.header.stamp.sec;
-			pose.pose.position.x = pose_ros.pose.position.x;
-			pose.pose.position.y = pose_ros.pose.position.y;
-			pose.pose.position.z = pose_ros.pose.position.z;
+			pose.pose.position.x = srv.response.pose.pose.position.x;
+			pose.pose.position.y = srv.response.pose.pose.position.y;
+			pose.pose.position.z = srv.response.pose.pose.position.z;
 
-			pose.pose.orientation.x = pose_ros.pose.orientation.x;
-			pose.pose.orientation.y = pose_ros.pose.orientation.y;	
-			pose.pose.orientation.z = pose_ros.pose.orientation.z;
-			pose.pose.orientation.w = pose_ros.pose.orientation.w;
+			pose.pose.orientation.x = srv.response.pose.pose.orientation.x;
+			pose.pose.orientation.y = srv.response.pose.pose.orientation.y;	
+			pose.pose.orientation.z = srv.response.pose.pose.orientation.z;
+			pose.pose.orientation.w = srv.response.pose.pose.orientation.w;
 		    
 		    return pose;
 		  }
