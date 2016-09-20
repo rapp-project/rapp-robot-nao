@@ -105,6 +105,7 @@ class NaoEstimator(ALModule):
 			#
 			# check if actual state equals to request, define status
 			#
+			rospy.sleep(4)
 			status = True
 		except Exception, ex:
 			print "[Estimator server] - Exception %s" % str(ex)
