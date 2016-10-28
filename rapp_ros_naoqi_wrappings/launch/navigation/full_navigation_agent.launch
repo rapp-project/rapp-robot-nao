@@ -16,6 +16,7 @@
 
   <!-- Kalman filter node  -->
   <include  file="/home/nao/ws_rapp_nao/install_isolated/share/rapp_ros_naoqi_wrappings/launch/navigation/nao_ekf.launch" />
-
+<node pkg="tf2_ros" type="static_transform_publisher" name="stat_br_L_shoulder" args="0.0 0.097999997437 0.10000000149 -0.0 0.0 0.0 1 Nao_Torso LShoulder" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="stat_br_R_shoulder" args="0.0 -0.097999997437 0.10000000149 -0.0 0.0 0.0 1 Nao_Torso RShoulder" />
 
 </launch>

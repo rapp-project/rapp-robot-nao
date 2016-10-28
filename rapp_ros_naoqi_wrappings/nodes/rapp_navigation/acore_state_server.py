@@ -7,11 +7,15 @@ __author__ = "Wojciech Dudek"
 from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Float32
+from geometry_msgs.msg import *
+import numpy
+
 import tf
 import rospy
 import sys
 import signal
 import motion
+import tf2_ros
 
 from naoqi import ALModule
 from naoqi import ALBroker
@@ -82,8 +86,55 @@ class NaoEstimator(ALModule):
 		#self.camera_To_Torso_Position = std::vector<int>
 
 		self.camera_To_Torso_Position_Pub = rospy.Publisher("cameraToTorsoPosition", Float32, queue_size=10)
+	
+		self.tl = tf.TransformListener(True, rospy.Duration(5.0))
 
 		self.tf_br = tf.TransformBroadcaster()
+		#static_tf_br = tf2_ros.StaticTransformBroadcaster()
+
+
+		LArmRoll_To_Torso_Position = self.motionProxy.getPosition('LShoulderRoll', 0, True)
+		quaternion_LArmRoll_to_torso = tf.transformations.quaternion_from_euler(-3.14/2,0,0)
+		# self.tf_br.sendTransform((self.LArmRoll_To_Torso_Position[0],self.LArmRoll_To_Torso_Position[1],self.LArmRoll_To_Torso_Position[2]), quaternion_LArmRoll_to_torso,
+  #                                       self.timestamp, "LShoulder", "Nao_Torso")
+
+	#
+	# shoulder kinematics
+	#
+
+
+		# static_L_ArmROll = geometry_msgs.msg.TransformStamped()
+		# static_L_ArmROll.header.stamp = rospy.Time.now()
+		# static_L_ArmROll.header.frame_id = "Nao_Torso"
+		# print "LShoulder"
+		# print LArmRoll_To_Torso_Position[0]
+		# print LArmRoll_To_Torso_Position[1]
+		# print LArmRoll_To_Torso_Position[2]
+		# print quaternion_LArmRoll_to_torso[0]
+		# print quaternion_LArmRoll_to_torso[1]
+		# print quaternion_LArmRoll_to_torso[2]
+		# print quaternion_LArmRoll_to_torso[3]
+
+		# RArmRoll_To_Torso_Position = self.motionProxy.getPosition('RShoulderRoll', 0, True)
+		# quaternion_RArmRoll_to_torso = tf.transformations.quaternion_from_euler(-3.14/2,0,0)
+		# # self.tf_br.sendTransform((self.RArmRoll_To_Torso_Position[0],self.RArmRoll_To_Torso_Position[1],self.RArmRoll_To_Torso_Position[2]), self.quaternion_RArmRoll_to_torso,
+		# #                                       self.timestamp, "RShoulder", "Nao_Torso")
+
+		# static_R_ArmROll = geometry_msgs.msg.TransformStamped()
+		# static_R_ArmROll.header.stamp = rospy.Time.now()
+		# static_R_ArmROll.header.frame_id = "Nao_Torso"
+		# print "RShoulder"
+		# print RArmRoll_To_Torso_Position[0]
+		# print RArmRoll_To_Torso_Position[1]
+		# print RArmRoll_To_Torso_Position[2]
+		# print quaternion_RArmRoll_to_torso[0]
+		# print quaternion_RArmRoll_to_torso[1]
+		# print quaternion_RArmRoll_to_torso[2]
+		# print quaternion_RArmRoll_to_torso[3]
+		# # static_tf_br.sendTransform(static_L_ArmROll)
+		# # static_tf_br.sendTransform(static_R_ArmROll)
+
+
 
 		self.ODOM_POSE_COVARIANCE = [1e-3, 0, 0, 0, 0, 0, 
 		                        0, 1e-3, 0, 0, 0, 0,
@@ -135,6 +186,9 @@ class NaoEstimator(ALModule):
                                         self.timestamp, "cameraTop", "Nao_Torso")
 		self.tf_br.sendTransform((self.HeadPitch_To_Torso_Position[0],self.HeadPitch_To_Torso_Position[1],self.HeadPitch_To_Torso_Position[2]), (0,0,0,1),
                                         self.timestamp, "Neck", "Nao_Torso")
+
+
+			
 	def run(self):
 		
 		self.timestamp = rospy.Time.now()
@@ -209,6 +263,9 @@ class NaoEstimator(ALModule):
                                         self.timestamp, "map", "World")	
 		self.torsoIMUPub.publish(self.torsoIMU)
 		self.camera_To_Torso_Position_Pub.publish(self.camera_To_Torso_Position)
+
+
+
 def signal_handler(signal, frame):
 	print "[State server] - signal SIGINT caught"
 	print "[State server] - system exits"

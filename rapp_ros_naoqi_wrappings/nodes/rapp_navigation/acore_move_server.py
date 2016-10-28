@@ -22,7 +22,7 @@ import almath as m
 import numpy 
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, PointStamped
 from geometry_msgs.msg import PolygonStamped, Point32
-
+import tf2_ros
 import tf.transformations
 #import transformPose
 
@@ -181,6 +181,12 @@ class MoveNaoModule(ALModule):
 			self.service_lookAt = rospy.Service('rapp_lookAtPoint', LookAtPoint, self.handle_rapp_lookAtPoint)
 		except Exception, ex_lookAt:
 			print "[Move server] - Exception %s" % str(ex_lookAt)
+
+		try:
+			print "[Move server] - service - [rapp_pointArm]"
+			self.service_pointArm = rospy.Service('rapp_pointArm', LookAtPoint, self.handle_pointArm)
+		except Exception, ex_pointArm:
+			print "[Move server] - Exception %s" % str(ex_pointArm)			
 		# try:
 		# 	print "[Move server] - service - [rapp_getRobotPose]"
 		# 	self.service_getPosition = rospy.Service('rapp_getRobotPose', GetRobotPose, self.handle_rapp_getRobotPose)
@@ -790,15 +796,68 @@ class MoveNaoModule(ALModule):
 		return TakePredefinedPostureResponse(status)	
 
 	def transformPoint(self,target_frame,ps, time):
+		
 		r = PointStamped()
-		self.tl.waitForTransform(target_frame,ps.header.frame_id,time, rospy.Duration(5))
-		point_translation_upper,point_rotation_upper = self.tl.lookupTransform(target_frame,ps.header.frame_id,time)
-		transform_matrix = numpy.dot(tf.transformations.translation_matrix(point_translation_upper), tf.transformations.quaternion_matrix(point_rotation_upper))
+		self.tf_buffer = tf2_ros.Buffer()
+		self.tf2_listener = tf2_ros.TransformListener(self.tf_buffer)
+		transform_stamped = self.tf_buffer.lookup_transform(target_frame,ps.header.frame_id,time, rospy.Duration(10))
+		point_translation_upper = transform_stamped.transform.translation
+		point_rotation_upper = transform_stamped.transform.rotation
+		#self.tl.waitForTransform(target_frame,ps.header.frame_id,time, rospy.Duration(10))
+		#point_translation_upper,point_rotation_upper = self.tl.lookupTransform(target_frame,ps.header.frame_id,time)
+		transform_matrix = numpy.dot(tf.transformations.translation_matrix([point_translation_upper.x, point_translation_upper.y, point_translation_upper.z]), tf.transformations.quaternion_matrix([point_rotation_upper.x,point_rotation_upper.y,point_rotation_upper.z,point_rotation_upper.w]))
 		xyz = tuple(numpy.dot(transform_matrix, numpy.array([ps.point.x, ps.point.y, ps.point.z, 1.0])))[:3] 
 		r.header.stamp = ps.header.stamp 
 		r.header.frame_id = target_frame 
 		r.point = geometry_msgs.msg.Point(*xyz) 	
 		return r	
+
+	def handle_pointArm(self,req):
+
+
+		now = rospy.Time()
+		pointX = req.pointX
+		pointY = req.pointY
+		pointZ = req.pointZ
+		self.tf_br.sendTransform([pointX, pointY, pointZ], [0,0,0,1],
+                                    rospy.Time.now(), "POINT", "/map")
+		# dest_point = PointStamped()
+		# dest_point.header.frame_id = "/map"
+		# dest_point.header.seq = 0
+		# dest_point.header.stamp = now
+		# dest_point.point.x = pointX
+		# dest_point.point.y = pointY
+		# dest_point.point.z = pointZ
+
+
+		dest_point = PointStamped()
+		dest_point.header.frame_id = "map"
+		dest_point.header.seq = 0
+		dest_point.header.stamp = now
+		dest_point.point.x = pointX
+		dest_point.point.y = pointY
+		dest_point.point.z = pointZ
+
+		point_in_head_yaw = self.transformPoint("RShoulder", dest_point, now)
+		print point_in_head_yaw
+		point_in_arm = [pointX, pointY+0.097999997437, pointZ+0.10000000149]
+		alpha = -numpy.arctan2(point_in_head_yaw.point.z,point_in_head_yaw.point.x)##*180/3.14
+		beta = numpy.arctan2(point_in_head_yaw.point.y,numpy.sqrt(point_in_head_yaw.point.x*point_in_head_yaw.point.x+point_in_head_yaw.point.z*point_in_head_yaw.point.z))##*180/3.14
+		print alpha, "  ||", beta
+		pNames = ["RShoulderPitch","RShoulderRoll","Head"]
+		pStiffnessLists = [1.0,1.0,1.0]
+		pTimeLists = [1.0, 1.0,1.0]
+		self.proxy_motion.setStiffnesses("Head", 1.0)
+		self.proxy_motion.setStiffnesses("RShoulderRoll", 1.0)
+		self.proxy_motion.setStiffnesses("RShoulderPitch", 1.0)
+
+		# self.proxy_motion.angleInterpolationWithSpeed(pNames,alpha,0.6)
+		# self.proxy_motion.angleInterpolationWithSpeed("HeadYaw",1,0.6)
+		self.rapp_move_joint_interface(["RShoulderPitch","RShoulderRoll"],[alpha,beta],0.4)
+		self.rapp_move_joint_interface(["RElbowRoll","RElbowYaw"],[0,0],0.4)
+
+		# self.rapp_move_joint_interface(["RShoulderRoll"],[beta],0.4)
+
 
 	def compute_turn_head_angles(self, point):
 
@@ -807,7 +866,7 @@ class MoveNaoModule(ALModule):
 		pointY = point[1]
 		pointZ = point[2]
 		dest_point = PointStamped()
-		dest_point.header.frame_id = "/map"
+		dest_point.header.frame_id = "map"
 		dest_point.header.seq = 0
 		dest_point.header.stamp = now
 		dest_point.point.x = point[0]
