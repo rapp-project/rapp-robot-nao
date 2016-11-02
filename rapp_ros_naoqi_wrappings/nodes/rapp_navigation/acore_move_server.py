@@ -841,20 +841,22 @@ class MoveNaoModule(ALModule):
 		point_in_head_yaw = self.transformPoint("RShoulder", dest_point, now)
 		print point_in_head_yaw
 		point_in_arm = [pointX, pointY+0.097999997437, pointZ+0.10000000149]
+		
+		if point_in_head_yaw.point.y > 0.10:
+			point_in_head_yaw.point.y -= 0.20
+			arm_joints = ["LShoulderRoll","LShoulderPitch","LElbowRoll","LElbowYaw"]
+		else:
+			arm_joints = ["RShoulderRoll","RShoulderPitch","RElbowRoll","RElbowYaw"]
+
 		alpha = -numpy.arctan2(point_in_head_yaw.point.z,point_in_head_yaw.point.x)##*180/3.14
 		beta = numpy.arctan2(point_in_head_yaw.point.y,numpy.sqrt(point_in_head_yaw.point.x*point_in_head_yaw.point.x+point_in_head_yaw.point.z*point_in_head_yaw.point.z))##*180/3.14
 		print alpha, "  ||", beta
-		pNames = ["RShoulderPitch","RShoulderRoll","Head"]
-		pStiffnessLists = [1.0,1.0,1.0]
-		pTimeLists = [1.0, 1.0,1.0]
-		self.proxy_motion.setStiffnesses("Head", 1.0)
-		self.proxy_motion.setStiffnesses("RShoulderRoll", 1.0)
-		self.proxy_motion.setStiffnesses("RShoulderPitch", 1.0)
+
+		self.proxy_motion.setStiffnesses(arm_joints, [1.0,1.0])
 
 		# self.proxy_motion.angleInterpolationWithSpeed(pNames,alpha,0.6)
 		# self.proxy_motion.angleInterpolationWithSpeed("HeadYaw",1,0.6)
-		self.rapp_move_joint_interface(["RShoulderPitch","RShoulderRoll"],[alpha,beta],0.4)
-		self.rapp_move_joint_interface(["RElbowRoll","RElbowYaw"],[0,0],0.4)
+		self.rapp_move_joint_interface(arm_joints,[alpha,beta,0,0],0.4)
 
 		# self.rapp_move_joint_interface(["RShoulderRoll"],[beta],0.4)
 
