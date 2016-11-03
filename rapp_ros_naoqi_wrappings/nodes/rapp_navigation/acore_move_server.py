@@ -843,16 +843,18 @@ class MoveNaoModule(ALModule):
 		point_in_arm = [pointX, pointY+0.097999997437, pointZ+0.10000000149]
 		
 		if point_in_head_yaw.point.y > 0.10:
-			point_in_head_yaw.point.y -= 0.20
-			arm_joints = ["LShoulderRoll","LShoulderPitch","LElbowRoll","LElbowYaw"]
+			point_in_head_yaw.point.y -= 0.16
+			arm_joints = ["LShoulderPitch","LShoulderRoll","LElbowRoll","LElbowYaw"]
+			sign = -1
 		else:
-			arm_joints = ["RShoulderRoll","RShoulderPitch","RElbowRoll","RElbowYaw"]
+			arm_joints = ["RShoulderPitch","RShoulderRoll","RElbowRoll","RElbowYaw"]
+			sign = 1
 
-		alpha = -numpy.arctan2(point_in_head_yaw.point.z,point_in_head_yaw.point.x)##*180/3.14
-		beta = numpy.arctan2(point_in_head_yaw.point.y,numpy.sqrt(point_in_head_yaw.point.x*point_in_head_yaw.point.x+point_in_head_yaw.point.z*point_in_head_yaw.point.z))##*180/3.14
+		alpha = (-numpy.arctan2(point_in_head_yaw.point.z,point_in_head_yaw.point.x))##*180/3.14 +point_in_head_yaw.point.y*point_in_head_yaw.point.y
+		beta = +(numpy.arctan2(point_in_head_yaw.point.y,numpy.sqrt(point_in_head_yaw.point.x*point_in_head_yaw.point.x+point_in_head_yaw.point.z*point_in_head_yaw.point.z)))##*180/3.14
 		print alpha, "  ||", beta
 
-		self.proxy_motion.setStiffnesses(arm_joints, [1.0,1.0])
+		self.proxy_motion.setStiffnesses(arm_joints, [1.0,1.0,1.0,1.0])
 
 		# self.proxy_motion.angleInterpolationWithSpeed(pNames,alpha,0.6)
 		# self.proxy_motion.angleInterpolationWithSpeed("HeadYaw",1,0.6)
