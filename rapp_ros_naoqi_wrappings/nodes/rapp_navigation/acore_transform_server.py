@@ -15,6 +15,8 @@ import sys, os
 import rospy
 import time
 import smtplib
+import tf 
+import std_msgs.msg
 
 # Importing core functionality from Naoqi
 from naoqi import (ALProxy, ALBroker, ALModule)
@@ -165,15 +167,38 @@ class GetTransformModule(ALModule):
 		self.GetTransformClass = Transform_class()	
 
 		try:
-			self.GetTransformClass.get_transform(req.chainName, req.space) #computes transformation matrixix
+			if (req.space == 3): # calculate transformation matrix from desired frame to the global frame - map frame
+				Matrix4x4Transform = Matrix4x4Message()
+ 				t = rospy.Time(0);
+				motionProxy = ALProxy("ALMotion", Constants.NAO_IP, Constants.NAO_PORT)		
+				listener = tf.TransformListener()		
+				transform = motionProxy.getTransform(req.chainName, 0, True)
+				transform  = [[transform[0],transform[1],transform[2],transform[3]],[transform[4],transform[5],transform[6],transform[7]],[transform[8],transform[9],transform[10],transform[11]],[transform[12],transform[13],transform[14],transform[15]]]
+				listener.waitForTransform('map','Nao_Torso',t,rospy.Duration(.5))
+				time_stamp=listener.getLatestCommonTime('map','Nao_Torso')				
+
+				(trans,rot) = listener.lookupTransform('map', 'Nao_Torso', t);
+
+				rot_euler = tf.transformations.euler_from_quaternion(rot)
+				NOWA = tf.transformations.compose_matrix(None, None, rot_euler, trans,None)
+
+				ostatnia = np.dot(NOWA, transform)
+				ostatnia = [ostatnia,ostatnia]
+
+				Matrix4x4Transform.get_values(ostatnia,1)
+				
+			
+			else:
+				self.GetTransformClass.get_transform(req.chainName, req.space) #computes transformation matrixix
+						## Copy matrix to class object for the ros communication		
+				Matrix4x4Transform = Matrix4x4Message() # for transformMatrix
+				Matrix4x4Transform.get_values(self.GetTransformClass.transformMatrix,1)
 		except AttributeError, ex:
 			print "[Transform server] - Exception AtrributeError = %s" % str(ex)
 		except Exception, ex:
 			print "[Transform server] - Unnamed exception = %s" % str(ex)
 
-		## Copy matrix to class object for the ros communication		
-		Matrix4x4Transform = Matrix4x4Message() # for transformMatrix
-		Matrix4x4Transform.get_values(self.GetTransformClass.transformMatrix,1)
+
 		
 		return GetTransformResponse(Matrix4x4Transform)
 			

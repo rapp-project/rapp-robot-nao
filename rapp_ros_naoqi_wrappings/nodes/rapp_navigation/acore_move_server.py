@@ -858,10 +858,13 @@ class MoveNaoModule(ALModule):
 
 		# self.proxy_motion.angleInterpolationWithSpeed(pNames,alpha,0.6)
 		# self.proxy_motion.angleInterpolationWithSpeed("HeadYaw",1,0.6)
-		self.rapp_move_joint_interface(arm_joints,[alpha,beta,0,0],0.4)
+		move_joint_status = self.rapp_move_joint_interface(arm_joints,[alpha,beta,0,0],0.4)
 
 		# self.rapp_move_joint_interface(["RShoulderRoll"],[beta],0.4)
-
+		if (move_joint_status == True):
+			return True
+		else:
+			return False
 
 	def compute_turn_head_angles(self, point):
 
