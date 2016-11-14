@@ -21,6 +21,12 @@ navigation::navigation(int argc, char ** argv ) {
 navigation::~navigation() {
 	delete pimpl;
 }
+	bool navigation::point_arm(float x, float y, float z){
+		bool status;
+		status = pimpl->pointArm( x, y, z);		
+		return status;
+
+	}
 	bool navigation::move_to(float x, float y, float theta){
 		bool status;
 		status = pimpl->moveTo( x, y, theta);		

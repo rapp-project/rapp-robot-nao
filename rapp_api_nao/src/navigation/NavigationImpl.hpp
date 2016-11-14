@@ -46,7 +46,8 @@ public:
 
 	NavigationImpl (int argc, char ** argv);
 	~NavigationImpl();
-	
+
+	ros::ServiceClient client_pointArm;
 	ros::ServiceClient client_moveTo;
 	ros::ServiceClient client_moveVel;
 	ros::ServiceClient client_moveStop;
@@ -60,7 +61,8 @@ public:
 	ros::ServiceClient client_getTransform;
 
 	ros::NodeHandle *n;
-	
+
+	bool pointArm(float x, float y, float z);	
 	bool moveTo(float x, float y, float theta);
 	bool moveVel(float x, float y, float theta);
 	// bool moveHead(float yaw,float pitch);

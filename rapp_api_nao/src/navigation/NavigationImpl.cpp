@@ -18,6 +18,28 @@ NavigationImpl::NavigationImpl(int argc, char ** argv ){
 		}
 NavigationImpl::~NavigationImpl() {
 }
+	bool NavigationImpl::pointArm(float x, float y, float z){	
+
+		client_pointArm = n->serviceClient<rapp_ros_naoqi_wrappings::LookAtPoint>("rapp_pointArm");
+		  rapp_ros_naoqi_wrappings::LookAtPoint srv;
+		  srv.request.pointX = x;
+		  srv.request.pointY = y;
+		  srv.request.pointZ = z;
+		  if (client_pointArm.call(srv))
+		  {
+	  	  	return srv.response.status;
+	  	  	ROS_INFO_STREAM("Service ended with status:\n" <<srv.response.status);
+
+			}
+		  else
+		  {
+
+	  	  	return false;
+		    ROS_ERROR("Failed to call service pointArm"); 
+		  }
+
+	}
+
 	bool NavigationImpl::moveTo(float x, float y, float theta){	
 
 		client_moveTo = n->serviceClient<rapp_ros_naoqi_wrappings::MoveTo>("rapp_moveTo");
