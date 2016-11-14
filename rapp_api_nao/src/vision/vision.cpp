@@ -2,6 +2,55 @@
 #include "VisionImpl.hpp"
 
 
+
+#include <boost/filesystem.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+// Short alias for this namespace
+namespace pt = boost::property_tree;
+namespace fs = boost::filesystem;
+
+std::string expand_user(std::string path) {
+	if (not path.empty() and path[0] == '~') {
+		assert(path.size() == 1 or path[1] == '/');  // or other error handling
+		char const* home = getenv("HOME");
+		if (home or (home = getenv("USERPROFILE"))) {
+			path.replace(0, 1, home);
+		}
+		else {
+			char const *hdrive = getenv("HOMEDRIVE");
+			char const *hpath = getenv("HOMEPATH");
+			assert(hdrive);  // or other error handling
+			assert(hpath);
+			path.replace(0, 1, std::string(hdrive) + hpath);
+		}
+	}
+	return path;
+}
+
+struct camera_info {
+	// camera matrix
+	std::vector<float> K;
+
+	// distortion coeffs
+	std::vector<float> D;
+
+	// projection matrix
+	std::vector<float> P;
+};
+
+// read an array from json ptree
+template <typename T>
+std::vector<T> as_vector(pt::ptree const& pt, pt::ptree::key_type const& key) {
+	std::vector<T> r;
+	for (auto& item : pt.get_child(key))
+		r.push_back(item.second.get_value<T>());
+	return r;
+}
+
+
+
+
 namespace rapp {
 namespace robot {
 
@@ -62,6 +111,29 @@ rapp::object::qr_code_3d vision::qr_code_detection(rapp::object::picture::Ptr im
 		std::cerr << "Unknown failure occured. Possible memory corruption" << std::endl;
 	}
 	return QRCodeStruct;
+}
+
+vision::camera_info vision::load_camera_info(int camera_id) {
+	vision::camera_info cam;
+	std::string path = expand_user("~/.config/rapp_data/cam/") + std::to_string(camera_id) + ".json";
+	if ( !boost::filesystem::exists( path ) )
+	{
+		std::cout << "Can't find calibration info for camera " << camera_id << ". Loading defaults." << std::endl;
+		cam.K = { 1138.12,       0, 658,
+		                0, 1156.84, 484,
+			        0,       0,   1};
+		cam.D = {0, 0, 0, 0, 0};
+		cam.P = cam.K;
+	} else {
+		pt::ptree tree;
+		pt::read_json(path, tree);
+		cam.K = as_vector<float>(tree, "K");
+		cam.D = as_vector<float>(tree, "D");
+		cam.P = as_vector<float>(tree, "P");
+	}
+
+	return cam;
+
 }
 
 } // namespace robot
