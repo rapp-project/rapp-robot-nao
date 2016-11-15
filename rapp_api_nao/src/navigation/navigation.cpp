@@ -142,7 +142,7 @@ navigation::~navigation() {
 	std::vector<std::vector<float>> navigation::get_transform(std::string chainName, int space){
 		std::vector<std::vector<float>> MatStruct;
 		MatStruct.clear();
-		if (space == 0 ||space == 1 || space == 2){
+		if (space == 0 ||space == 1 || space == 2 || space == 3){
 			static const std::string arr[] = { "Head","LArm","RArm","LLeg","RLeg","Torso","CameraTop","CameraBottom","MicroFront","MicroRear","MicroLeft","MicroRight","Accelerometer","Gyrometer","Laser","LFsrFR","LFsrFL","LFsrRR","LFsrRL","RFsrFR","RFsrFL","RFsrRR", "RFsrRL", "USSensor1", "USSensor2", "USSensor3", "USSensor4"};
 			std::vector<std::string> chainNames (arr, arr + sizeof(arr) / sizeof(arr[0]) );
 			
@@ -154,7 +154,7 @@ navigation::~navigation() {
 	    		std::cout << "Input chainName is not defined!\nAvailabre chainNames are:\n Head LArm RArm LLeg RLeg Torso CameraTop CameraBottom MicroFront MicroRear MicroLeft MicroRight Accelerometer Gyrometer Laser LFsrFR LFsrFL LFsrRR LFsrRL RFsrFR RFsrFL RFsrRR RFsrRL USSensor1 USSensor2 USSensor3 USSensor4\n";
 		 	}
 		}else{
-	    	std::cout << "Input space not exist!, \n space: Task frame {FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2}\n";
+	    	std::cout << "Input space not exist!, \n space: Task frame {FRAME_TORSO = 0, FRAME_WORLD = 1, FRAME_ROBOT = 2, FRAME_GLOBAL = 3}\n";
 
 		}
 	return MatStruct;
