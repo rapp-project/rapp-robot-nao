@@ -136,6 +136,38 @@ vision::camera_info vision::load_camera_info(int camera_id) {
 
 }
 
+// Add a list
+template<typename T>
+pt::ptree put_vector(const std::vector<T> vec) {
+	pt::ptree ret_node;
+	for (auto &val: vec)
+	{
+		// Create an unnamed node containing the value
+		pt::ptree tmp_node;
+		tmp_node.put("", val);
+	
+		// Add this node to the list.
+		ret_node.push_back(std::make_pair("", tmp_node));
+	}
+	return ret_node;
+}
+
+void vision::save_camera_info(int camera_id, vision::camera_info info) {
+	std::string path = expand_user("~/.config/rapp_data/cam/") + std::to_string(camera_id) + ".json";
+	// create a backup if the file exists
+	if ( fs::exists( path ) ) {
+		std::string bak_path = expand_user("~/.config/rapp_data/cam/") + std::to_string(camera_id) + ".bak";
+		fs::copy_file(path, bak_path, fs::copy_option::overwrite_if_exists);
+	}
+
+	pt::ptree tree;
+	tree.add_child("K", put_vector(info.K));
+	tree.add_child("D", put_vector(info.D));
+	tree.add_child("P", put_vector(info.P));
+	pt::write_json(std::cout, tree);
+	pt::write_json(path, tree);
+}
+
 } // namespace robot
 } // namespace rapp
 
