@@ -174,9 +174,8 @@ class GetTransformModule(ALModule):
 				listener = tf.TransformListener()		
 				transform = motionProxy.getTransform(req.chainName, 0, True)
 				transform  = [[transform[0],transform[1],transform[2],transform[3]],[transform[4],transform[5],transform[6],transform[7]],[transform[8],transform[9],transform[10],transform[11]],[transform[12],transform[13],transform[14],transform[15]]]
-				listener.waitForTransform('map','Nao_Torso',t,rospy.Duration(.5))
+				listener.waitForTransform('map','Nao_Torso',t,rospy.Duration(5))
 				time_stamp=listener.getLatestCommonTime('map','Nao_Torso')				
-
 				(trans,rot) = listener.lookupTransform('map', 'Nao_Torso', t);
 
 				rot_euler = tf.transformations.euler_from_quaternion(rot)
