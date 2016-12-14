@@ -1,9 +1,13 @@
 <launch>
-    <rosparam command="load" file="$(find rapp_core_agent)/cfg/applications.yaml"/>
-    <node pkg="rapp_core_agent" name="core_agent" type="core_agent" output="screen"/> 
+    <group ns="rapp_core_agent">
+        <rosparam command="load" file="$(find rapp_core_agent)/cfg/applications.yaml"/>
+        <node pkg="rapp_core_agent" name="core_agent" type="core_agent" output="screen"/> 
 
-    <node name="store" pkg="rapp_core_agent" type="store_interactions.py" output="screen">
-        <remap from="request" to="/rapp_core_agent/store_interaction/request" />
-        <remap from="response" to="/rapp_core_agent/store_interaction/response" />
-    </node>
+        <group ns="store_interaction">
+            <node name="store" pkg="rapp_core_agent" type="store_interactions.py" output="screen">
+                <!--<remap from="request" to="/rapp_core_agent/store_interaction/request" />
+                <remap from="response" to="/rapp_core_agent/store_interaction/response" />-->
+            </node>
+        </group>
+    </group>
 </launch>

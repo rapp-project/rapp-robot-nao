@@ -1,6 +1,4 @@
 applications: {
-  hi: "56",
   exit: "exit",
-  test: "54",
-  python: "84"
+  update: "update"
 }

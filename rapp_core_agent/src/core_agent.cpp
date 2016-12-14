@@ -8,8 +8,8 @@
 // Maciej Stefańczyk <m.stefanczyk@elka.pw.edu.pl?
 // Copyright 2014 RAPP
 
-#include "ros/ros.h"
-#include "ros/service.h"
+#include <ros/ros.h>
+#include <ros/service.h>
 #include <sys/types.h>
 
 #include <unistd.h>
@@ -29,6 +29,7 @@
 
 //#include "rapp_core_agent/Status.h"
 #include "rapp_core_agent/DynamicAgentStatus.h"
+#include "rapp_core_agent/StoreList.h"
 
 #include <boost/foreach.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -43,7 +44,7 @@
 #include <map>
 
 
-#define SILENT
+//#define SILENT
 
 
 
@@ -54,9 +55,11 @@
 // Name of the ROS topic for receiving status of dynamic agent
 #define RESPONSE_STATUS_TOPIC "dynamic_agent_status"
 // Name of servive used to recognized word
-#define RECOGNIZEDWORD "rapp_get_recognized_word"
+#define RECOGNIZEDWORD "/rapp_get_recognized_word"
 
-#define SERVICE_SAY "rapp_say"
+#define SERVICE_SAY "/rapp_say"
+
+#define SERVICE_LIST "/rapp_core_agent/store_interaction/list"
 
 class CoreAgent;
 
@@ -69,6 +72,7 @@ enum State {
 	Init,
 	Register,
 	Listen,
+	Update,
 	Interpret,
 	Inform,
 	Unregister,
@@ -95,6 +99,7 @@ public:
 	bool state_init();
 	bool state_register();
 	bool state_listen();
+	bool state_update();
 	bool state_interpret();
 	bool state_inform();
 	bool state_unregister();
@@ -138,6 +143,8 @@ protected:
 
 	ros::ServiceClient client_recognize_;
 	ros::ServiceClient client_say_;
+	
+	ros::ServiceClient client_rapp_list_;
 	
 	// The server service that receives as a request a status and process id of a dynamic agent. As a response it returns an information of a currently executing dynamic agent.
 	ros::ServiceServer serverSetStatus_;
@@ -194,6 +201,9 @@ bool CoreAgent::run() {
 		case Listen:
 			state_listen();
 			break;
+		case Update:
+			state_update();
+			break;
 		case Interpret:
 			state_interpret();
 			break;
@@ -243,7 +253,7 @@ bool CoreAgent::run() {
 }
 
 bool CoreAgent::state_init() {
-	while(!finish_requested && !ros::isShuttingDown() && !ros::service::waitForService(RECOGNIZEDWORD, 1000)) {
+	while(!finish_requested && !ros::isShuttingDown() && !ros::service::waitForService(RECOGNIZEDWORD, 1000) && !ros::service::waitForService(SERVICE_LIST, 1000)) {
 		ros::spinOnce();
 	}
 
@@ -261,6 +271,9 @@ bool CoreAgent::state_init() {
 	client_recognize_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::RecognizeWord>(RECOGNIZEDWORD);
 	
 	client_say_ = nh_.serviceClient<rapp_ros_naoqi_wrappings::Say>(SERVICE_SAY);
+
+
+	client_rapp_list_ = nh_.serviceClient<rapp_core_agent::StoreList>(SERVICE_LIST);
 
 	// Create a client for the rapp_get_recognizes_word serivce
 	serverSetStatus_ = nh_.advertiseService(RESPONSE_STATUS_TOPIC, &CoreAgent::dynamicAgentStatusReceived, this);
@@ -280,7 +293,8 @@ bool CoreAgent::state_init() {
 }
 
 bool CoreAgent::state_register() {
-	next_state = Listen;
+	ros::Duration(2).sleep();
+	next_state = Update;
 	return true;
 }
 
@@ -305,9 +319,43 @@ bool CoreAgent::state_listen() {
 	return true;
 }
 
+bool CoreAgent::state_update() {
+	ROS_INFO("State::Update");
+
+	rapp_core_agent::StoreList srv;
+	srv.request.robot="NAO";
+
+	if (client_rapp_list_.call(srv)) {
+		applications_.clear();
+		words_.clear();
+		std::vector<std::string> keys = srv.response.keys;
+		std::vector<std::string> ids = srv.response.ids;
+		for (int i = 0; i < keys.size(); ++i) {
+			words_.push_back(keys[i]);
+			applications_[keys[i]] = ids[i];
+		}
+		words_.push_back("exit");
+		applications_["exit"] = "exit";
+		words_.push_back("update");
+		applications_["update"] = "update";
+	} else {
+		ROS_ERROR("Failed to call service %s", SERVICE_LIST);
+		error_msg = "I can't download new applications";
+		next_state = Inform;
+		return false;
+	}
+	
+	error_msg = "Downloaded new applications.";
+	next_state = Inform;
+
+	return true;
+}
+
 bool CoreAgent::state_interpret() {
 	if (recognized_word == "exit") {
 		next_state = Unregister;
+	} else if (recognized_word == "update") {
+		next_state = Update;
 	} else {
 		// check, whether application for given keyword exists
 		// note: in general, NaoQI should not recognize words 

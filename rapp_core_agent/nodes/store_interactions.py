@@ -12,13 +12,24 @@ import shutil
 
 import rospy
 from std_msgs.msg import String
+from rapp_core_agent.srv import StoreList, StoreListResponse
 
 class store_interactions:
+
 	#
+	#
+	#
+	def get_rapp_list(self):
+		url = 'https://api.rapp.cloud/rapps'
+		response = urlib2.urlopen(url).read()
+		rapps = json.loads(response)
+		print rapps
+
+        #
 	#
 	#
 	def get_rapp_info(self, rapp_id):
-		url = 'http://api.rapp.cloud/' + str(rapp_id)
+		url = 'https://api.rapp.cloud/' + str(rapp_id)
 		response = urllib2.urlopen(url).read()
 		return json.loads(response)[0]
 	
@@ -26,7 +37,7 @@ class store_interactions:
 	#
 	#
 	def get_rapp_file(self, rapp):
-		url = 'http://api.rapp.cloud/' + rapp["rapp_id"]
+		url = 'https://api.rapp.cloud/' + rapp["rapp_id"]
 		params = urllib.urlencode({
 		  'token': '9a7fd032d2141b075eaf262a4478e6a6d17d7c6b6303edc08e815fc06b69cdd0'
 		})
@@ -91,7 +102,34 @@ class store_interactions:
 
 		return bytes_so_far
 	
+	def get_rapp_list(self, robot):
+		url = 'https://api.rapp.cloud/rapps'
+		response = urllib2.urlopen(url).read()
+		rapps = json.loads(response)
+		ignored_keywords = ["test", "nao"]
+		ret = {}
+		for rapp in rapps:
+			if rapp["robot"] != robot:
+				continue
+			for k in rapp["keywords"]:
+				if k in ignored_keywords:
+					continue
+				if k in ret:
+					continue
+				ret[k] = rapp["rapp_id"]
+
+		#print rapp["rapp_id"], ':', rapp["name"], rapp["robot"], rapp["keywords"]
+		print ret
+		return ret
 	
+	def handle_store_list(self, req):
+		ret = self.get_rapp_list(req.robot)
+		resp = StoreListResponse()
+		for rapp in ret:
+			resp.keys.append(rapp)
+			resp.ids.append(ret[rapp])
+		print resp
+		return resp
 	
 	def callback(self, data):
 		rospy.loginfo(rospy.get_caller_id() + "New request for %s", data.data)
@@ -112,13 +150,16 @@ class store_interactions:
 		# read base path from parameter server
 		self.rapps_dir = rospy.get_param('rapps_dir', '/tmp/rapps')
 		
+		self.s = rospy.Service('list', StoreList, self.handle_store_list)
+		
 		rospy.spin()
 
+
 if __name__ == '__main__':
-    try:
-        store_interactions()
-    except rospy.ROSInterruptException:
-        pass
+	try:
+		store_interactions()
+	except rospy.ROSInterruptException:
+		pass
 		
 # install with:
 # catkin_install_python(PROGRAMS fake_store.py
