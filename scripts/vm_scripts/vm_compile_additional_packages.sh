@@ -289,9 +289,9 @@ make clean
 # Bigloo
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
-wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2c.tar.gz
-tar zxvf bigloo4.2c.tar.gz
-cd bigloo4.2c
+wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.3a-last.tar.gz
+tar zxvf bigloo4.3a-last.tar.gz
+cd bigloo4.3a
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - bigloo make failed with $?"; exit 1; }
 sudo make install
