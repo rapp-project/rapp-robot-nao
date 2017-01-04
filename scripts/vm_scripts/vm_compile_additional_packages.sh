@@ -267,7 +267,7 @@ echo -e "$COL_GREEN[OK]$COL_RESET - Sourcing ws_ros_additional_packages workspac
 # Openssl
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Openssl"
-wget ftp://www.openssl.org/source/openssl-1.0.2h.tar.gz
+wget https://www.openssl.org/source/old/1.0.2/openssl-1.0.2h.tar.gz
 tar zxvf openssl-1.0.2h.tar.gz
 cd openssl-1.0.2h
 ./config --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED --openssldir=$ROS_ADDITIONAL_PACKAGES_ISOLATED/#openssl
@@ -289,8 +289,8 @@ make clean
 # Bigloo
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code of Bigloo"
-wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2c-beta08Dec15.tar.gz
-tar zxvf bigloo4.2c-beta08Dec15.tar.gz
+wget ftp://ftp-sop.inria.fr/indes/fp/Bigloo/bigloo4.2c.tar.gz
+tar zxvf bigloo4.2c.tar.gz
 cd bigloo4.2c
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - bigloo make failed with $?"; exit 1; }
