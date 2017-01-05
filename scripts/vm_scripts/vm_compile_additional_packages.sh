@@ -227,6 +227,11 @@ svn checkout https://github.com/ros/geometry2/branches/indigo-devel/tf2_ros
 svn checkout https://github.com/ros/geometry2/branches/indigo-devel/tf2_msgs
 svn checkout https://github.com/ros/geometry2/branches/indigo-devel/tf2_geometry_msgs
 cd ..
+mkdir geometry
+cd geometry
+svn checkout https://github.com/ros/geometry/branches/indigo-devel/eigen_conversions
+cd ..
+
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from diagnostics repository for robot_localization pkg"
 git clone  https://github.com/ros/diagnostics.git 
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from robot_localization repository"
