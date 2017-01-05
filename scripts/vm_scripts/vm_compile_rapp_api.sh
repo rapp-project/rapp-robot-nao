@@ -11,12 +11,12 @@ COL_RED=$ESC_SEQ"31;01m"
 WS_RAPP_API_DIR="/home/nao/ws_rapp_api"
 mkdir -p $WS_RAPP_API_DIR/src
 cd $WS_RAPP_API_DIR/src
-git clone https://github.com/rapp-project/rapp-api.git
+git clone -b cpp-wut https://github.com/rapp-project/rapp-api.git
 git clone https://github.com/rapp-project/rapp-robots-api.git
 # Rapp - ws_rapp_nao - core agent packages
 mkdir -p $WS_RAPP_API_DIR/build/rapp-api
 cd $WS_RAPP_API_DIR/build/rapp-api
-cmake $WS_RAPP_API_DIR/src/rapp-api -DOPEN_NAO=ON -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/install
+cmake $WS_RAPP_API_DIR/src/rapp-api/cpp -DOPEN_NAO=ON -DCMAKE_INSTALL_PREFIX=$WS_RAPP_API_DIR/install
 make 
 make install
 
