@@ -283,8 +283,8 @@ make clean
 # unistring
 cd $PROGRAMS_DIRECTORY
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading and building source code of unistring library"
-wget http://ftp.gnu.org/gnu/libunistring/libunistring-latest.tar.gz
-tar -zxvf libunistring-latest.tar.gz
+wget http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.6.tar.gz
+tar -zxvf libunistring-0.9.6.tar.gz
 cd libunistring-0.9.6/
 ./configure --prefix=$ROS_ADDITIONAL_PACKAGES_ISOLATED
 make || { echo -e >&2 "$COL_RED[Error]$COL_RESET - unistring make failed with $?"; exit 1; }
