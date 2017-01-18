@@ -213,7 +213,7 @@ git clone https://github.com/ros-geographic-info/unique_identifier.git
 
 # for robot_localization
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
-git clone https://github.com/ros/ros_comm.git
+git clone -b indigo-devel https://github.com/ros/ros_comm.git
 # common msgs
 echo -e "$COL_GREEN[OK]$COL_RESET - Downloading source code from rosbag repository for robot_localization pkg"
 git clone https://github.com/ros/common_msgs.git
