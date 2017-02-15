@@ -3,9 +3,7 @@
   <!-- Rapp core agent nodes -->
   
   <node pkg="rapp_ros_naoqi_wrappings" name="acore_communication_server" type="acore_communication_server.py" output="screen"/>
-  <node pkg="rapp_ros_naoqi_wrappings" name="acore_camera_server" type="acore_camera_server.py" output="screen"/>
-  <node pkg="rapp_ros_naoqi_wrappings" name="acore_transform_server" type="acore_transform_server.py" output="screen"/>
-  <node pkg="rapp_ros_naoqi_wrappings" name="acore_move_server" type="acore_move_server.py" output="screen"/>
+  <include file="$(find rapp_ros_naoqi_wrappings)/launch/navigation/full_navigation_agent.launch"/>
 
   
 </launch>
