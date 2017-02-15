@@ -37,27 +37,41 @@ class store_interactions:
 	#
 	#
 	def get_rapp_file(self, rapp):
+		home = os.path.expanduser("~")
 		url = 'https://api.rapp.cloud/' + rapp["rapp_id"]
+
+
+		token_file = os.path.join(home, ".config/rapp_platform/tokens/app")
+		token = ""
+		if (os.path.isfile(token_file)):
+			f = open(token_file)
+			token = f.readline().strip()
+		else:
+			print ("No token file [" + token_file + "]")
+                        return ""
+
 		params = urllib.urlencode({
-		  'token': '9a7fd032d2141b075eaf262a4478e6a6d17d7c6b6303edc08e815fc06b69cdd0'
+		  'token': token
 		})
 		response = urllib2.urlopen(url, params) 
-		temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".tar.bz2")
+		temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".tar.gz")
 
 		temp_file_name = temp_file.name
 		self.chunk_read(response, report_hook=self.chunk_report, chunk_size=1024, out_file=temp_file)
 		temp_file.close()
 		
 		# check whether this RApp already exists and remove directory if necessary
-		rapp_dir = os.path.join(self.rapps_dir, rapp["package"])
+		rapp_dir = os.path.join(self.rapps_dir, temp_file_name + ".dir")
 		if os.path.isdir(rapp_dir):
 			shutil.rmtree(rapp_dir)
 			
 			
-		t = tarfile.open(temp_file_name, 'r:bz2')
-		t.extractall(self.rapps_dir)
+		t = tarfile.open(temp_file_name, 'r:gz')
+		t.extractall(rapp_dir)
 		t.close()
-		
+	
+		rapp_dir = os.path.join(rapp_dir, rapp["name"])
+
 		manifest_file = open(rapp_dir + "/manifest.json")  
 		manifest_data = json.load(manifest_file)
 		print(manifest_data)
@@ -109,8 +123,6 @@ class store_interactions:
 		ignored_keywords = ["test", "nao"]
 		ret = {}
 		for rapp in rapps:
-			if rapp["robot"] != robot:
-				continue
 			for k in rapp["keywords"]:
 				if k in ignored_keywords:
 					continue
@@ -160,7 +172,3 @@ if __name__ == '__main__':
 		store_interactions()
 	except rospy.ROSInterruptException:
 		pass
-		
-# install with:
-# catkin_install_python(PROGRAMS fake_store.py
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
