@@ -41,7 +41,7 @@ class store_interactions:
 		url = 'https://api.rapp.cloud/' + rapp["rapp_id"]
 
 
-		token_file = os.path.join(home, ".config/rapp_platform/tokens/app")
+		token_file = os.path.join(home, ".config/rapp_platform/tokens/store")
 		token = ""
 		if (os.path.isfile(token_file)):
 			f = open(token_file)
